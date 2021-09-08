@@ -14,6 +14,7 @@ export const PreLoginStackRoutes = () => {
       initialRouteName={'LandingScreen'}
       screenOptions={{headerShown: false}}>
       <Stack.Screen name={'LandingScreen'} component={LandingScreen} />
+
       <Stack.Screen name={'Login'} component={Login} />
       <Stack.Screen name={'OTPScreen'} component={OTPScreen} />
     </Stack.Navigator>
