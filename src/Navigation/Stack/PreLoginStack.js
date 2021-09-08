@@ -4,14 +4,15 @@ import * as React from 'react';
 
 import {Login} from '../../UI/Login/Login';
 import {OTPScreen} from '../../UI/Login/OTPScreen';
-
+import {LandingScreen} from '../../UI/LandingScreen';
 const Stack = createNativeStackNavigator();
 
 export const PreLoginStackRoutes = () => {
   return (
     <Stack.Navigator
-      initialRouteName={'Login'}
+      initialRouteName={'Landing'}
       screenOptions={{headerShown: false}}>
+      <Stack.Screen name={'Landing'} component={LandingScreen} />
       <Stack.Screen name={'Login'} component={Login} />
       <Stack.Screen name={'OTPScreen'} component={OTPScreen} />
     </Stack.Navigator>
