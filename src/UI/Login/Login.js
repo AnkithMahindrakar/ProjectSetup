@@ -57,6 +57,14 @@ export const Login = props => {
       </View>
     );
   };
+
+  // const Inputs = () => {
+  //   return (
+  //     <>
+
+  //     </>
+  //   );
+  // };
   const LoginButton = () => {
     return (
       <Button
@@ -80,6 +88,7 @@ export const Login = props => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Logo />
         <View style={styles.inputContainer}>
+          {/* <Inputs /> */}
           <Input
             label={'Email'}
             inputType={'text'}

@@ -1,11 +1,14 @@
 import React, {useEffect} from 'react';
 import {View, Text, Image, StyleSheet} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+import SplashScreen from 'react-native-splash-screen';
 
 export const LandingScreen = ({navigation}) => {
-  // SplashScreen.show();
+  SplashScreen.hide();
   useEffect(() => {
-    setTimeout(() => navigation.navigate('Login'), 9000);
+    setTimeout(() => {
+      navigation.navigate('Login');
+    }, 1000);
   });
 
   return (
@@ -37,4 +40,3 @@ const styles = StyleSheet.create({
     color: '#606060',
   },
 });
-
