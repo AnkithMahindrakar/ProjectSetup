@@ -4,9 +4,9 @@ import DeviceInfo from 'react-native-device-info';
 import SplashScreen from 'react-native-splash-screen';
 export const LandingScreen = ({navigation}) => {
   SplashScreen.hide();
-  // useEffect(() => {
-  //   setTimeout(() => navigation.navigate('Login'), 3000);
-  // });
+  useEffect(() => {
+    setTimeout(() => navigation.navigate('Login'), 3000);
+  });
 
   return (
     <View style={styles.gridItem}>
@@ -15,7 +15,7 @@ export const LandingScreen = ({navigation}) => {
       <Text style={styles.versionText}>
         {' '}
         {'\u00A9'}2020 popcornapps, All rights reserved{'\n'}
-        {'                         '}
+        {'                          '}
         Version {DeviceInfo.getReadableVersion()}
       </Text>
     </View>
