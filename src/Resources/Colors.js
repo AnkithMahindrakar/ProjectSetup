@@ -11,11 +11,11 @@ export const lightColors = {
   shadowColor: 'black',
   fontColor: 'black',
   invertFontColor: 'white',
-  borderColor: 'black',
+  borderColor: '#ABB4BD',
   gradientColor: ['blue', '#00FF00'],
   disableColor: 'rgba(0,0,0,0.5)',
-  placeHolderTextColor: 'red',
-  appPrimaryColor: 'blue',
+  placeHolderTextColor: 'grey',
+  appPrimaryColor: '#FB8B24',
 };
 export const darkColors = {
   ...lightColors,

@@ -7,7 +7,7 @@ export const inputStyles = (appData, isFocused) => {
     mainContainerStyle: {
       borderBottomWidth: 1,
       paddingBottom: 4,
-      borderColor: isFocused ? colors.appPrimaryColor : colors.borderColor,
+      borderColor: colors.borderColor,
     },
     headingTextstyle: {
       fontSize: 12,

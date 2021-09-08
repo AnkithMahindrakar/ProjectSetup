@@ -1,41 +1,28 @@
 import React from 'react';
-import {Text, TouchableOpacity} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import {useAppData} from '../../Provider/AppConfig';
-import {buttonStyles} from './Button.styles';
+import {Text, TouchableOpacity, StyleSheet} from 'react-native';
 
 export const Button = props => {
-  const appData = useAppData();
-  const {colors} = appData;
-  const styles = buttonStyles(appData, props.invert, props.disabled);
   return (
     <TouchableOpacity
-      activeOpacity={1}
-      onPress={() => {
-        if (!props.disabled) {
-          props.onPress && props.onPress();
-        }
-      }}
-      style={[styles.mainContainer, props.mainContainer]}>
-      <LinearGradient
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 0}}
-        colors={
-          props.disabled
-            ? [colors.disableColor, colors.disableColor]
-            : props.invert
-            ? [colors.borderColor, colors.borderColor]
-            : colors.gradientColor
-        }
-        style={[styles.subContainer, props.buttonStyle]}>
-        {props.icon ? (
-          props.icon
-        ) : (
-          <Text style={[styles.fontStyle, props.titleStyle]}>
-            {props.title}
-          </Text>
-        )}
-      </LinearGradient>
+      disabled={props.isDisabled}
+      activeOpacity={0.9}
+      style={[styles.mainContainer, props.mainContainerStyle]}
+      onPress={props.onPress}>
+      <Text style={[styles.textStyle, props.TitleStyle]}>{props.title}</Text>
     </TouchableOpacity>
   );
 };
+const styles = StyleSheet.create({
+  mainContainer: {
+    backgroundColor: '#FB8B24',
+    height: 50,
+    width: 320,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textStyle: {
+    color: 'white',
+    fontSize: 16,
+  },
+});
