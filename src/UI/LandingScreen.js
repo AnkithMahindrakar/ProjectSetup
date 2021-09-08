@@ -1,11 +1,11 @@
 import React, {useEffect} from 'react';
 import {View, Text, Image, StyleSheet} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
-
+import SplashScreen from 'react-native-splash-screen';
 export const LandingScreen = ({navigation}) => {
-  // SplashScreen.show();
+  SplashScreen.hide();
   useEffect(() => {
-    setTimeout(() => navigation.navigate('Login'), 9000);
+    setTimeout(() => navigation.navigate('Login'), 3000);
   });
 
   return (
@@ -13,8 +13,9 @@ export const LandingScreen = ({navigation}) => {
       <Image source={require('../../assets/Group.png')} />
 
       <Text style={styles.versionText}>
-        {'\u00A9'}2020 popcornapps, All rights reserved {'\n'}
-        {'                         '}
+        {' '}
+        {'\u00A9'}2020 popcornapps, All rights reserved{'\n'}
+        {'                          '}
         Version {DeviceInfo.getReadableVersion()}
       </Text>
     </View>
@@ -30,11 +31,12 @@ const styles = StyleSheet.create({
   },
 
   versionText: {
-    fontSize: 15,
+    fontSize: 16,
+    width: '100%',
     position: 'absolute',
     bottom: 10,
+    left: 61,
     alignItems: 'center',
     color: '#606060',
   },
 });
-
