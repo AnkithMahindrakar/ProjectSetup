@@ -16,7 +16,6 @@ export const LandingScreen = ({navigation}) => {
       <Image source={require('../../assets/Group.png')} />
 
       <Text style={styles.versionText}>
-        {''}
         {'\u00A9'}2020 popcornapps, All rights reserved{'\n'} Version{' '}
         {DeviceInfo.getReadableVersion()}
       </Text>
