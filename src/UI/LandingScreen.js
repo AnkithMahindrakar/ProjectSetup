@@ -16,10 +16,8 @@ export const LandingScreen = ({navigation}) => {
       <Image source={require('../../assets/Group.png')} />
 
       <Text style={styles.versionText}>
-        {' '}
-        {'\u00A9'}2020 popcornapps, All rights reserved{'\n'}
-        {'                          '}
-        Version {DeviceInfo.getReadableVersion()}
+        {'\u00A9'}2020 popcornapps, All rights reserved{'\n'} Version{' '}
+        {DeviceInfo.getReadableVersion()}
       </Text>
     </View>
   );
@@ -38,8 +36,7 @@ const styles = StyleSheet.create({
     width: '100%',
     position: 'absolute',
     bottom: 10,
-    left: 61,
-    alignItems: 'center',
+    textAlign: 'center',
     color: '#606060',
   },
 });

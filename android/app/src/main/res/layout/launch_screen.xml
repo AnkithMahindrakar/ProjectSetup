@@ -16,7 +16,6 @@
       android:padding= "10dp"
       android:text= "\u00A92020 popcornapps, All rights reserved\n Version 1.0.1"
       android:textColor="#606060"
-      
       android:textSize="16dp"
        
       />
