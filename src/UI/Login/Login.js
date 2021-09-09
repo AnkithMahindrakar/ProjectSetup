@@ -16,6 +16,7 @@ import {Button} from '../common/Button';
 import DeviceInfo from 'react-native-device-info';
 
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 export const Login = props => {
   const [email, setEmail] = useState('');
@@ -57,14 +58,32 @@ export const Login = props => {
       </View>
     );
   };
-
-  // const Inputs = () => {
-  //   return (
-  //     <>
-
-  //     </>
-  //   );
-  // };
+  const Inputs = () => {
+    return (
+      <>
+        <Input
+          label={'Email'}
+          inputType={'text'}
+          value={email}
+          onUpdate={emailHandler}
+          textInputProps={{
+            keyboardType: 'email-address',
+          }}
+          mainContainerStyle={styles.inputMainContainer}
+        />
+        <Input
+          label={'Mobile Number'}
+          inputType={'text'}
+          value={mobile}
+          onUpdate={mobileHandler}
+          textInputProps={{
+            keyboardType: 'number-pad',
+          }}
+          mainContainerStyle={styles.inputMainContainer}
+        />
+      </>
+    );
+  };
   const LoginButton = () => {
     return (
       <Button
@@ -86,34 +105,18 @@ export const Login = props => {
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <Logo />
+        {/* <Logo /> */}
+        {Logo()}
         <View style={styles.inputContainer}>
           {/* <Inputs /> */}
-          <Input
-            label={'Email'}
-            inputType={'text'}
-            value={email}
-            onUpdate={emailHandler}
-            textInputProps={{
-              keyboardType: 'email-address',
-            }}
-            mainContainerStyle={styles.inputMainContainer}
-          />
-          <Input
-            label={'Mobile Number'}
-            inputType={'text'}
-            value={mobile}
-            onUpdate={mobileHandler}
-            textInputProps={{
-              keyboardType: 'number-pad',
-            }}
-            mainContainerStyle={styles.inputMainContainer}
-          />
-          <LoginButton />
+          {/* <LoginButton /> */}
+          {Inputs()}
+          {LoginButton()}
         </View>
         <View style={styles.versionContainer}>
           <Text style={styles.versionText}>
-            Version {DeviceInfo.getReadableVersion()}
+            {'\u00A9'}2020 popcornapps, All rights reserved{'\n'} Version{' '}
+            {DeviceInfo.getReadableVersion()}
           </Text>
         </View>
       </KeyboardAvoidingView>
@@ -124,31 +127,31 @@ export const Login = props => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
   },
   inputContainer: {
     backgroundColor: 'white',
     width: windowWidth * 0.8,
-    marginTop: 80,
+    marginTop: 40,
   },
   inputMainContainer: {
     marginVertical: 20,
   },
   logoContainer: {
     alignItems: 'center',
-    marginTop: 50,
+    marginTop: 90,
   },
   btnContainer: {
     width: windowWidth * 0.8,
     marginTop: 60,
   },
   versionContainer: {
-    marginTop: 120,
+    marginTop: 100,
   },
   versionText: {
     fontSize: 12,
     color: '#606060',
+    textAlign: 'center',
   },
 });
