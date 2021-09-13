@@ -7,10 +7,12 @@ import {
   Image,
   TouchableOpacity,
   Switch,
+  Platform,
 } from 'react-native';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import Octicons from 'react-native-vector-icons/Octicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // create a component
 export const Home = () => {
@@ -60,89 +62,72 @@ export const Home = () => {
   };
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-  return (
-    <View style={styles.container}>
-      {profile && (
-        <View style={styles.mainitem}>
-          <View style={styles.rowitem}>
-            <Text style={styles.profileItem}>Profile</Text>
-            <View style={styles.topItem}>
-              <View style={styles.avaliableContainer}>
-                <Text style={styles.profiletwoItem}>
-                  {isEnabled ? 'Avaliable' : 'Not avaliable'}
-                </Text>
-              </View>
-              <Switch
-                trackColor={{false: '#767577', true: '#81b0ff'}}
-                thumbColor={isEnabled ? '#f4f3f4' : '#f4f3f4'}
-                ios_backgroundColor="#3e3e3e"
-                onValueChange={toggleSwitch}
-                style={{transform: [{scaleX: 1.3}, {scaleY: 1.3}]}}
-                value={isEnabled}
-              />
-            </View>
-          </View>
-          <View style={styles.middleItem}>
-            <View style={styles.secondmiddleitem}>
-              <Image
-                source={require('../../Resources/Images/demoProfile.jpg')}
-                style={styles.ImageItem}
-              />
-              <Text style={{...styles.textcolour, ...{fontWeight: 'bold'}}}>
-                John Michaels
+
+  const ProfileScreen = () => {
+    return (
+      <View style={styles.mainitem}>
+        <View style={styles.rowitem}>
+          <Text style={styles.profileItem}>Profile</Text>
+          <View style={styles.topItem}>
+            <View style={styles.avaliableContainer}>
+              <Text style={styles.profiletwoItem}>
+                {isEnabled ? 'Avaliable' : 'Not avaliable'}
               </Text>
             </View>
-            <View style={styles.thirdmiddleitem}>
-              <Text style={styles.textbold}>Location</Text>
-              <Text style={styles.textcolour}>
-                510, Gulfgate Centre Mall, Houston ,TX 77098
-              </Text>
-            </View>
-            <View style={styles.thirdmiddleitem}>
-              <Text style={styles.textbold}>Skills & competencies</Text>
-              <Text style={styles.textcolour}>Windows Surface</Text>
-              <Text style={styles.textcolour}>HP Laptops</Text>
-              <Text style={styles.textcolour}>System processors</Text>
-            </View>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.text}>Logout</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.bottomLogo}>
-            <Image
-              source={require('../../Resources/Images/Logo.png')}
-              style={styles.BelowImage}
+            <Switch
+              trackColor={{false: '#767577', true: '#81b0ff'}}
+              thumbColor={isEnabled ? '#f4f3f4' : '#f4f3f4'}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleSwitch}
+              style={{transform: [{scaleX: 1.3}, {scaleY: 1.3}]}}
+              value={isEnabled}
             />
           </View>
         </View>
-      )}
+        <View style={styles.middleItem}>
+          <View style={styles.secondmiddleitem}>
+            <Image
+              source={require('../../Resources/Images/demoProfile.jpg')}
+              style={styles.ImageItem}
+            />
+            <Text style={{...styles.textcolour, ...{fontWeight: 'bold'}}}>
+              John Michaels
+            </Text>
+          </View>
+          <View style={styles.thirdmiddleitem}>
+            <Text style={styles.textbold}>Location</Text>
+            <Text style={styles.textcolour}>
+              510, Gulfgate Centre Mall, Houston ,TX 77098
+            </Text>
+          </View>
+          <View style={styles.thirdmiddleitem}>
+            <Text style={styles.textbold}>Skills & competencies</Text>
+            <Text style={styles.textcolour}>Windows Surface</Text>
+            <Text style={styles.textcolour}>HP Laptops</Text>
+            <Text style={styles.textcolour}>System processors</Text>
+          </View>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.text}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.bottomLogo}>
+          <Image
+            source={require('../../Resources/Images/Logo.png')}
+            style={styles.BelowImage}
+          />
+        </View>
+      </View>
+    );
+  };
 
-      {notification && (
-        <View>
-          <Text>notification screen</Text>
-        </View>
-      )}
-      {calendar && (
-        <View>
-          <Text>calendar screen</Text>
-        </View>
-      )}
-      {catalog && (
-        <View>
-          <Text>catalog screen</Text>
-        </View>
-      )}
-      {random && (
-        <View>
-          <Text>random screen</Text>
-        </View>
-      )}
-      <View style={styles.BottomTabConatiner}>
+  const BottomTab = () => {
+    return (
+      <>
         <TouchableOpacity style={styles.iconContainer} onPress={profileHandler}>
           <FontAwesome
             name="user-circle"
-            size={profile ? 30 : 26}
-            color="white"
+            size={profile ? 30 : 24}
+            color={profile ? 'white' : 'rgba(255, 255, 255, 0.5)'}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -150,8 +135,8 @@ export const Home = () => {
           onPress={notificationHandler}>
           <Ionicons
             name="notifications"
-            size={notification ? 30 : 26}
-            color="white"
+            size={notification ? 30 : 24}
+            color={notification ? 'white' : 'rgba(255, 255, 255, 0.5)'}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -159,22 +144,58 @@ export const Home = () => {
           onPress={calendarHandler}>
           <FontAwesome
             name="calendar-o"
-            size={calendar ? 30 : 26}
-            color="white"
+            size={calendar ? 30 : 24}
+            color={calendar ? 'white' : 'rgba(255, 255, 255, 0.5)'}
           />
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconContainer} onPress={catalogHandler}>
-          <Image
-            style={styles.iconStyles}
-            source={require('../../Resources/Images/catalog.png')}
+          <MaterialCommunityIcons
+            name="format-page-break"
+            size={catalog ? 30 : 24}
+            color={catalog ? 'white' : 'rgba(255, 255, 255, 0.5)'}
           />
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconContainer} onPress={randomHandler}>
-          <Image
-            style={styles.iconStyles}
-            source={require('../../Resources/Images/random.png')}
+          <Octicons
+            name="book"
+            size={random ? 30 : 24}
+            color={random ? 'white' : 'rgba(255, 255, 255, 0.5)'}
           />
         </TouchableOpacity>
+      </>
+    );
+  };
+  return (
+    <View style={styles.container}>
+      {profile && ProfileScreen()}
+
+      {notification && (
+        <View>
+          <Text style={styles.screenText}>Notification screen</Text>
+        </View>
+      )}
+      {calendar && (
+        <View>
+          <Text style={styles.screenText}>Calendar screen</Text>
+        </View>
+      )}
+      {catalog && (
+        <View>
+          <Text style={styles.screenText}>Catalog screen</Text>
+        </View>
+      )}
+      {random && (
+        <View>
+          <Text style={styles.screenText}>Random screen</Text>
+        </View>
+      )}
+      <View
+        style={
+          Platform.OS === 'ios' && Platform.isPad
+            ? styles.sideTab
+            : styles.BottomTabConatiner
+        }>
+        {BottomTab()}
       </View>
     </View>
   );
@@ -187,6 +208,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'white',
+    // marginLeft: 100,
+    // flexDirection: 'row',
   },
   BottomTabConatiner: {
     position: 'absolute',
@@ -208,6 +231,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FB8B24',
     justifyContent: 'space-around',
     alignItems: 'center',
+    // marginLeft: '20%',
   },
   iconStyles: {
     height: 20,
@@ -218,6 +242,9 @@ const styles = StyleSheet.create({
     width: 60,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  screenText: {
+    fontSize: 30,
   },
   /////////////////////////////////////////////////
   rowitem: {
@@ -243,8 +270,8 @@ const styles = StyleSheet.create({
   BelowImage: {
     alignSelf: 'center',
     position: 'absolute',
-    height: 80,
-    width: 80,
+    height: 70,
+    width: 60,
   },
   profileItem: {
     paddingRight: 150,
@@ -268,7 +295,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     width: '30%',
     height: '8%',
-    elevation: 3,
     marginBottom: 50,
     borderWidth: 2,
     borderColor: 'orange',
@@ -292,11 +318,11 @@ const styles = StyleSheet.create({
   },
   mainitem: {
     flex: 1,
+    // marginLeft: 200,
   },
   bottomLogo: {
     position: 'absolute',
     bottom: 80,
-    // backgroundColor: 'red',
     height: 80,
     width: 80,
     alignSelf: 'center',
