@@ -5,6 +5,7 @@ import * as React from 'react';
 import {Login} from '../../UI/Login/Login';
 import {OTPScreen} from '../../UI/Login/OTPScreen';
 import {LandingScreen} from '../../UI/LandingScreen';
+import {Home} from '../../UI/Home/Home';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,6 +18,7 @@ export const PreLoginStackRoutes = () => {
 
       <Stack.Screen name={'Login'} component={Login} />
       <Stack.Screen name={'OTPScreen'} component={OTPScreen} />
+      <Stack.Screen name={'Home'} component={Home} />
     </Stack.Navigator>
   );
 };

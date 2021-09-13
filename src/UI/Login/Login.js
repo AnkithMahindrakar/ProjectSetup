@@ -46,7 +46,7 @@ export const Login = props => {
   const pressHandler = () => {
     emailResult
       ? mobile && mobile.length === 10
-        ? props.navigation.navigate('OTPScreen')
+        ? props.navigation.navigate('Home')
         : Alert.alert('Error', 'Enter valid Mobile number')
       : Alert.alert('Error', 'Enter valid Email ID ');
   };
@@ -129,6 +129,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: 'white',
+    justifyContent: 'center',
   },
   inputContainer: {
     backgroundColor: 'white',
