@@ -10,13 +10,14 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
-  useRef,
   Platform,
 } from 'react-native';
 import {Input} from '../common/Input';
 import {Button} from '../common/Button';
 import DeviceInfo from 'react-native-device-info';
 import NetInfo from '@react-native-community/netinfo';
+import Orientation from 'react-native-orientation';
+
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -30,6 +31,8 @@ export const Login = ({navigation}) => {
     /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
   useEffect(() => {
+    Orientation.lockToPortrait();
+
     try {
       NetInfo.addEventListener(state => {
         if (state.isConnected === true && state.isInternetReachable === true) {
@@ -160,7 +163,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     backgroundColor: 'white',
-    width: windowWidth * 0.8,
+    width: 330,
     marginTop: 40,
   },
   inputMainContainer: {
@@ -171,7 +174,7 @@ const styles = StyleSheet.create({
     marginTop: 90,
   },
   btnContainer: {
-    width: windowWidth * 0.8,
+    width: 330,
     marginTop: 60,
   },
   versionContainer: {

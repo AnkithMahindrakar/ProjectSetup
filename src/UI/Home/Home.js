@@ -13,6 +13,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProfileScreen} from './ProfileScreen';
+import Orientation from 'react-native-orientation';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -26,12 +27,25 @@ export const Home = () => {
   const [isPortrait, setIsPortrait] = useState();
 
   useEffect(() => {
-    if (windowHeight > windowWidth) {
+    Orientation.unlockAllOrientations();
+    const initial = Orientation.getInitialOrientation();
+    if (initial === 'PORTRAIT') {
       setIsPortrait(true);
     } else {
       setIsPortrait(false);
     }
-  }, [windowWidth, windowHeight]);
+
+    const _orientationDidChange = orientation => {
+      if (orientation === 'LANDSCAPE') {
+        setIsPortrait(false);
+      } else {
+        setIsPortrait(true);
+      }
+    };
+    Orientation.addOrientationListener(_orientationDidChange);
+
+    return () => Orientation.removeOrientationListener(_orientationDidChange);
+  }, []);
 
   const profileHandler = () => {
     setProfile(true);
