@@ -1,17 +1,33 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, Image, StyleSheet} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import Orientation from 'react-native-orientation';
 import SplashScreen from 'react-native-splash-screen';
-
+import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export const LandingScreen = ({navigation}) => {
+  const [internet, setinternet] = useState(false);
   SplashScreen.hide();
+
   useEffect(() => {
     Orientation.lockToPortrait();
     setTimeout(() => {
-      navigation.replace('Login');
-    }, 3000);
-  });
+      NetInfo.addEventListener(state => {
+        if (state.isConnected === true && state.isInternetReachable === true) {
+          setinternet(true);
+        } else {
+          setinternet(false);
+        }
+      });
+      AsyncStorage.getItem('UserName').then(value => {
+        if (internet === true) {
+          value != null
+            ? navigation.replace(value)
+            : navigation.replace('Login');
+        }
+      });
+    }, 2000);
+  }, [internet, navigation]);
 
   return (
     <View style={styles.gridItem}>
