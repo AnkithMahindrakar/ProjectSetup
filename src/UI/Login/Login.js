@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   StyleSheet,
-  Dimensions,
   Alert,
   Image,
   Text,
@@ -15,11 +14,7 @@ import {
 import {Input} from '../common/Input';
 import {Button} from '../common/Button';
 import DeviceInfo from 'react-native-device-info';
-import NetInfo from '@react-native-community/netinfo';
 import Orientation from 'react-native-orientation';
-
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 
 export const Login = ({navigation}) => {
   const [email, setEmail] = useState('');
