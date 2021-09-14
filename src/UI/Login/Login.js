@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import React, {useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-=======
-import React, {useEffect, useState} from 'react';
->>>>>>> ef608c740d70369961ea8ca075360bd664079801
 import {
   View,
   StyleSheet,
@@ -69,8 +65,8 @@ export const Login = ({navigation}) => {
     setMobile(value);
   };
   const navigate = async () => {
-    await AsyncStorage.setItem('UserName', 'Home');
-    navigation.replace('Home');
+    await AsyncStorage.setItem('UserName', 'PostLoginStack');
+    navigation.replace('PostLoginStack');
   };
   const pressHandler = () => {
     internet

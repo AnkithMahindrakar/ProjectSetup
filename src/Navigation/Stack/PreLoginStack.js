@@ -6,6 +6,7 @@ import {Login} from '../../UI/Login/Login';
 import {OTPScreen} from '../../UI/Login/OTPScreen';
 import {LandingScreen} from '../../UI/LandingScreen';
 import {Home} from '../../UI/Home/Home';
+import {PostLoginStackRoutes} from './PostLoginStack';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,7 +19,8 @@ export const PreLoginStackRoutes = () => {
 
       <Stack.Screen name={'Login'} component={Login} />
       <Stack.Screen name={'OTPScreen'} component={OTPScreen} />
-      <Stack.Screen name={'Home'} component={Home} />
+      {/* <Stack.Screen name={'Home'} component={Home} /> */}
+      <Stack.Screen name={'PostLoginStack'} component={PostLoginStackRoutes} />
     </Stack.Navigator>
   );
 };

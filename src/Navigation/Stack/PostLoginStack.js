@@ -1,8 +1,8 @@
-import {createStackNavigator} from '@react-navigation/stack';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import * as React from 'react';
 import {Home} from '../../UI/Home/Home';
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export const PostLoginStackRoutes = () => {
   return (
