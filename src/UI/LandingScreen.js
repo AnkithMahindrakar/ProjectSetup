@@ -1,11 +1,13 @@
 import React, {useEffect} from 'react';
 import {View, Text, Image, StyleSheet} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+import Orientation from 'react-native-orientation';
 import SplashScreen from 'react-native-splash-screen';
 
 export const LandingScreen = ({navigation}) => {
   SplashScreen.hide();
   useEffect(() => {
+    Orientation.lockToPortrait();
     setTimeout(() => {
       navigation.replace('Login');
     }, 3000);

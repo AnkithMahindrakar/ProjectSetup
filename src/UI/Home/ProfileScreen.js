@@ -9,6 +9,7 @@ import {
   Switch,
   Dimensions,
 } from 'react-native';
+import Orientation from 'react-native-orientation';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -18,12 +19,24 @@ export const ProfileScreen = () => {
   const [isPortrait, setIsPortrait] = useState();
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   useEffect(() => {
-    if (windowHeight > windowWidth) {
+    const initial = Orientation.getInitialOrientation();
+    if (initial === 'PORTRAIT') {
       setIsPortrait(true);
     } else {
       setIsPortrait(false);
     }
-  }, [windowWidth, windowHeight]);
+
+    const _orientationDidChange = orientation => {
+      if (orientation === 'LANDSCAPE') {
+        setIsPortrait(false);
+      } else {
+        setIsPortrait(true);
+      }
+    };
+    Orientation.addOrientationListener(_orientationDidChange);
+
+    return () => Orientation.removeOrientationListener(_orientationDidChange);
+  }, []);
   return (
     <View style={isPortrait ? styles.mainitem : styles.mainItemLandScape}>
       <View style={isPortrait ? styles.rowitem : styles.rowItemLandScape}>
