@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import React, {useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+=======
+import React, {useEffect, useState} from 'react';
+>>>>>>> ef608c740d70369961ea8ca075360bd664079801
 import {
   View,
   StyleSheet,
@@ -25,6 +29,7 @@ export const Login = ({navigation}) => {
   const [mobile, setMobile] = useState();
   const [internet, setinternet] = useState(false);
   const [emailResult, setEmailresult] = useState(false);
+
   const emailcheck =
     /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
