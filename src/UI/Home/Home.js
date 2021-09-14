@@ -18,13 +18,17 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 export const Home = () => {
-  const [profile, setProfile] = useState(true);
-  const [notification, setNotification] = useState(false);
-  const [calendar, setCalendar] = useState(false);
-  const [catalog, setCatalog] = useState(false);
-  const [random, setRandom] = useState(false);
-  const [isPortrait, setIsPortrait] = useState();
+  var array = [
+    {title: 'account-circle'},
+    {title: 'bell'},
+    {title: 'calendar-month'},
+    {title: 'format-page-break'},
+    {title: 'book-open-page-variant'},
+  ];
 
+  const [idno, setidno] = useState(0);
+  const [isPortrait, setIsPortrait] = useState();
+  let content;
   useEffect(() => {
     if (windowHeight > windowWidth) {
       setIsPortrait(true);
@@ -33,114 +37,57 @@ export const Home = () => {
     }
   }, [windowWidth, windowHeight]);
 
-  const profileHandler = () => {
-    setProfile(true);
-    setNotification(false);
-    setCalendar(false);
-    setCatalog(false);
-    setRandom(false);
-  };
-  const notificationHandler = () => {
-    setProfile(false);
-    setNotification(true);
-    setCalendar(false);
-    setCatalog(false);
-    setRandom(false);
-  };
-
-  const calendarHandler = () => {
-    setProfile(false);
-    setNotification(false);
-    setCalendar(true);
-    setCatalog(false);
-    setRandom(false);
-  };
-
-  const catalogHandler = () => {
-    setProfile(false);
-    setNotification(false);
-    setCalendar(false);
-    setCatalog(true);
-    setRandom(false);
-  };
-
-  const randomHandler = () => {
-    setProfile(false);
-    setNotification(false);
-    setCalendar(false);
-    setCatalog(false);
-    setRandom(true);
-  };
+  if (idno === 0) {
+    content = <ProfileScreen />;
+  } else if (idno === 1) {
+    content = (
+      <View>
+        <Text style={styles.screenText}>Notification screen</Text>
+      </View>
+    );
+  } else if (idno === 2) {
+    content = (
+      <View>
+        <Text style={styles.screenText}>Calender screen</Text>
+      </View>
+    );
+  } else if (idno === 3) {
+    content = (
+      <View>
+        <Text style={styles.screenText}>Catalog screen</Text>
+      </View>
+    );
+  } else if (idno === 4) {
+    content = (
+      <View>
+        <Text style={styles.screenText}>Book screen</Text>
+      </View>
+    );
+  }
 
   const BottomTab = () => {
     return (
       <>
-        <TouchableOpacity style={styles.iconContainer} onPress={profileHandler}>
-          <FontAwesome
-            name="user-circle"
-            size={profile ? 30 : 24}
-            color={profile ? 'white' : 'rgba(255, 255, 255, 0.5)'}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.iconContainer}
-          onPress={notificationHandler}>
-          <Ionicons
-            name="notifications"
-            size={notification ? 30 : 24}
-            color={notification ? 'white' : 'rgba(255, 255, 255, 0.5)'}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.iconContainer}
-          onPress={calendarHandler}>
-          <FontAwesome
-            name="calendar-o"
-            size={calendar ? 30 : 24}
-            color={calendar ? 'white' : 'rgba(255, 255, 255, 0.5)'}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.iconContainer} onPress={catalogHandler}>
-          <MaterialCommunityIcons
-            name="format-page-break"
-            size={catalog ? 30 : 24}
-            color={catalog ? 'white' : 'rgba(255, 255, 255, 0.5)'}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.iconContainer} onPress={randomHandler}>
-          <Octicons
-            name="book"
-            size={random ? 30 : 24}
-            color={random ? 'white' : 'rgba(255, 255, 255, 0.5)'}
-          />
-        </TouchableOpacity>
+        {array.map((item, index) => (
+          <View style={styles.box}>
+            <TouchableOpacity
+              onPress={() => {
+                setidno(index);
+              }}>
+              <MaterialCommunityIcons
+                name={item.title}
+                size={index === idno ? 35 : 24}
+                color={index === idno ? 'white' : 'rgba(255, 255, 255, 0.5)'}
+              />
+            </TouchableOpacity>
+          </View>
+        ))}
       </>
     );
   };
   return (
     <View style={styles.container}>
-      {profile && <ProfileScreen />}
-
-      {notification && (
-        <View>
-          <Text style={styles.screenText}>Notification screen</Text>
-        </View>
-      )}
-      {calendar && (
-        <View>
-          <Text style={styles.screenText}>Calendar screen</Text>
-        </View>
-      )}
-      {catalog && (
-        <View>
-          <Text style={styles.screenText}>Catalog screen</Text>
-        </View>
-      )}
-      {random && (
-        <View>
-          <Text style={styles.screenText}>Random screen</Text>
-        </View>
-      )}
+      {content}
       <View style={isPortrait ? styles.BottomTabConatiner : styles.sideTab}>
         {BottomTab()}
       </View>

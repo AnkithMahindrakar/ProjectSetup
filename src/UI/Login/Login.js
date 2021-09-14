@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-=======
-import React, {useEffect, useState} from 'react';
->>>>>>> ef608c740d70369961ea8ca075360bd664079801
 import {
   View,
   StyleSheet,
@@ -14,43 +10,24 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
-  useRef,
   Platform,
 } from 'react-native';
 import {Input} from '../common/Input';
 import {Button} from '../common/Button';
 import DeviceInfo from 'react-native-device-info';
-import NetInfo from '@react-native-community/netinfo';
+
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 export const Login = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState();
-  const [internet, setinternet] = useState(false);
+
   const [emailResult, setEmailresult] = useState(false);
 
   const emailcheck =
     /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
-  useEffect(() => {
-    try {
-      NetInfo.addEventListener(state => {
-        if (state.isConnected === true && state.isInternetReachable === true) {
-          setinternet(true);
-        } else {
-          setinternet(false);
-        }
-      });
-      AsyncStorage.getItem('UserName').then(value => {
-        if (value != null) {
-          navigation.replace(value);
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }, [navigation]);
   const emailHandler = value => {
     const condition = emailcheck.test(String(value));
 
@@ -73,13 +50,11 @@ export const Login = ({navigation}) => {
     navigation.replace('Home');
   };
   const pressHandler = () => {
-    internet
-      ? emailResult
-        ? mobile && mobile.length === 10
-          ? navigate()
-          : Alert.alert('Error', 'Enter valid Mobile number')
-        : Alert.alert('Error', 'Enter valid Email ID ')
-      : Alert.alert('Please check your internet connectivity');
+    emailResult
+      ? mobile && mobile.length === 10
+        ? navigate()
+        : Alert.alert('Error', 'Enter valid Mobile number')
+      : Alert.alert('Error', 'Enter valid Email ID ');
   };
 
   const Logo = () => {
