@@ -2,8 +2,9 @@ import React from 'react';
 import {AppProvider} from './Provider/AppConfig';
 import {UIProvider} from './Provider/UIProvider';
 import {Navigation} from './Navigation/Navigation';
-import SplashScreen from 'react-native-splash-screen';
+import Firebase from '@react-native-firebase/app';
 export const App = () => {
+  Firebase.initializeApp(this);
   return (
     <AppProvider>
       <UIProvider>

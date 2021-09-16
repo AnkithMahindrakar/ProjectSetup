@@ -16,6 +16,8 @@ target 'ProjectSetup' do
 
   pod 'react-native-orientation', :path => '../node_modules/react-native-orientation'
 
+  pod 'RNFBApp', :path => '../node_modules/@react-native-firebase/app'
+
   target 'ProjectSetupTests' do
     inherit! :complete
     # Pods for testing
