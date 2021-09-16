@@ -66,6 +66,7 @@ export const makeHeader = async (value, requestMethod) => {
 };
 
 export const login = async (email, password) => {
+  // console.log('in login call', email, password);
   const key = crypto.CryptoJS.enc.Utf8.parse(apiKey);
   const iv = crypto.CryptoJS.enc.Utf8.parse(apiIv);
   const options = {
@@ -81,20 +82,29 @@ export const login = async (email, password) => {
   );
   const header = await makeHeader('static', 'POST');
   const data = {Email: email, Password: '', EncPassword: encryptedPassword};
-  // Bugfender.d('Login params:, JSON.stringify(data));
-  // console.log('Login params:', data);
-  const result = await axios.post(urls.user.login, data, header);
-  console.log('Login API Result:', result);
+  console.log('Login details:', data);
+  // console.log(urls.user.login);
+
+  const result = await axios.post(
+    // 'https://reqres.in/api/articles',
+    // 'http://httpbin.org/post',
+    urls.user.login,
+    data,
+    header,
+  );
+  console.log('Login API Result:', result.status);
   if (result.status === 200) {
-    console.log('Login API Result Data:', JSON.stringify(result.data));
+    console.log('Login API Result Data:', JSON.stringify(result.data.data));
     const localData = {
       data: result.data.data,
       agentSessionID: result.data.agentSessioinId,
     };
+    // console.log(localData);
+
     await AsyncStorage.setItem('LOGIN_DATA', JSON.stringify(localData));
-    await AsyncStorage.setItem('AVAILABILITY_STATUS', JSON.stringify(false));
-    AsyncStorage.setItem('PERMISSION_CHECK_DONE', 'false');
+    return result.data.data;
   } else {
-    throw new Error('Invalid login, please try again');
+    // throw new Error('Invalid login, please try again');
+    console.log('went to else');
   }
 };

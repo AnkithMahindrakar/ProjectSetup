@@ -15,6 +15,8 @@ import {Input} from '../common/Input';
 import {Button} from '../common/Button';
 import DeviceInfo from 'react-native-device-info';
 import Orientation from 'react-native-orientation';
+import axios from 'axios';
+import {login, retailerConfig} from '../../API/ApiCalls';
 
 export const Login = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -49,12 +51,14 @@ export const Login = ({navigation}) => {
     await AsyncStorage.setItem('UserName', 'PostLoginStack');
     navigation.replace('PostLoginStack');
   };
-  const pressHandler = () => {
-    emailResult
-      ? mobile && mobile.length === 10
-        ? navigate()
-        : Alert.alert('Error', 'Enter valid Mobile number')
-      : Alert.alert('Error', 'Enter valid Email ID ');
+  const LoginHandler = async () => {
+    // console.log(email, mobile);
+    try {
+      const LoginResponseData = await login(email, mobile);
+      console.log('-----Checking return data------', LoginResponseData);
+    } catch (error) {
+      console.log('Error from Login Screen--->', error);
+    }
   };
 
   const Logo = () => {
@@ -64,6 +68,13 @@ export const Login = ({navigation}) => {
       </View>
     );
   };
+  // const pressHandler2 = () => {
+  //   emailResult
+  //     ? mobile && mobile.length === 10
+  //       ? navigate()
+  //       : Alert.alert('Error', 'Enter valid Mobile number')
+  //     : Alert.alert('Error', 'Enter valid Email ID ');
+  // };
   const Inputs = () => {
     return (
       <>
@@ -82,9 +93,9 @@ export const Login = ({navigation}) => {
           inputType={'text'}
           value={mobile}
           onUpdate={mobileHandler}
-          textInputProps={{
-            keyboardType: 'number-pad',
-          }}
+          // textInputProps={{
+          //   keyboardType: 'number-pad',
+          // }}
           mainContainerStyle={styles.inputMainContainer}
         />
       </>
@@ -100,7 +111,7 @@ export const Login = ({navigation}) => {
           },
         }}
         title="Login"
-        onPress={pressHandler}
+        onPress={LoginHandler}
         isDisabled={!email || !mobile}
       />
     );
