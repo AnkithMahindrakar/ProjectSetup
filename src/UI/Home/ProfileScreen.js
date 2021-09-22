@@ -1,11 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-<<<<<<< HEAD
-import React, {useState, useEffect} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-=======
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useState} from 'react';
->>>>>>> afc014a4c77f8079d800b5d83226420a9875a76d
 import {
   View,
   Text,
@@ -21,24 +16,10 @@ import {
 // const windowHeight = Dimensions.get('window').height;
 
 export const ProfileScreen = props => {
-<<<<<<< HEAD
-=======
   // console.log(props.isPortrait);
->>>>>>> afc014a4c77f8079d800b5d83226420a9875a76d
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-<<<<<<< HEAD
-
-  useEffect(() => {
-    const initial = Orientation.getInitialOrientation();
-    if (initial === 'PORTRAIT') {
-      setIsPortrait(true);
-    } else {
-      setIsPortrait(false);
-    }
-=======
   // useEffect(() => {}, []);
->>>>>>> afc014a4c77f8079d800b5d83226420a9875a76d
 
   return (
     <View style={props.isPortrait ? styles.mainitem : styles.mainItemLandScape}>
@@ -130,24 +111,6 @@ const styles = StyleSheet.create({
   avaliableContainer: {
     width: 100,
   },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 20,
-    width: '30%',
-    height: '10%',
-    marginBottom: 50,
-    borderWidth: 2,
-    borderColor: 'orange',
-    backgroundColor: 'white',
-  },
-  text: {
-    fontSize: 12,
-    lineHeight: 21,
-    fontWeight: 'bold',
-    letterSpacing: 0.4,
-    color: 'orange',
-  },
   BelowImage: {
     alignSelf: 'center',
     position: 'absolute',
@@ -170,7 +133,24 @@ const styles = StyleSheet.create({
     position: 'relative',
     top: 4,
   },
-
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    width: '30%',
+    height: '10%',
+    marginBottom: 50,
+    borderWidth: 2,
+    borderColor: 'orange',
+    backgroundColor: 'white',
+  },
+  text: {
+    fontSize: 12,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.4,
+    color: 'orange',
+  },
   secondmiddleitem: {
     paddingBottom: 20,
   },

@@ -3,86 +3,68 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
+import DeviceInfo from 'react-native-device-info';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProfileScreen} from './ProfileScreen';
-import Orientation from 'react-native-orientation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import messaging from '@react-native-firebase/messaging';
-import DeviceInfo from 'react-native-device-info';
 import {deviceToken} from '../../API/ApiCalls';
-
-<<<<<<< HEAD
-export const Home = ({navigation}) => {
-=======
+import Orientation from 'react-native-orientation';
+import messaging from '@react-native-firebase/messaging';
 export const Home = props => {
->>>>>>> afc014a4c77f8079d800b5d83226420a9875a76d
   const [profile, setProfile] = useState(true);
   const [notification, setNotification] = useState(false);
   const [calendar, setCalendar] = useState(false);
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
-  // const [tokens, setTokens] = useState();
-  // const [loginData, setLoginData] = useState(null);
-  // const [retailConfigData, setRetailConfigData] = useState(null);
-  const getToken = () => {
-    messaging()
-      .getToken()
-      .then(token => {
-        return token;
-        // console.log('tokens no. ', tokens);
-      });
-  };
+  const [loginData, setLoginData] = useState(null);
+  const [retailConfigData, setRetailConfigData] = useState(null);
+  const [tokens, settokens] = useState();
+  const fcmToken = messaging()
+    .getToken()
+    .then(token => {
+      settokens(token);
+      console.log('tokens no ', tokens);
+    });
+
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
-      const asyncLoginData =
+      const LOGINDATA =
         JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
       const JsonRETAILERCONFIGDATA = await AsyncStorage.getItem(
         'RETAILER_CONFIG',
       );
-      const asyncRetailerConfigData =
+      const RETAILERCONFIGDATA =
         JsonRETAILERCONFIGDATA != null
           ? JSON.parse(JsonRETAILERCONFIGDATA)
           : null;
-      if (asyncLoginData !== null && asyncRetailerConfigData !== null) {
-        // setLoginData(asyncLoginData);
-        // setRetailConfigData(asyncRetailerConfigData);
+      if (LOGINDATA !== null && RETAILERCONFIGDATA !== null) {
+        setLoginData(LOGINDATA);
+        setRetailConfigData(RETAILERCONFIGDATA);
       }
-      return asyncLoginData;
-      // return {asyncLoginData, asyncRetailerConfigData};
     } catch (e) {
       console.log(e);
     }
   };
-
-  useEffect(async () => {
-    const LoginData = await AsyncData();
-    try {
-      const Token = await getToken();
-      console.log('LLLLLLLLLLLLL', Token);
-    } catch (e) {
-      console.log(e);
-    }
-    // console.log('::::::::::::', LoginData.data.Email);
-    // const token = await deviceToken(
-    console.log(
-      'vvvvvvvvvvvvvvvvvvvvvvvvv',
-      LoginData.data.Email,
-      // Token,
-      // Token,
+  //const Email = loginData.data.Email;
+  //console.log('email of the universe', Email);
+  const devicetoken = async () => {
+    const token = await deviceToken(
+      loginData.data.Email,
+      tokens,
+      tokens,
       'android',
       DeviceInfo.getReadableVersion(),
-      LoginData.data.RetailerId,
-      LoginData.data.RetailerUserId,
-      LoginData.data.agentSessionID,
+      loginData.data.RetailerId,
+      loginData.data.RetailerUserId,
+      loginData.data.agentSessionID,
       '',
     );
-    // );
+  };
 
-    console.log('1111111111111111111111111', LoginData);
+  useEffect(async () => {
     Orientation.unlockAllOrientations();
     const initial = Orientation.getInitialOrientation();
     if (initial === 'PORTRAIT') {
@@ -101,10 +83,13 @@ export const Home = props => {
     };
     Orientation.addOrientationListener(_orientationDidChange);
 
+    await AsyncData();
+
+    await devicetoken();
     return () => Orientation.removeOrientationListener(_orientationDidChange);
   }, []);
-  // console.log('LOGIN_DATA', loginData);
-  // console.log('RETAILER_CONFIG', retailConfigData);
+  console.log('LOGIN_DATA', loginData);
+  console.log('RETAILER_CONFIG', retailConfigData);
 
   const LogoutHandler = async () => {
     try {
@@ -115,10 +100,6 @@ export const Home = props => {
     }
   };
 
-  const LogoutHandler = async () => {
-    await AsyncStorage.removeItem('UserName');
-    navigation.replace('Login');
-  };
   const profileHandler = () => {
     setProfile(true);
     setNotification(false);
@@ -205,13 +186,9 @@ export const Home = props => {
   };
   return (
     <View style={styles.container}>
-<<<<<<< HEAD
-      {profile && <ProfileScreen onPress={LogoutHandler} />}
-=======
       {profile && (
         <ProfileScreen onPress={LogoutHandler} isPortrait={isPortrait} />
       )}
->>>>>>> afc014a4c77f8079d800b5d83226420a9875a76d
 
       {notification && (
         <View>
