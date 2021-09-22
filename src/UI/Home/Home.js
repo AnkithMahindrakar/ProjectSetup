@@ -28,7 +28,6 @@ export const Home = props => {
       .getToken()
       .then(token => {
         return token;
-        // console.log('tokens no. ', tokens);
       });
   };
   const AsyncData = async () => {
@@ -48,7 +47,6 @@ export const Home = props => {
         // setRetailConfigData(asyncRetailerConfigData);
       }
       return asyncLoginData;
-      // return {asyncLoginData, asyncRetailerConfigData};
     } catch (e) {
       console.log(e);
     }
