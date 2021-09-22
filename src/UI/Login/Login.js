@@ -15,7 +15,7 @@ import {Input} from '../common/Input';
 import {Button} from '../common/Button';
 import DeviceInfo from 'react-native-device-info';
 import Orientation from 'react-native-orientation';
-import axios from 'axios';
+// import axios from 'axios';
 import {login, retailerConfig} from '../../API/ApiCalls';
 
 export const Login = ({navigation}) => {
@@ -52,10 +52,36 @@ export const Login = ({navigation}) => {
     navigation.replace('PostLoginStack');
   };
   const LoginHandler = async () => {
-    // console.log(email, mobile);
     try {
       const LoginResponseData = await login(email, mobile);
-      console.log('-----Checking return data------', LoginResponseData);
+      console.log('LoginResponseData', LoginResponseData.status);
+      if (LoginResponseData.status === 200) {
+        const RetailerId = LoginResponseData.data.data.RetailerId;
+        const RetailerUserId = LoginResponseData.data.data.RetailerUserId;
+        const AgentSessionId = LoginResponseData.data.agentSessioinId;
+
+        console.log('ID....', RetailerId, RetailerUserId, AgentSessionId);
+
+        const retailerConfigData = await retailerConfig(
+          RetailerId,
+          RetailerUserId,
+          AgentSessionId,
+        );
+        if (retailerConfigData.status === 200) {
+          emailResult
+            ? mobile
+              ? navigate()
+              : Alert.alert('Error', 'Enter valid Password')
+            : Alert.alert('Error', 'Enter valid Email ID ');
+          console.log('Result status is 200 in retail config');
+        } else {
+          console.log('Error, reult status is not 200 in retail config');
+        }
+      } else {
+        console.log('Error, reult status is not 200 in Login');
+      }
+
+      // console.log('Return RetailerConfig response', retailerConfigData);
     } catch (error) {
       console.log('Error from Login Screen--->', error);
     }
@@ -68,13 +94,6 @@ export const Login = ({navigation}) => {
       </View>
     );
   };
-  // const pressHandler2 = () => {
-  //   emailResult
-  //     ? mobile && mobile.length === 10
-  //       ? navigate()
-  //       : Alert.alert('Error', 'Enter valid Mobile number')
-  //     : Alert.alert('Error', 'Enter valid Email ID ');
-  // };
   const Inputs = () => {
     return (
       <>

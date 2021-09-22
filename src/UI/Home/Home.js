@@ -8,14 +8,38 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProfileScreen} from './ProfileScreen';
 import Orientation from 'react-native-orientation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const Home = () => {
+export const Home = props => {
   const [profile, setProfile] = useState(true);
   const [notification, setNotification] = useState(false);
   const [calendar, setCalendar] = useState(false);
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
+  const [loginData, setLoginData] = useState(null);
+  const [retailConfigData, setRetailConfigData] = useState(null);
+
+  const AsyncData = async () => {
+    try {
+      const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
+      const LOGINDATA =
+        JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
+      const JsonRETAILERCONFIGDATA = await AsyncStorage.getItem(
+        'RETAILER_CONFIG',
+      );
+      const RETAILERCONFIGDATA =
+        JsonRETAILERCONFIGDATA != null
+          ? JSON.parse(JsonRETAILERCONFIGDATA)
+          : null;
+      if (LOGINDATA !== null && RETAILERCONFIGDATA !== null) {
+        setLoginData(LOGINDATA);
+        setRetailConfigData(RETAILERCONFIGDATA);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
     Orientation.unlockAllOrientations();
@@ -32,11 +56,25 @@ export const Home = () => {
       } else {
         setIsPortrait(true);
       }
+      // return orientation;
     };
     Orientation.addOrientationListener(_orientationDidChange);
 
+    AsyncData();
+
     return () => Orientation.removeOrientationListener(_orientationDidChange);
   }, []);
+  console.log('LOGIN_DATA', loginData);
+  console.log('RETAILER_CONFIG', retailConfigData);
+
+  const LogoutHandler = async () => {
+    try {
+      await AsyncStorage.removeItem('UserName');
+      props.navigation.navigate('Login');
+    } catch (e) {
+      console.log('Error on logout===>', e);
+    }
+  };
 
   const profileHandler = () => {
     setProfile(true);
@@ -124,7 +162,9 @@ export const Home = () => {
   };
   return (
     <View style={styles.container}>
-      {profile && <ProfileScreen />}
+      {profile && (
+        <ProfileScreen onPress={LogoutHandler} isPortrait={isPortrait} />
+      )}
 
       {notification && (
         <View>
