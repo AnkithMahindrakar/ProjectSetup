@@ -140,3 +140,39 @@ export const retailerConfig = async (
     throw new Error('Retailer config failed');
   }
 };
+
+export const deviceToken = async (
+  email,
+  appDeviceToken,
+  voipToken,
+  platform,
+  version,
+  retailerID,
+  retailerUserID,
+  agentSessionID,
+  oneSignalPlayerID,
+) => {
+  const data = {
+    Email: email,
+    AppDeviceToken: appDeviceToken,
+    VOIPToken: voipToken,
+    DeviceType: platform,
+    AppVersion: version,
+    RetailerId: retailerID,
+    RetailerUserId: retailerUserID,
+    AgentSessionId: agentSessionID,
+    OneSignalPlayerId_NormalPN: oneSignalPlayerID,
+  };
+
+  const header = await makeHeader('static', 'POST');
+  console.log('Retailer config params:', data);
+  const result = await axios.post(urls.user.token, data, header);
+
+  if (result.status === 200) {
+    console.log('Device token API Result Data:', JSON.stringify(result.data));
+
+    return result.data;
+  } else {
+    throw new Error('Device token failed');
+  }
+};
