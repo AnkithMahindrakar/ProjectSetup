@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState, useEffect} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -14,10 +15,11 @@ import Orientation from 'react-native-orientation';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-export const ProfileScreen = () => {
+export const ProfileScreen = props => {
   const [isEnabled, setIsEnabled] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+
   useEffect(() => {
     const initial = Orientation.getInitialOrientation();
     if (initial === 'PORTRAIT') {
@@ -86,7 +88,7 @@ export const ProfileScreen = () => {
             <Text style={styles.textcolour}>HP Laptops</Text>
             <Text style={styles.textcolour}>System processors</Text>
           </View>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} onPress={props.onPress}>
             <Text style={styles.text}>Logout</Text>
           </TouchableOpacity>
         </View>
@@ -122,6 +124,24 @@ const styles = StyleSheet.create({
   avaliableContainer: {
     width: 100,
   },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    width: '30%',
+    height: '10%',
+    marginBottom: 50,
+    borderWidth: 2,
+    borderColor: 'orange',
+    backgroundColor: 'white',
+  },
+  text: {
+    fontSize: 12,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.4,
+    color: 'orange',
+  },
   BelowImage: {
     alignSelf: 'center',
     position: 'absolute',
@@ -144,24 +164,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     top: 4,
   },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 20,
-    width: '30%',
-    height: '10%',
-    marginBottom: 50,
-    borderWidth: 2,
-    borderColor: 'orange',
-    backgroundColor: 'white',
-  },
-  text: {
-    fontSize: 12,
-    lineHeight: 21,
-    fontWeight: 'bold',
-    letterSpacing: 0.4,
-    color: 'orange',
-  },
+
   secondmiddleitem: {
     paddingBottom: 20,
   },

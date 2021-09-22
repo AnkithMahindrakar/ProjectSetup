@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -9,7 +9,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {ProfileScreen} from './ProfileScreen';
 import Orientation from 'react-native-orientation';
 
-export const Home = () => {
+export const Home = ({navigation}) => {
   const [profile, setProfile] = useState(true);
   const [notification, setNotification] = useState(false);
   const [calendar, setCalendar] = useState(false);
@@ -38,6 +38,10 @@ export const Home = () => {
     return () => Orientation.removeOrientationListener(_orientationDidChange);
   }, []);
 
+  const LogoutHandler = async () => {
+    await AsyncStorage.removeItem('UserName');
+    navigation.replace('Login');
+  };
   const profileHandler = () => {
     setProfile(true);
     setNotification(false);
@@ -124,7 +128,7 @@ export const Home = () => {
   };
   return (
     <View style={styles.container}>
-      {profile && <ProfileScreen />}
+      {profile && <ProfileScreen onPress={LogoutHandler} />}
 
       {notification && (
         <View>
@@ -181,6 +185,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
   },
+
   iconContainer: {
     height: 60,
     width: 60,
