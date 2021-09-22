@@ -9,6 +9,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {ProfileScreen} from './ProfileScreen';
 import Orientation from 'react-native-orientation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import messaging from '@react-native-firebase/messaging';
+import DeviceInfo from 'react-native-device-info';
+import {deviceToken} from '../../API/ApiCalls';
 
 <<<<<<< HEAD
 export const Home = ({navigation}) => {
@@ -21,31 +24,65 @@ export const Home = props => {
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
-  const [loginData, setLoginData] = useState(null);
-  const [retailConfigData, setRetailConfigData] = useState(null);
-
+  // const [tokens, setTokens] = useState();
+  // const [loginData, setLoginData] = useState(null);
+  // const [retailConfigData, setRetailConfigData] = useState(null);
+  const getToken = () => {
+    messaging()
+      .getToken()
+      .then(token => {
+        return token;
+        // console.log('tokens no. ', tokens);
+      });
+  };
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
-      const LOGINDATA =
+      const asyncLoginData =
         JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
       const JsonRETAILERCONFIGDATA = await AsyncStorage.getItem(
         'RETAILER_CONFIG',
       );
-      const RETAILERCONFIGDATA =
+      const asyncRetailerConfigData =
         JsonRETAILERCONFIGDATA != null
           ? JSON.parse(JsonRETAILERCONFIGDATA)
           : null;
-      if (LOGINDATA !== null && RETAILERCONFIGDATA !== null) {
-        setLoginData(LOGINDATA);
-        setRetailConfigData(RETAILERCONFIGDATA);
+      if (asyncLoginData !== null && asyncRetailerConfigData !== null) {
+        // setLoginData(asyncLoginData);
+        // setRetailConfigData(asyncRetailerConfigData);
       }
+      return asyncLoginData;
+      // return {asyncLoginData, asyncRetailerConfigData};
     } catch (e) {
       console.log(e);
     }
   };
 
-  useEffect(() => {
+  useEffect(async () => {
+    const LoginData = await AsyncData();
+    try {
+      const Token = await getToken();
+      console.log('LLLLLLLLLLLLL', Token);
+    } catch (e) {
+      console.log(e);
+    }
+    // console.log('::::::::::::', LoginData.data.Email);
+    // const token = await deviceToken(
+    console.log(
+      'vvvvvvvvvvvvvvvvvvvvvvvvv',
+      LoginData.data.Email,
+      // Token,
+      // Token,
+      'android',
+      DeviceInfo.getReadableVersion(),
+      LoginData.data.RetailerId,
+      LoginData.data.RetailerUserId,
+      LoginData.data.agentSessionID,
+      '',
+    );
+    // );
+
+    console.log('1111111111111111111111111', LoginData);
     Orientation.unlockAllOrientations();
     const initial = Orientation.getInitialOrientation();
     if (initial === 'PORTRAIT') {
@@ -64,12 +101,10 @@ export const Home = props => {
     };
     Orientation.addOrientationListener(_orientationDidChange);
 
-    AsyncData();
-
     return () => Orientation.removeOrientationListener(_orientationDidChange);
   }, []);
-  console.log('LOGIN_DATA', loginData);
-  console.log('RETAILER_CONFIG', retailConfigData);
+  // console.log('LOGIN_DATA', loginData);
+  // console.log('RETAILER_CONFIG', retailConfigData);
 
   const LogoutHandler = async () => {
     try {
