@@ -6,6 +6,7 @@ import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
+import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
 import com.github.yamill.orientation.OrientationPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.facebook.react.ReactInstanceManager;

@@ -8,14 +8,42 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProfileScreen} from './ProfileScreen';
 import Orientation from 'react-native-orientation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+<<<<<<< HEAD
 export const Home = ({navigation}) => {
+=======
+export const Home = props => {
+>>>>>>> afc014a4c77f8079d800b5d83226420a9875a76d
   const [profile, setProfile] = useState(true);
   const [notification, setNotification] = useState(false);
   const [calendar, setCalendar] = useState(false);
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
+  const [loginData, setLoginData] = useState(null);
+  const [retailConfigData, setRetailConfigData] = useState(null);
+
+  const AsyncData = async () => {
+    try {
+      const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
+      const LOGINDATA =
+        JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
+      const JsonRETAILERCONFIGDATA = await AsyncStorage.getItem(
+        'RETAILER_CONFIG',
+      );
+      const RETAILERCONFIGDATA =
+        JsonRETAILERCONFIGDATA != null
+          ? JSON.parse(JsonRETAILERCONFIGDATA)
+          : null;
+      if (LOGINDATA !== null && RETAILERCONFIGDATA !== null) {
+        setLoginData(LOGINDATA);
+        setRetailConfigData(RETAILERCONFIGDATA);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
     Orientation.unlockAllOrientations();
@@ -32,11 +60,25 @@ export const Home = ({navigation}) => {
       } else {
         setIsPortrait(true);
       }
+      // return orientation;
     };
     Orientation.addOrientationListener(_orientationDidChange);
 
+    AsyncData();
+
     return () => Orientation.removeOrientationListener(_orientationDidChange);
   }, []);
+  console.log('LOGIN_DATA', loginData);
+  console.log('RETAILER_CONFIG', retailConfigData);
+
+  const LogoutHandler = async () => {
+    try {
+      await AsyncStorage.removeItem('UserName');
+      props.navigation.navigate('Login');
+    } catch (e) {
+      console.log('Error on logout===>', e);
+    }
+  };
 
   const LogoutHandler = async () => {
     await AsyncStorage.removeItem('UserName');
@@ -128,7 +170,13 @@ export const Home = ({navigation}) => {
   };
   return (
     <View style={styles.container}>
+<<<<<<< HEAD
       {profile && <ProfileScreen onPress={LogoutHandler} />}
+=======
+      {profile && (
+        <ProfileScreen onPress={LogoutHandler} isPortrait={isPortrait} />
+      )}
+>>>>>>> afc014a4c77f8079d800b5d83226420a9875a76d
 
       {notification && (
         <View>

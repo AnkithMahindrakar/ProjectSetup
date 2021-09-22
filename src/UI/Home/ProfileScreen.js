@@ -1,6 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+<<<<<<< HEAD
 import React, {useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+=======
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {useState} from 'react';
+>>>>>>> afc014a4c77f8079d800b5d83226420a9875a76d
 import {
   View,
   Text,
@@ -8,17 +13,21 @@ import {
   TouchableOpacity,
   Image,
   Switch,
-  Dimensions,
+  // Dimensions,
 } from 'react-native';
-import Orientation from 'react-native-orientation';
+// import Orientation from 'react-native-orientation';
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+// const windowWidth = Dimensions.get('window').width;
+// const windowHeight = Dimensions.get('window').height;
 
 export const ProfileScreen = props => {
+<<<<<<< HEAD
+=======
+  // console.log(props.isPortrait);
+>>>>>>> afc014a4c77f8079d800b5d83226420a9875a76d
   const [isEnabled, setIsEnabled] = useState(false);
-  const [isPortrait, setIsPortrait] = useState();
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+<<<<<<< HEAD
 
   useEffect(() => {
     const initial = Orientation.getInitialOrientation();
@@ -27,21 +36,13 @@ export const ProfileScreen = props => {
     } else {
       setIsPortrait(false);
     }
+=======
+  // useEffect(() => {}, []);
+>>>>>>> afc014a4c77f8079d800b5d83226420a9875a76d
 
-    const _orientationDidChange = orientation => {
-      if (orientation === 'LANDSCAPE') {
-        setIsPortrait(false);
-      } else {
-        setIsPortrait(true);
-      }
-    };
-    Orientation.addOrientationListener(_orientationDidChange);
-
-    return () => Orientation.removeOrientationListener(_orientationDidChange);
-  }, []);
   return (
-    <View style={isPortrait ? styles.mainitem : styles.mainItemLandScape}>
-      <View style={isPortrait ? styles.rowitem : styles.rowItemLandScape}>
+    <View style={props.isPortrait ? styles.mainitem : styles.mainItemLandScape}>
+      <View style={props.isPortrait ? styles.rowitem : styles.rowItemLandScape}>
         <Text style={styles.profileItem}>Profile</Text>
         <View style={styles.topItem}>
           <View style={styles.avaliableContainer}>
@@ -60,10 +61,12 @@ export const ProfileScreen = props => {
         </View>
       </View>
       <View
-        style={isPortrait ? styles.middleItem : styles.middleItemsLandScape}>
+        style={
+          props.isPortrait ? styles.middleItem : styles.middleItemsLandScape
+        }>
         <View
           style={
-            isPortrait
+            props.isPortrait
               ? styles.secondmiddleitem
               : styles.secondMiddleitemLandScape
           }>
@@ -75,7 +78,7 @@ export const ProfileScreen = props => {
             John Michaels
           </Text>
         </View>
-        <View style={isPortrait ? null : styles.detailsLandScape}>
+        <View style={props.isPortrait ? null : styles.detailsLandScape}>
           <View style={styles.thirdmiddleitem}>
             <Text style={styles.textbold}>Location</Text>
             <Text style={styles.textcolour}>
@@ -93,7 +96,10 @@ export const ProfileScreen = props => {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={isPortrait ? styles.bottomLogo : styles.bottomLogoLandScape}>
+      <View
+        style={
+          props.isPortrait ? styles.bottomLogo : styles.bottomLogoLandScape
+        }>
         <Image
           source={require('../../Resources/Images/Logo.png')}
           style={styles.BelowImage}

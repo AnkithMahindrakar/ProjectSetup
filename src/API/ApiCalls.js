@@ -11,6 +11,7 @@ import axios from 'axios';
 export const getRetailerConfig = async () => {
   try {
     const data = await AsyncStorage.getItem('RETAILER_CONFIG');
+    console.log('Async DATA', data);
     if (data) {
       const configData = JSON.parse(data).data;
       console.log('Retailer config data', configData);
@@ -39,12 +40,13 @@ export const makeHeader = async (value, requestMethod) => {
     options,
   );
   const authorizationHeader = `aes ${apiAppId}:${requestSignatureBase64}:${nonce}:${timeStamp}`;
-  if (value == 'static') {
+  if (value === 'static') {
     console.log('Static subscription key');
     return {
       headers: {
         Authorization: authorizationHeader,
         'Ocp-Apim-Subscription-Key': subscriptionKey,
+        // 'Content-Type': 'application/json',
       },
     };
   } else {
@@ -66,6 +68,7 @@ export const makeHeader = async (value, requestMethod) => {
 };
 
 export const login = async (email, password) => {
+  // console.log('in login call', email, password);
   const key = crypto.CryptoJS.enc.Utf8.parse(apiKey);
   const iv = crypto.CryptoJS.enc.Utf8.parse(apiIv);
   const options = {
@@ -80,21 +83,60 @@ export const login = async (email, password) => {
     options,
   );
   const header = await makeHeader('static', 'POST');
-  const data = {Email: email, Password: '', EncPassword: encryptedPassword};
-  // Bugfender.d('Login params:, JSON.stringify(data));
-  // console.log('Login params:', data);
+  const data = {Email: email, EncPassword: encryptedPassword};
+  console.log('Login details:', data);
+  console.log(urls.user.login);
+  console.log('header....', JSON.stringify(header.headers));
+  console.log('Data', data);
+
   const result = await axios.post(urls.user.login, data, header);
-  console.log('Login API Result:', result);
+
+  console.log('Login API Result:', result.status);
+  // console.log('Result status:', result.status);
   if (result.status === 200) {
     console.log('Login API Result Data:', JSON.stringify(result.data));
+    // console.log('Login API Result Data2:', JSON.stringify(result));
     const localData = {
       data: result.data.data,
       agentSessionID: result.data.agentSessioinId,
     };
+    console.log('======================', localData);
+
     await AsyncStorage.setItem('LOGIN_DATA', JSON.stringify(localData));
-    await AsyncStorage.setItem('AVAILABILITY_STATUS', JSON.stringify(false));
-    AsyncStorage.setItem('PERMISSION_CHECK_DONE', 'false');
+    return result;
   } else {
     throw new Error('Invalid login, please try again');
+  }
+};
+
+export const retailerConfig = async (
+  retailerID,
+  retailerUserID,
+  agentSessionID,
+) => {
+  const data = {
+    RetailerId: retailerID,
+    RetailerUserId: retailerUserID,
+    AgentSessionId: agentSessionID,
+    UserType: 'Agent',
+  };
+
+  const header = await makeHeader('static', 'POST');
+  console.log('Retailer config params:', data);
+  const result = await axios.post(urls.user.retailerConfig, data, header);
+
+  if (result.status === 200) {
+    console.log(
+      'Retailer config API Result Data:',
+      JSON.stringify(result.data),
+    );
+    const retailerConfigData = {data: result.data.data};
+    await AsyncStorage.setItem(
+      'RETAILER_CONFIG',
+      JSON.stringify(retailerConfigData),
+    );
+    return result;
+  } else {
+    throw new Error('Retailer config failed');
   }
 };
