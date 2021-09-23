@@ -20,13 +20,6 @@ export const Home = props => {
   const [isPortrait, setIsPortrait] = useState();
   const [loginData, setLoginData] = useState(null);
   const [retailConfigData, setRetailConfigData] = useState(null);
-  const [tokens, settokens] = useState();
-  const fcmToken = messaging()
-    .getToken()
-    .then(token => {
-      settokens(token);
-      console.log('tokens no ', tokens);
-    });
 
   const AsyncData = async () => {
     try {
@@ -44,27 +37,36 @@ export const Home = props => {
         setLoginData(LOGINDATA);
         setRetailConfigData(RETAILERCONFIGDATA);
       }
+      messaging()
+        .getToken()
+        .then(token => {
+          devicetoken(token);
+          console.log('tokens no ', token);
+        });
     } catch (e) {
       console.log(e);
     }
   };
   //const Email = loginData.data.Email;
   //console.log('email of the universe', Email);
-  const devicetoken = async () => {
+  const devicetoken = async deviceoftoken => {
+    console.log('enter the dragon');
     const token = await deviceToken(
       loginData.data.Email,
-      tokens,
-      tokens,
+      deviceoftoken,
+      deviceoftoken,
       'android',
       DeviceInfo.getReadableVersion(),
       loginData.data.RetailerId,
       loginData.data.RetailerUserId,
-      loginData.data.agentSessionID,
+      loginData.agentSessionID,
       '',
     );
+    console.log('token excuted', token);
   };
 
-  useEffect(async () => {
+  useEffect(() => {
+    AsyncData();
     Orientation.unlockAllOrientations();
     const initial = Orientation.getInitialOrientation();
     if (initial === 'PORTRAIT') {
@@ -83,13 +85,10 @@ export const Home = props => {
     };
     Orientation.addOrientationListener(_orientationDidChange);
 
-    await AsyncData();
-
-    await devicetoken();
     return () => Orientation.removeOrientationListener(_orientationDidChange);
   }, []);
-  console.log('LOGIN_DATA', loginData);
-  console.log('RETAILER_CONFIG', retailConfigData);
+  // console.log('LOGIN_DATA', loginData);
+  //console.log('RETAILER_CONFIG', retailConfigData);
 
   const LogoutHandler = async () => {
     try {

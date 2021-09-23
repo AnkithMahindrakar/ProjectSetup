@@ -165,7 +165,7 @@ export const deviceToken = async (
   };
 
   const header = await makeHeader('static', 'POST');
-  console.log('Retailer config params:', data);
+  console.log('device token params:', data);
   const result = await axios.post(urls.user.token, data, header);
 
   if (result.status === 200) {
