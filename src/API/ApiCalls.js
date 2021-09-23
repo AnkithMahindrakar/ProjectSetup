@@ -169,7 +169,7 @@ export const deviceToken = async (
   const result = await axios.post(urls.user.token, data, header);
 
   if (result.status === 200) {
-    console.log('Device token API Result Data:', JSON.stringify(result.data));
+    console.log('Device token API Result Data:', result.data);
 
     return result.data;
   } else {

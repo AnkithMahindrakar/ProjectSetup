@@ -41,33 +41,40 @@ export const Home = props => {
   };
   //const Email = loginData.data.Email;
   //console.log('email of the universe', Email);
+  const setAsyncToken = async token => {
+    await AsyncStorage.setItem('DeviceToken', token);
+    console.log('device token method executed');
+    console.log('token excuted', token);
+  };
 
-  useEffect(async () => {
-    const AsyncDataResponse = await AsyncData();
-
-    messaging()
-      .getToken()
-      .then(token => {
-        devicetoken(token);
-        console.log('tokens no ', token);
-      });
-    const devicetoken = async deviceoftoken => {
-      await AsyncStorage.setItem('DeviceToken', deviceoftoken);
-      console.log('device token method executed');
-      const token = await deviceToken(
-        AsyncDataResponse.data.Email,
-        deviceoftoken,
-        deviceoftoken,
-        'android',
-        DeviceInfo.getReadableVersion(),
-        AsyncDataResponse.data.RetailerId,
-        AsyncDataResponse.data.RetailerUserId,
-        AsyncDataResponse.agentSessionID,
-        '',
-      );
-      console.log('token excuted', token);
+  useEffect(() => {
+    const extraFunction = async () => {
+      const AsyncDataResponse = await AsyncData();
+      const getToken = await messaging().getToken();
+      setAsyncToken(getToken);
+      console.log('>>>>>>>>>>>>>>>>>>>', getToken, AsyncDataResponse);
+      try {
+        await deviceToken(
+          AsyncDataResponse.data.Email,
+          getToken,
+          getToken,
+          'android',
+          DeviceInfo.getReadableVersion(),
+          AsyncDataResponse.data.RetailerId,
+          AsyncDataResponse.data.RetailerUserId,
+          AsyncDataResponse.agentSessionID,
+          '',
+        );
+      } catch (e) {
+        console.log('ERROR', e);
+      }
     };
-
+    try {
+      extraFunction();
+    } catch (e) {
+      console.log(e);
+    }
+    // console.log('DeviceTokenFCN', DeviceTokenFCN),
     Orientation.unlockAllOrientations();
     const initial = Orientation.getInitialOrientation();
     if (initial === 'PORTRAIT') {
