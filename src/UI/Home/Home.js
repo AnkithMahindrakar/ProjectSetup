@@ -50,6 +50,9 @@ export const Home = props => {
   //const Email = loginData.data.Email;
   //console.log('email of the universe', Email);
   const devicetoken = async deviceoftoken => {
+    if (AsyncStorage.getItem('DeviceToken') !== deviceoftoken) {
+    }
+
     await AsyncStorage.setItem('DeviceToken', deviceoftoken);
     console.log('device token method');
     const token = await deviceToken(
