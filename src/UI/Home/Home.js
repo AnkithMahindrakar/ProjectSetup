@@ -18,9 +18,22 @@ export const Home = props => {
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
-  const [loginData, setLoginData] = useState(null);
-  const [retailConfigData, setRetailConfigData] = useState(null);
+// <<<<<<< master
+//   const [loginData, setLoginData] = useState(null);
+//   const [retailConfigData, setRetailConfigData] = useState(null);
 
+// =======
+//   // const [tokens, setTokens] = useState();
+//   // const [loginData, setLoginData] = useState(null);
+//   // const [retailConfigData, setRetailConfigData] = useState(null);
+//   const getToken = () => {
+//     messaging()
+//       .getToken()
+//       .then(token => {
+//         return token;
+//       });
+//   };
+// >>>>>>> master
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
@@ -37,12 +50,15 @@ export const Home = props => {
         setLoginData(LOGINDATA);
         setRetailConfigData(RETAILERCONFIGDATA);
       }
+
       messaging()
         .getToken()
         .then(token => {
           devicetoken(token);
           console.log('tokens no ', token);
         });
+      return asyncLoginData;
+
     } catch (e) {
       console.log(e);
     }
