@@ -18,71 +18,56 @@ export const Home = props => {
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
-// <<<<<<< master
-//   const [loginData, setLoginData] = useState(null);
-//   const [retailConfigData, setRetailConfigData] = useState(null);
+  // const [loginData, setLoginData] = useState(null);
+  // const [retailConfigData, setRetailConfigData] = useState(null);
 
-// =======
-//   // const [tokens, setTokens] = useState();
-//   // const [loginData, setLoginData] = useState(null);
-//   // const [retailConfigData, setRetailConfigData] = useState(null);
-//   const getToken = () => {
-//     messaging()
-//       .getToken()
-//       .then(token => {
-//         return token;
-//       });
-//   };
-// >>>>>>> master
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
-      const LOGINDATA =
+      const asyncLoginData =
         JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
       const JsonRETAILERCONFIGDATA = await AsyncStorage.getItem(
         'RETAILER_CONFIG',
       );
-      const RETAILERCONFIGDATA =
+      const asyncRetailConfigData =
         JsonRETAILERCONFIGDATA != null
           ? JSON.parse(JsonRETAILERCONFIGDATA)
           : null;
-      if (LOGINDATA !== null && RETAILERCONFIGDATA !== null) {
-        setLoginData(LOGINDATA);
-        setRetailConfigData(RETAILERCONFIGDATA);
-      }
 
-      messaging()
-        .getToken()
-        .then(token => {
-          devicetoken(token);
-          console.log('tokens no ', token);
-        });
       return asyncLoginData;
-
     } catch (e) {
       console.log(e);
     }
   };
   //const Email = loginData.data.Email;
   //console.log('email of the universe', Email);
-  const devicetoken = async deviceoftoken => {
-    console.log('enter the dragon');
-    const token = await deviceToken(
-      loginData.data.Email,
-      deviceoftoken,
-      deviceoftoken,
-      'android',
-      DeviceInfo.getReadableVersion(),
-      loginData.data.RetailerId,
-      loginData.data.RetailerUserId,
-      loginData.agentSessionID,
-      '',
-    );
-    console.log('token excuted', token);
-  };
 
-  useEffect(() => {
-    AsyncData();
+  useEffect(async () => {
+    const AsyncDataResponse = await AsyncData();
+
+    messaging()
+      .getToken()
+      .then(token => {
+        devicetoken(token);
+        console.log('tokens no ', token);
+      });
+    const devicetoken = async deviceoftoken => {
+      await AsyncStorage.setItem('DeviceToken', deviceoftoken);
+      console.log('device token method executed');
+      const token = await deviceToken(
+        AsyncDataResponse.data.Email,
+        deviceoftoken,
+        deviceoftoken,
+        'android',
+        DeviceInfo.getReadableVersion(),
+        AsyncDataResponse.data.RetailerId,
+        AsyncDataResponse.data.RetailerUserId,
+        AsyncDataResponse.agentSessionID,
+        '',
+      );
+      console.log('token excuted', token);
+    };
+
     Orientation.unlockAllOrientations();
     const initial = Orientation.getInitialOrientation();
     if (initial === 'PORTRAIT') {
