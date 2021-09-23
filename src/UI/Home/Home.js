@@ -1,18 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
+import DeviceInfo from 'react-native-device-info';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProfileScreen} from './ProfileScreen';
-import Orientation from 'react-native-orientation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import messaging from '@react-native-firebase/messaging';
-import DeviceInfo from 'react-native-device-info';
 import {deviceToken} from '../../API/ApiCalls';
-
+import Orientation from 'react-native-orientation';
+import messaging from '@react-native-firebase/messaging';
 export const Home = props => {
   const [profile, setProfile] = useState(true);
   const [notification, setNotification] = useState(false);
@@ -20,63 +18,71 @@ export const Home = props => {
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
-  // const [tokens, setTokens] = useState();
-  // const [loginData, setLoginData] = useState(null);
-  // const [retailConfigData, setRetailConfigData] = useState(null);
-  const getToken = () => {
-    messaging()
-      .getToken()
-      .then(token => {
-        return token;
-      });
-  };
+// <<<<<<< master
+//   const [loginData, setLoginData] = useState(null);
+//   const [retailConfigData, setRetailConfigData] = useState(null);
+
+// =======
+//   // const [tokens, setTokens] = useState();
+//   // const [loginData, setLoginData] = useState(null);
+//   // const [retailConfigData, setRetailConfigData] = useState(null);
+//   const getToken = () => {
+//     messaging()
+//       .getToken()
+//       .then(token => {
+//         return token;
+//       });
+//   };
+// >>>>>>> master
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
-      const asyncLoginData =
+      const LOGINDATA =
         JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
       const JsonRETAILERCONFIGDATA = await AsyncStorage.getItem(
         'RETAILER_CONFIG',
       );
-      const asyncRetailerConfigData =
+      const RETAILERCONFIGDATA =
         JsonRETAILERCONFIGDATA != null
           ? JSON.parse(JsonRETAILERCONFIGDATA)
           : null;
-      if (asyncLoginData !== null && asyncRetailerConfigData !== null) {
-        // setLoginData(asyncLoginData);
-        // setRetailConfigData(asyncRetailerConfigData);
+      if (LOGINDATA !== null && RETAILERCONFIGDATA !== null) {
+        setLoginData(LOGINDATA);
+        setRetailConfigData(RETAILERCONFIGDATA);
       }
+
+      messaging()
+        .getToken()
+        .then(token => {
+          devicetoken(token);
+          console.log('tokens no ', token);
+        });
       return asyncLoginData;
+
     } catch (e) {
       console.log(e);
     }
   };
-
-  useEffect(async () => {
-    const LoginData = await AsyncData();
-    try {
-      const Token = await getToken();
-      console.log('LLLLLLLLLLLLL', Token);
-    } catch (e) {
-      console.log(e);
-    }
-    // console.log('::::::::::::', LoginData.data.Email);
-    // const token = await deviceToken(
-    console.log(
-      'vvvvvvvvvvvvvvvvvvvvvvvvv',
-      LoginData.data.Email,
-      // Token,
-      // Token,
+  //const Email = loginData.data.Email;
+  //console.log('email of the universe', Email);
+  const devicetoken = async deviceoftoken => {
+    console.log('enter the dragon');
+    const token = await deviceToken(
+      loginData.data.Email,
+      deviceoftoken,
+      deviceoftoken,
       'android',
       DeviceInfo.getReadableVersion(),
-      LoginData.data.RetailerId,
-      LoginData.data.RetailerUserId,
-      LoginData.data.agentSessionID,
+      loginData.data.RetailerId,
+      loginData.data.RetailerUserId,
+      loginData.agentSessionID,
       '',
     );
-    // );
+    console.log('token excuted', token);
+  };
 
-    console.log('1111111111111111111111111', LoginData);
+  useEffect(() => {
+    AsyncData();
     Orientation.unlockAllOrientations();
     const initial = Orientation.getInitialOrientation();
     if (initial === 'PORTRAIT') {
@@ -98,7 +104,7 @@ export const Home = props => {
     return () => Orientation.removeOrientationListener(_orientationDidChange);
   }, []);
   // console.log('LOGIN_DATA', loginData);
-  // console.log('RETAILER_CONFIG', retailConfigData);
+  //console.log('RETAILER_CONFIG', retailConfigData);
 
   const LogoutHandler = async () => {
     try {
@@ -254,6 +260,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
   },
+
   iconContainer: {
     height: 60,
     width: 60,

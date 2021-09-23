@@ -120,3 +120,28 @@
 //     message: '',
 //   },
 // ];
+
+[
+  {
+    customStatusCode: 200,
+    message: '',
+    agentSessioinId: 'c5a0b9e6-8cc8-4843-8d25-582e2bb72b5c',
+    data: {
+      SkillIds: [],
+      RetailerUserId: '6429b9a2-5000-46c3-a095-003c2a55f33b',
+      RetailerId: 'ad1e4b59-3179-45e3-a58c-c93da19a0429',
+      FirstName: 'Chintalapudi',
+      LastName: 'Pop Dev',
+      Email: 'naveen.chintalapudi@popcornapps.com',
+      MobileNumber: '9676252145',
+      EmployeeId: null,
+      Skills: '',
+      Status: 'NotAvailable',
+      IsActive: true,
+      ProfilePicture: null,
+      Password: null,
+      Username: null,
+      IsEmailVerified: true,
+    },
+  },
+];
