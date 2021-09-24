@@ -53,22 +53,26 @@ export const Home = props => {
       const getToken = await messaging().getToken();
       setAsyncToken(getToken);
       console.log('>>>>>>>>>>>>>>>>>>>', getToken, AsyncDataResponse);
-      try {
-        await deviceToken(
-          AsyncDataResponse.data.Email,
-          getToken,
-          getToken,
-          'android',
-          DeviceInfo.getReadableVersion(),
-          AsyncDataResponse.data.RetailerId,
-          AsyncDataResponse.data.RetailerUserId,
-          AsyncDataResponse.agentSessionID,
-          '',
-        );
-        const asyncDeviceToken = await AsyncStorage.getItem('DeviceToken');
-        console.log('Async Device Token', asyncDeviceToken);
-      } catch (e) {
-        console.log('ERROR', e);
+      if ((await AsyncStorage.getItem('DeviceToken')) === getToken) {
+        console.log('same tokens no need to call');
+      } else {
+        try {
+          await deviceToken(
+            AsyncDataResponse.data.Email,
+            getToken,
+            getToken,
+            'android',
+            DeviceInfo.getReadableVersion(),
+            AsyncDataResponse.data.RetailerId,
+            AsyncDataResponse.data.RetailerUserId,
+            AsyncDataResponse.agentSessionID,
+            '',
+          );
+          const asyncDeviceToken = await AsyncStorage.getItem('DeviceToken');
+          console.log('Async Device Token', asyncDeviceToken);
+        } catch (e) {
+          console.log('ERROR', e);
+        }
       }
     };
     try {
