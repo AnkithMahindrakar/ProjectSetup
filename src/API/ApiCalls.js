@@ -170,6 +170,7 @@ export const deviceToken = async (
 
   if (result.status === 200) {
     console.log('Device token API Result Data:', result.data);
+    await AsyncStorage.setItem('DeviceToken', JSON.stringify(result.data));
 
     return result.data;
   } else {
