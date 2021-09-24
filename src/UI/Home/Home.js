@@ -51,11 +51,12 @@ export const Home = props => {
     const extraFunction = async () => {
       const AsyncDataResponse = await AsyncData();
       const getToken = await messaging().getToken();
-      setAsyncToken(getToken);
+
       console.log('>>>>>>>>>>>>>>>>>>>', getToken, AsyncDataResponse);
       if ((await AsyncStorage.getItem('DeviceToken')) === getToken) {
         console.log('same tokens no need to call');
       } else {
+        setAsyncToken(getToken);
         try {
           await deviceToken(
             AsyncDataResponse.data.Email,
