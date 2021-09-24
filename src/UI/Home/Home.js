@@ -42,7 +42,7 @@ export const Home = props => {
   //const Email = loginData.data.Email;
   //console.log('email of the universe', Email);
   const setAsyncToken = async token => {
-    await AsyncStorage.setItem('DeviceToken', token);
+    await AsyncStorage.setItem('FirebaseDeviceToken', token);
     console.log('device token method executed');
     console.log('token excuted', token);
   };
@@ -52,28 +52,32 @@ export const Home = props => {
       const AsyncDataResponse = await AsyncData();
       const getToken = await messaging().getToken();
 
-      console.log('>>>>>>>>>>>>>>>>>>>', getToken, AsyncDataResponse);
-      if ((await AsyncStorage.getItem('DeviceToken')) === getToken) {
-        console.log('same tokens no need to call');
-      } else {
-        setAsyncToken(getToken);
-        try {
-          await deviceToken(
-            AsyncDataResponse.data.Email,
-            getToken,
-            getToken,
-            'android',
-            DeviceInfo.getReadableVersion(),
-            AsyncDataResponse.data.RetailerId,
-            AsyncDataResponse.data.RetailerUserId,
-            AsyncDataResponse.agentSessionID,
-            '',
-          );
-          const asyncDeviceToken = await AsyncStorage.getItem('DeviceToken');
-          console.log('Async Device Token', asyncDeviceToken);
-        } catch (e) {
-          console.log('ERROR', e);
-        }
+      console.log('firebasetoken', getToken, AsyncDataResponse);
+
+      try {
+        AsyncStorage.getItem('FirebaseDeviceToken').then(value => {
+          if (value === null) {
+            setAsyncToken(getToken);
+            deviceToken(
+              AsyncDataResponse.data.Email,
+              getToken,
+              getToken,
+              'android',
+              DeviceInfo.getReadableVersion(),
+              AsyncDataResponse.data.RetailerId,
+              AsyncDataResponse.data.RetailerUserId,
+              AsyncDataResponse.agentSessionID,
+              '',
+            );
+          } else if (value === getToken) {
+            console.log('token is same no need to update');
+          }
+        });
+
+        //const asyncDeviceToken = await AsyncStorage.getItem('DeviceToken');
+        console.log('end of extra function');
+      } catch (e) {
+        console.log('ERROR', e);
       }
     };
     try {
