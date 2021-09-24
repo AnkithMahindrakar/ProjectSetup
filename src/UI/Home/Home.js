@@ -65,6 +65,8 @@ export const Home = props => {
           AsyncDataResponse.agentSessionID,
           '',
         );
+        const asyncDeviceToken = await AsyncStorage.getItem('DeviceToken');
+        console.log('Async Device Token', asyncDeviceToken);
       } catch (e) {
         console.log('ERROR', e);
       }
