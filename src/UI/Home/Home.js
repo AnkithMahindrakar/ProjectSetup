@@ -4,6 +4,7 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
 import DeviceInfo from 'react-native-device-info';
+import OneSignal from 'react-native-onesignal';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -41,17 +42,20 @@ export const Home = props => {
   };
   //const Email = loginData.data.Email;
   //console.log('email of the universe', Email);
-  const setAsyncToken = async token => {
+  const setAsyncToken = async (token, oneoneSignalPlayerID) => {
     await AsyncStorage.setItem('FirebaseDeviceToken', token);
+    await AsyncStorage.setItem('oneSignalPlayerID', oneoneSignalPlayerID);
     console.log('device token method executed');
     console.log('token excuted', token);
+    console.log('onesignaltoken excuted', oneoneSignalPlayerID);
   };
 
   useEffect(() => {
     const extraFunction = async () => {
       const AsyncDataResponse = await AsyncData();
       const getToken = await messaging().getToken();
-
+      const oneSignalPlayerID = (await OneSignal.getDeviceState()).userId;
+      console.log('oneplayertoken', oneSignalPlayerID);
       console.log('firebasetoken', getToken, AsyncDataResponse);
 
       try {
@@ -67,14 +71,13 @@ export const Home = props => {
               AsyncDataResponse.data.RetailerId,
               AsyncDataResponse.data.RetailerUserId,
               AsyncDataResponse.agentSessionID,
-              '',
+              oneSignalPlayerID,
             );
           } else if (value === getToken) {
             console.log('token is same no need to update');
           }
         });
 
-        //const asyncDeviceToken = await AsyncStorage.getItem('DeviceToken');
         console.log('end of extra function');
       } catch (e) {
         console.log('ERROR', e);
