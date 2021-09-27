@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 // import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,21 +8,55 @@ import {
   TouchableOpacity,
   Image,
   Switch,
+  Platform,
   // Dimensions,
 } from 'react-native';
-// import Orientation from 'react-native-orientation';
-
-// const windowWidth = Dimensions.get('window').width;
-// const windowHeight = Dimensions.get('window').height;
+import {
+  requestMultiple,
+  checkMultiple,
+  PERMISSIONS,
+} from 'react-native-permissions';
 
 export const ProfileScreen = props => {
-  // console.log(props.isPortrait);
+  const [permission, setPermission] = useState();
+  console.log(permission);
+  const checkPermission = () => {
+    try {
+      requestMultiple(
+        Platform.OS === 'ios'
+          ? [PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.MICROPHONE]
+          : [PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.ANDROID.RECORD_AUDIO],
+      ).then(result => {
+        console.log(
+          '::::::::::::::::::::::',
+          result[PERMISSIONS.ANDROID.RECORD_AUDIO],
+          setPermission(result[PERMISSIONS.ANDROID.RECORD_AUDIO]),
+        );
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  // };
+  useEffect(() => {
+    checkPermission();
+  }, []);
+
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-  // useEffect(() => {}, []);
 
   return (
     <View style={props.isPortrait ? styles.mainitem : styles.mainItemLandScape}>
+      {permission === 'granted' ? null : (
+        <TouchableOpacity
+          style={styles.permissionContainer}
+          onPress={() => {
+            checkPermission();
+          }}>
+          <Text style={styles.permissionTxt}>Tap to grant permissions</Text>
+        </TouchableOpacity>
+      )}
       <View style={props.isPortrait ? styles.rowitem : styles.rowItemLandScape}>
         <Text style={styles.profileItem}>Profile</Text>
         <View style={styles.topItem}>
@@ -72,7 +106,9 @@ export const ProfileScreen = props => {
             <Text style={styles.textcolour}>HP Laptops</Text>
             <Text style={styles.textcolour}>System processors</Text>
           </View>
-          <TouchableOpacity style={styles.button} onPress={props.onPress}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={props.onPress.LogoutHandler}>
             <Text style={styles.text}>Logout</Text>
           </TouchableOpacity>
         </View>
@@ -110,6 +146,19 @@ const styles = StyleSheet.create({
   },
   avaliableContainer: {
     width: 100,
+  },
+  permissionContainer: {
+    // backgroundColor: 'red',
+    height: 40,
+    // width: '100%',
+    position: 'absolute',
+    top: 10,
+    justifyContent: 'center',
+    right: 0,
+  },
+  permissionTxt: {
+    fontSize: 20,
+    color: 'red',
   },
   BelowImage: {
     alignSelf: 'center',

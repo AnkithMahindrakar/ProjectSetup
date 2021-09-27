@@ -20,6 +20,8 @@ target 'ProjectSetup' do
 
   pod 'RNFBMessaging', :path => '../node_modules/@react-native-firebase/messaging'
 
+  pod 'react-native-onesignal', :path => '../node_modules/react-native-onesignal'
+
   target 'ProjectSetupTests' do
     inherit! :complete
     # Pods for testing

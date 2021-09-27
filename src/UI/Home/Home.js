@@ -11,6 +11,7 @@ import {ProfileScreen} from './ProfileScreen';
 import {deviceToken} from '../../API/ApiCalls';
 import Orientation from 'react-native-orientation';
 import messaging from '@react-native-firebase/messaging';
+import OneSignal from 'react-native-onesignal';
 export const Home = props => {
   const [profile, setProfile] = useState(true);
   const [notification, setNotification] = useState(false);
@@ -18,8 +19,6 @@ export const Home = props => {
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
-  // const [loginData, setLoginData] = useState(null);
-  // const [retailConfigData, setRetailConfigData] = useState(null);
 
   const AsyncData = async () => {
     try {
@@ -41,38 +40,45 @@ export const Home = props => {
   };
   //const Email = loginData.data.Email;
   //console.log('email of the universe', Email);
-  const setAsyncToken = async token => {
-    await AsyncStorage.setItem('DeviceToken', token);
+  const setAsyncToken = async (token, oneoneSignalPlayerID) => {
+    await AsyncStorage.setItem('FirebaseDeviceToken', token);
+    await AsyncStorage.setItem('oneSignalPlayerID', oneoneSignalPlayerID);
     console.log('device token method executed');
     console.log('token excuted', token);
+    console.log('onesignaltoken excuted', oneoneSignalPlayerID);
   };
 
   useEffect(() => {
     const extraFunction = async () => {
       const AsyncDataResponse = await AsyncData();
       const getToken = await messaging().getToken();
-      setAsyncToken(getToken);
-      console.log('>>>>>>>>>>>>>>>>>>>', getToken, AsyncDataResponse);
-      if ((await AsyncStorage.getItem('DeviceToken')) === getToken) {
-        console.log('same tokens no need to call');
-      } else {
-        try {
-          await deviceToken(
-            AsyncDataResponse.data.Email,
-            getToken,
-            getToken,
-            'android',
-            DeviceInfo.getReadableVersion(),
-            AsyncDataResponse.data.RetailerId,
-            AsyncDataResponse.data.RetailerUserId,
-            AsyncDataResponse.agentSessionID,
-            '',
-          );
-          const asyncDeviceToken = await AsyncStorage.getItem('DeviceToken');
-          console.log('Async Device Token', asyncDeviceToken);
-        } catch (e) {
-          console.log('ERROR', e);
-        }
+      const oneSignalPlayerID = (await OneSignal.getDeviceState()).userId;
+      console.log('oneplayertoken', oneSignalPlayerID);
+      console.log('firebasetoken', getToken, AsyncDataResponse);
+
+      try {
+        AsyncStorage.getItem('FirebaseDeviceToken').then(value => {
+          if (value === null) {
+            setAsyncToken(getToken, oneSignalPlayerID);
+            deviceToken(
+              AsyncDataResponse.data.Email,
+              getToken,
+              getToken,
+              'android',
+              DeviceInfo.getReadableVersion(),
+              AsyncDataResponse.data.RetailerId,
+              AsyncDataResponse.data.RetailerUserId,
+              AsyncDataResponse.agentSessionID,
+              oneSignalPlayerID,
+            );
+          } else if (value === getToken) {
+            console.log('token is same no need to update');
+          }
+        });
+
+        console.log('end of extra function');
+      } catch (e) {
+        console.log('ERROR', e);
       }
     };
     try {
@@ -80,7 +86,12 @@ export const Home = props => {
     } catch (e) {
       console.log(e);
     }
-    // console.log('DeviceTokenFCN', DeviceTokenFCN),
+
+    try {
+    } catch (e) {
+      console.log(e);
+    }
+
     Orientation.unlockAllOrientations();
     const initial = Orientation.getInitialOrientation();
     if (initial === 'PORTRAIT') {
@@ -200,7 +211,11 @@ export const Home = props => {
   return (
     <View style={styles.container}>
       {profile && (
-        <ProfileScreen onPress={LogoutHandler} isPortrait={isPortrait} />
+        <ProfileScreen
+          onPress={LogoutHandler}
+          isPortrait={isPortrait}
+          // permission={PermissionCheck}
+        />
       )}
 
       {notification && (
