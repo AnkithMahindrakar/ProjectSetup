@@ -51,9 +51,7 @@ export const ProfileScreen = props => {
       {permission === 'granted' ? null : (
         <TouchableOpacity
           style={styles.permissionContainer}
-          onPress={() => {
-            checkPermission();
-          }}>
+          onPress={checkPermission}>
           <Text style={styles.permissionTxt}>Tap to grant permissions</Text>
         </TouchableOpacity>
       )}
@@ -106,9 +104,7 @@ export const ProfileScreen = props => {
             <Text style={styles.textcolour}>HP Laptops</Text>
             <Text style={styles.textcolour}>System processors</Text>
           </View>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={props.onPress.LogoutHandler}>
+          <TouchableOpacity style={styles.button} onPress={props.onPress}>
             <Text style={styles.text}>Logout</Text>
           </TouchableOpacity>
         </View>
