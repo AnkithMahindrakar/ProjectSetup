@@ -177,3 +177,32 @@ export const deviceToken = async (
     throw new Error('Device token failed');
   }
 };
+export const updateAgentStatus = async (
+  retailerID,
+  retailerUserID,
+  agentSessionID,
+  status,
+) => {
+  const data = {
+    RetailerId: retailerID,
+    RetailerUserId: retailerUserID,
+    AgentSessionId: agentSessionID,
+    Status: status,
+  };
+
+  const header = await makeHeader('static', 'POST');
+  console.log('Update Agent status params:', data);
+  const result = await axios.post(urls.user.updateAgentStatus, data, header);
+
+  if (result.status === 200) {
+    console.log('Update Agent status API Result Data:', result.data);
+    await AsyncStorage.setItem(
+      'UpdateAgentStatus_Data',
+      JSON.stringify(result.data),
+    );
+
+    return result.data;
+  } else {
+    throw new Error('Update Agent status API failed');
+  }
+};
