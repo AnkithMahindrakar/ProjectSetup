@@ -12,6 +12,7 @@ import {ProfileScreen} from './ProfileScreen';
 import {deviceToken} from '../../API/ApiCalls';
 import Orientation from 'react-native-orientation';
 import messaging from '@react-native-firebase/messaging';
+
 export const Home = props => {
   const [profile, setProfile] = useState(true);
   const [notification, setNotification] = useState(false);
@@ -19,9 +20,10 @@ export const Home = props => {
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
-  // const [loginData, setLoginData] = useState(null);
-  // const [retailConfigData, setRetailConfigData] = useState(null);
-
+  //for background notifications
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log('Message handled in the background!', remoteMessage);
+  });
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
@@ -42,20 +44,38 @@ export const Home = props => {
   };
   //const Email = loginData.data.Email;
   //console.log('email of the universe', Email);
-  const setAsyncToken = async (token, oneoneSignalPlayerID) => {
+  const setAsyncToken = async token => {
     await AsyncStorage.setItem('FirebaseDeviceToken', token);
-    await AsyncStorage.setItem('oneSignalPlayerID', oneoneSignalPlayerID);
+
     console.log('device token method executed');
     console.log('token excuted', token);
-    console.log('onesignaltoken excuted', oneoneSignalPlayerID);
   };
+  // Method for handling notifications received while app in foreground
+  OneSignal.setNotificationWillShowInForegroundHandler(
+    notificationReceivedEvent => {
+      console.log(
+        'OneSignal: notification will show in foreground:',
+        notificationReceivedEvent,
+      );
+      let notificationreceived = notificationReceivedEvent.getNotification();
+      console.log('notification: ', notificationreceived);
+      const data = notification.additionalData;
+      console.log('additionalData: ', data);
+      // Complete with null means don't show a notification.
+      notificationReceivedEvent.complete(notificationreceived);
+    },
+  );
+
+  //Method for handling notifications opened
+  OneSignal.setNotificationOpenedHandler(opennotification => {
+    console.log('OneSignal: notification opened:', opennotification);
+  });
 
   useEffect(() => {
     const extraFunction = async () => {
       const AsyncDataResponse = await AsyncData();
       const getToken = await messaging().getToken();
-      const oneSignalPlayerID = (await OneSignal.getDeviceState()).userId;
-      console.log('oneplayertoken', oneSignalPlayerID);
+      const oneSignalPlayerID = await AsyncStorage.getItem('oneSignalPlayerID');
       console.log('firebasetoken', getToken, AsyncDataResponse);
 
       try {
@@ -88,7 +108,12 @@ export const Home = props => {
     } catch (e) {
       console.log(e);
     }
-    // console.log('DeviceTokenFCN', DeviceTokenFCN),
+
+    try {
+    } catch (e) {
+      console.log(e);
+    }
+
     Orientation.unlockAllOrientations();
     const initial = Orientation.getInitialOrientation();
     if (initial === 'PORTRAIT') {
@@ -208,7 +233,11 @@ export const Home = props => {
   return (
     <View style={styles.container}>
       {profile && (
-        <ProfileScreen onPress={LogoutHandler} isPortrait={isPortrait} />
+        <ProfileScreen
+          onPress={LogoutHandler}
+          isPortrait={isPortrait}
+          // permission={PermissionCheck}
+        />
       )}
 
       {notification && (
