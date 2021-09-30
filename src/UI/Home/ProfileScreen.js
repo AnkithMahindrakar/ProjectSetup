@@ -11,15 +11,12 @@ import {
   ToastAndroid,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {checkPermission, checkPermission2} from '../../Helper/PermissionHelper';
+import {checkPermission} from '../../Helper/PermissionHelper';
 import {updateAgentStatus} from '../../API/ApiCalls';
 
 export const ProfileScreen = props => {
-  // const [cameraPermission, setCameraPermission] = useState();
-  // const [MicPermission, setMicPermission] = useState();
   const [isAvailable, setIsAvailable] = useState(true);
   const [permission, setPermission] = useState();
-  console.log('LLLLLLLLLLLLLLLL', permission);
   const showToast = () => {
     ToastAndroid.show(
       'Please allow all the permisions required',
@@ -31,13 +28,12 @@ export const ProfileScreen = props => {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
       const asyncLoginData =
         JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
-      // console.log('IsAvailable3', isAvailable);
 
       await updateAgentStatus(
         asyncLoginData.data.RetailerId,
         asyncLoginData.data.RetailerUserId,
         asyncLoginData.agentSessionID,
-        !isAvailable ? 'Available' : 'NotAvailable',
+        isAvailable ? 'Available' : 'NotAvailable',
       );
     } catch (e) {
       console.log(e);
@@ -45,32 +41,34 @@ export const ProfileScreen = props => {
   };
 
   const AsyncFunction = async () => {
-    const Permission = await checkPermission2();
-    console.log('Permission in useEffect', Permission);
-    setPermission(Permission);
+    const PermissionResult = await checkPermission();
+    console.log('Permission in useEffect', PermissionResult);
+    setPermission(PermissionResult);
+    return PermissionResult;
   };
 
-  useEffect(() => {
-    AsyncFunction();
-    if (permission === 'granted') {
-      console.log('IsAvailable4', isAvailable);
-      UpdateAgentStatusApi();
+  const ExtraFunction = async () => {
+    const permissionResult = await AsyncFunction();
+    console.log('permissionResult', permissionResult);
+    if (permissionResult === 'granted') {
+      console.log('permissionREuslt', permissionResult);
+      await UpdateAgentStatusApi();
     }
-  }, []);
-
-  const toggleSwitch = async () => {
-    await setIsAvailable(prevValue => !prevValue);
-    console.log('IsAvailable1111111111', isAvailable);
   };
-  // UpdateAgentStatusApi();
-  console.log('IsAvailable2222222222222', isAvailable);
+  useEffect(() => {
+    ExtraFunction();
+  }, [isAvailable]);
+
+  const toggleSwitch = () => {
+    setIsAvailable(!isAvailable);
+  };
 
   return (
     <View style={props.isPortrait ? styles.mainitem : styles.mainItemLandScape}>
       {permission === 'granted' ? null : (
         <TouchableOpacity
           style={styles.permissionContainer}
-          onPress={AsyncFunction}>
+          onPress={ExtraFunction}>
           <Text style={styles.permissionTxt}>Tap to grant permissions</Text>
         </TouchableOpacity>
       )}
@@ -88,14 +86,17 @@ export const ProfileScreen = props => {
             activeOpacity={1}
             onPress={() => {
               permission === 'granted' ? null : showToast();
+              // console.log(permission);
+              // UpdateAgentStatusApi();
             }}>
             <Switch
               trackColor={{true: '#00ff00', false: '#767577'}}
               thumbColor={isAvailable ? '#f4f3f4' : '#f4f3f4'}
               ios_backgroundColor="#3e3e3e"
-              onValueChange={() => {
+              onValueChange={async () => {
                 toggleSwitch();
-                UpdateAgentStatusApi();
+                // console.log('toggle', toggle);
+                // UpdateAgentStatusApi2(toggle);
               }}
               // onChange={UpdateAgentStatusApi}
               style={{transform: [{scaleX: 1.3}, {scaleY: 1.3}]}}
