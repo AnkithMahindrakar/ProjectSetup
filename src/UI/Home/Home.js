@@ -21,11 +21,6 @@ export const Home = props => {
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
 
-  //for background notifications
-  messaging().setBackgroundMessageHandler(async remoteMessage => {
-    console.log('Message handled in the background!', remoteMessage);
-  });
-
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
@@ -52,6 +47,12 @@ export const Home = props => {
     console.log('device token method executed');
     console.log('token excuted', token);
   };
+
+  //for background notifications
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log('Message handled in the background!', remoteMessage);
+  });
+
   // Method for handling notifications received while app in foreground
   OneSignal.setNotificationWillShowInForegroundHandler(
     notificationReceivedEvent => {
