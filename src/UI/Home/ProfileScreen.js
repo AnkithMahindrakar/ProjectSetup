@@ -11,79 +11,64 @@ import {
   ToastAndroid,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {checkPermission, checkPermission2} from '../../Helper/PermissionHelper';
+import {checkPermission} from '../../Helper/PermissionHelper';
 import {updateAgentStatus} from '../../API/ApiCalls';
 
 export const ProfileScreen = props => {
-  // const [cameraPermission, setCameraPermission] = useState();
-  // const [MicPermission, setMicPermission] = useState();
-  const [isAvailable, setIsAvailable] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(true);
   const [permission, setPermission] = useState();
-  console.log('LLLLLLLLLLLLLLLL', permission);
   const showToast = () => {
     ToastAndroid.show(
       'Please allow all the permisions required',
       ToastAndroid.SHORT,
     );
   };
-  const UpdateAgentStatusApi = async status => {
+  const UpdateAgentStatusApi = async () => {
     try {
-      console.log('31');
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
       const asyncLoginData =
         JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
-      // console.log('IsAvailable3', isAvailable);
 
       await updateAgentStatus(
         asyncLoginData.data.RetailerId,
         asyncLoginData.data.RetailerUserId,
         asyncLoginData.agentSessionID,
-        status,
+        isAvailable ? 'Available' : 'NotAvailable',
       );
-      console.log('32');
     } catch (e) {
       console.log(e);
     }
   };
 
   const AsyncFunction = async () => {
-    console.log('11');
-    const Permission = await checkPermission2();
-    console.log('12');
-    // console.log('Permission in useEffect', Permission);
-    setPermission(Permission);
-    console.log('13');
+    const PermissionResult = await checkPermission();
+    console.log('Permission in useEffect', PermissionResult);
+    setPermission(PermissionResult);
+    return PermissionResult;
   };
 
-  useEffect(() => {
-    console.log('1');
-    AsyncFunction();
-    console.log('2');
-    if (permission === 'granted') {
-      console.log('3');
-      UpdateAgentStatusApi('Available');
-      console.log('4');
+  const ExtraFunction = async () => {
+    const permissionResult = await AsyncFunction();
+    console.log('permissionResult', permissionResult);
+    if (permissionResult === 'granted') {
+      console.log('permissionREuslt', permissionResult);
+      await UpdateAgentStatusApi();
     }
-  }, []);
-
-  const toggleSwitch = async () => {
-    setIsAvailable(prevValue => !prevValue);
-
-    console.log('IsAvailable1111111111', isAvailable);
   };
-  if (isAvailable === true) {
-    UpdateAgentStatusApi('Available');
-  } else {
-    UpdateAgentStatusApi('NotAvailable');
-  }
-  console.log('IsAvailable2222222222222', isAvailable);
+  useEffect(() => {
+    ExtraFunction();
+  }, [isAvailable]);
+
+  const toggleSwitch = () => {
+    setIsAvailable(!isAvailable);
+  };
 
   return (
     <View style={props.isPortrait ? styles.mainitem : styles.mainItemLandScape}>
       {permission === 'granted' ? null : (
         <TouchableOpacity
           style={styles.permissionContainer}
-          onPress={AsyncFunction}>
+          onPress={ExtraFunction}>
           <Text style={styles.permissionTxt}>Tap to grant permissions</Text>
         </TouchableOpacity>
       )}
@@ -101,12 +86,18 @@ export const ProfileScreen = props => {
             activeOpacity={1}
             onPress={() => {
               permission === 'granted' ? null : showToast();
+              // console.log(permission);
+              // UpdateAgentStatusApi();
             }}>
             <Switch
               trackColor={{true: '#00ff00', false: '#767577'}}
               thumbColor={isAvailable ? '#f4f3f4' : '#f4f3f4'}
               ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleSwitch}
+              onValueChange={async () => {
+                toggleSwitch();
+                // console.log('toggle', toggle);
+                // UpdateAgentStatusApi2(toggle);
+              }}
               // onChange={UpdateAgentStatusApi}
               style={{transform: [{scaleX: 1.3}, {scaleY: 1.3}]}}
               disabled={permission === 'granted' ? false : true}
