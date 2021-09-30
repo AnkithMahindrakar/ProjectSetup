@@ -4,6 +4,7 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
 import DeviceInfo from 'react-native-device-info';
+import OneSignal from 'react-native-onesignal';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -11,7 +12,7 @@ import {ProfileScreen} from './ProfileScreen';
 import {deviceToken} from '../../API/ApiCalls';
 import Orientation from 'react-native-orientation';
 import messaging from '@react-native-firebase/messaging';
-import OneSignal from 'react-native-onesignal';
+
 export const Home = props => {
   const [profile, setProfile] = useState(true);
   const [notification, setNotification] = useState(false);
@@ -19,6 +20,11 @@ export const Home = props => {
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
+
+  //for background notifications
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log('Message handled in the background!', remoteMessage);
+  });
 
   const AsyncData = async () => {
     try {
@@ -40,26 +46,44 @@ export const Home = props => {
   };
   //const Email = loginData.data.Email;
   //console.log('email of the universe', Email);
-  const setAsyncToken = async (token, oneoneSignalPlayerID) => {
+  const setAsyncToken = async token => {
     await AsyncStorage.setItem('FirebaseDeviceToken', token);
-    await AsyncStorage.setItem('oneSignalPlayerID', oneoneSignalPlayerID);
+
     console.log('device token method executed');
     console.log('token excuted', token);
-    console.log('onesignaltoken excuted', oneoneSignalPlayerID);
   };
+  // Method for handling notifications received while app in foreground
+  OneSignal.setNotificationWillShowInForegroundHandler(
+    notificationReceivedEvent => {
+      console.log(
+        'OneSignal: notification will show in foreground:',
+        notificationReceivedEvent,
+      );
+      let notificationreceived = notificationReceivedEvent.getNotification();
+      console.log('notification: ', notificationreceived);
+      const data = notification.additionalData;
+      console.log('additionalData: ', data);
+      // Complete with null means don't show a notification.
+      notificationReceivedEvent.complete(notificationreceived);
+    },
+  );
+
+  //Method for handling notifications opened
+  OneSignal.setNotificationOpenedHandler(opennotification => {
+    console.log('OneSignal: notification opened:', opennotification);
+  });
 
   useEffect(() => {
     const extraFunction = async () => {
       const AsyncDataResponse = await AsyncData();
       const getToken = await messaging().getToken();
-      const oneSignalPlayerID = (await OneSignal.getDeviceState()).userId;
-      console.log('oneplayertoken', oneSignalPlayerID);
+      const oneSignalPlayerID = await AsyncStorage.getItem('oneSignalPlayerID');
       console.log('firebasetoken', getToken, AsyncDataResponse);
 
       try {
         AsyncStorage.getItem('FirebaseDeviceToken').then(value => {
           if (value === null) {
-            setAsyncToken(getToken, oneSignalPlayerID);
+            setAsyncToken(getToken);
             deviceToken(
               AsyncDataResponse.data.Email,
               getToken,
