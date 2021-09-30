@@ -17,7 +17,7 @@ import {updateAgentStatus} from '../../API/ApiCalls';
 export const ProfileScreen = props => {
   // const [cameraPermission, setCameraPermission] = useState();
   // const [MicPermission, setMicPermission] = useState();
-  const [isAvailable, setIsAvailable] = useState(true);
+  const [isAvailable, setIsAvailable] = useState(false);
   const [permission, setPermission] = useState();
   console.log('LLLLLLLLLLLLLLLL', permission);
   const showToast = () => {
@@ -26,8 +26,9 @@ export const ProfileScreen = props => {
       ToastAndroid.SHORT,
     );
   };
-  const UpdateAgentStatusApi = async () => {
+  const UpdateAgentStatusApi = async status => {
     try {
+      console.log('31');
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
       const asyncLoginData =
         JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
@@ -37,32 +38,44 @@ export const ProfileScreen = props => {
         asyncLoginData.data.RetailerId,
         asyncLoginData.data.RetailerUserId,
         asyncLoginData.agentSessionID,
-        !isAvailable ? 'Available' : 'NotAvailable',
+        status,
       );
+      console.log('32');
     } catch (e) {
       console.log(e);
     }
   };
 
   const AsyncFunction = async () => {
+    console.log('11');
     const Permission = await checkPermission2();
-    console.log('Permission in useEffect', Permission);
+    console.log('12');
+    // console.log('Permission in useEffect', Permission);
     setPermission(Permission);
+    console.log('13');
   };
 
   useEffect(() => {
+    console.log('1');
     AsyncFunction();
+    console.log('2');
     if (permission === 'granted') {
-      console.log('IsAvailable4', isAvailable);
-      UpdateAgentStatusApi();
+      console.log('3');
+      UpdateAgentStatusApi('Available');
+      console.log('4');
     }
   }, []);
 
   const toggleSwitch = async () => {
-    await setIsAvailable(prevValue => !prevValue);
+    setIsAvailable(prevValue => !prevValue);
+
     console.log('IsAvailable1111111111', isAvailable);
   };
-  // UpdateAgentStatusApi();
+  if (isAvailable === true) {
+    UpdateAgentStatusApi('Available');
+  } else {
+    UpdateAgentStatusApi('NotAvailable');
+  }
   console.log('IsAvailable2222222222222', isAvailable);
 
   return (
@@ -70,11 +83,7 @@ export const ProfileScreen = props => {
       {permission === 'granted' ? null : (
         <TouchableOpacity
           style={styles.permissionContainer}
-<<<<<<< HEAD
-          onPress={checkPermission}>
-=======
           onPress={AsyncFunction}>
->>>>>>> 602a355c098b2a62b25c6133fa697536c6a0b5e5
           <Text style={styles.permissionTxt}>Tap to grant permissions</Text>
         </TouchableOpacity>
       )}
@@ -97,10 +106,7 @@ export const ProfileScreen = props => {
               trackColor={{true: '#00ff00', false: '#767577'}}
               thumbColor={isAvailable ? '#f4f3f4' : '#f4f3f4'}
               ios_backgroundColor="#3e3e3e"
-              onValueChange={() => {
-                toggleSwitch();
-                UpdateAgentStatusApi();
-              }}
+              onValueChange={toggleSwitch}
               // onChange={UpdateAgentStatusApi}
               style={{transform: [{scaleX: 1.3}, {scaleY: 1.3}]}}
               disabled={permission === 'granted' ? false : true}

@@ -20,10 +20,12 @@ export const Home = props => {
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
+
   //for background notifications
   messaging().setBackgroundMessageHandler(async remoteMessage => {
     console.log('Message handled in the background!', remoteMessage);
   });
+
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');

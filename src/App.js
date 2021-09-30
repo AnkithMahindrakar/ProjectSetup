@@ -6,12 +6,9 @@ import {UIProvider} from './Provider/UIProvider';
 import {Navigation} from './Navigation/Navigation';
 import Firebase from '@react-native-firebase/app';
 export const App = () => {
-  // if (firebase.apps.length === 0) {
-  //   Firebase.initializeApp();
-  // }
-
   const onesignal = async () => {
-    OneSignal.setLogLevel(6, 0);
+    OneSignal.setLogLevel(2, 3);
+
     OneSignal.setAppId('4b6816e6-57aa-4765-8898-a83164203baa');
     const oneSignalPlayerID = (await OneSignal.getDeviceState()).userId;
     await AsyncStorage.setItem('oneSignalPlayerID', oneSignalPlayerID);
