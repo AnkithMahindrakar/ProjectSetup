@@ -11,13 +11,12 @@ import {
   ToastAndroid,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {checkPermission, checkPermission2} from '../../Helper/PermissionHelper';
+import {checkPermission} from '../../Helper/PermissionHelper';
 import {updateAgentStatus} from '../../API/ApiCalls';
 
 export const ProfileScreen = props => {
   const [isAvailable, setIsAvailable] = useState(true);
   const [permission, setPermission] = useState();
-  console.log('LLLLLLLLLLLLLLLL', permission);
   const showToast = () => {
     ToastAndroid.show(
       'Please allow all the permisions required',
@@ -29,7 +28,6 @@ export const ProfileScreen = props => {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
       const asyncLoginData =
         JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
-      // console.log('IsAvailable3', isAvailable);
 
       await updateAgentStatus(
         asyncLoginData.data.RetailerId,
@@ -56,7 +54,10 @@ export const ProfileScreen = props => {
       console.log('permissionREuslt', permissionResult);
       await UpdateAgentStatusApi();
     }
-  }, []);
+  };
+  useEffect(() => {
+    ExtraFunction();
+  }, [isAvailable]);
 
   const toggleSwitch = () => {
     setIsAvailable(!isAvailable);
@@ -67,7 +68,7 @@ export const ProfileScreen = props => {
       {permission === 'granted' ? null : (
         <TouchableOpacity
           style={styles.permissionContainer}
-          onPress={AsyncFunction}>
+          onPress={ExtraFunction}>
           <Text style={styles.permissionTxt}>Tap to grant permissions</Text>
         </TouchableOpacity>
       )}
@@ -85,6 +86,8 @@ export const ProfileScreen = props => {
             activeOpacity={1}
             onPress={() => {
               permission === 'granted' ? null : showToast();
+              // console.log(permission);
+              // UpdateAgentStatusApi();
             }}>
             <Switch
               trackColor={{true: '#00ff00', false: '#767577'}}
