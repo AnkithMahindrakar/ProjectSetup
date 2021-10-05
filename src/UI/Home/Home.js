@@ -21,7 +21,6 @@ import {deviceToken} from '../../API/ApiCalls';
 import SoundPlayer from 'react-native-sound-player';
 import Orientation from 'react-native-orientation';
 import messaging from '@react-native-firebase/messaging';
-import _BackgroundTimer from 'react-native-background-timer';
 
 export const Home = props => {
   const [profile, setProfile] = useState(true);
@@ -79,17 +78,18 @@ export const Home = props => {
       console.log('notification: ', notificationreceived);
       const data = notification.additionalData;
       console.log('additionalData: ', data);
+      notificationReceivedEvent.complete(notificationreceived);
       setvisible(true);
       SoundPlayer.playSoundFile('audio', 'mp3');
       SoundPlayer.addEventListener('FinishedPlaying', ({success}) => {
         SoundPlayer.play();
       });
       BackgroundTimer.setTimeout(() => {
+        console.log('pause');
         SoundPlayer.stop();
         setvisible(false);
-      }, 10000);
+      }, 30000);
       // Complete with null means don't show a notification.
-      notificationReceivedEvent.complete(notificationreceived);
     },
   );
 
