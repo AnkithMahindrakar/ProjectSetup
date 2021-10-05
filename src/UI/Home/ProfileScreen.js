@@ -15,7 +15,10 @@ import {checkPermission} from '../../Helper/PermissionHelper';
 import {updateAgentStatus} from '../../API/ApiCalls';
 
 export const ProfileScreen = props => {
-  const [isAvailable, setIsAvailable] = useState(true);
+  const [isAvailable, setIsAvailable] = useState(() => {
+    console.log('hello');
+    return true;
+  });
   const [permission, setPermission] = useState();
   const showToast = () => {
     ToastAndroid.show(
