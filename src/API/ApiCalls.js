@@ -196,13 +196,26 @@ export const updateAgentStatus = async (
 
   if (result.status === 200) {
     console.log('Update Agent status API Result Data:', result.data);
-    await AsyncStorage.setItem(
-      'UpdateAgentStatus_Data',
-      JSON.stringify(result.data),
-    );
 
     return result.data;
   } else {
     throw new Error('Update Agent status API failed');
+  }
+};
+export const AgentForgotPassword = async email => {
+  const data = {
+    Email: email,
+  };
+
+  const header = await makeHeader('static', 'POST');
+  console.log('AgentForgotPassword params:', data);
+  const result = await axios.post(urls.user.AgentForgotPassword, data, header);
+
+  if (result.status === 200) {
+    console.log('Agent Forgot Password API Result Data:', result.data);
+
+    return result;
+  } else {
+    throw new Error('Agent Forgot Password API failed');
   }
 };

@@ -51,7 +51,6 @@ export const ProfileScreen = props => {
     const permissionResult = await AsyncFunction();
     console.log('permissionResult', permissionResult);
     if (permissionResult === 'granted') {
-      console.log('permissionREuslt', permissionResult);
       await UpdateAgentStatusApi();
     }
   };

@@ -6,5 +6,6 @@ export const urls = {
     retailerConfig: `${host}Agent/AgentConfig`,
     token: `${host}services/v2/UpdateAgentDeviceToken`,
     updateAgentStatus: `${host}services/UpdateAgentStatus`,
+    AgentForgotPassword: `${host}services/AgentForgotPassword`,
   },
 };
