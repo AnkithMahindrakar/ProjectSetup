@@ -18,7 +18,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProfileScreen} from './ProfileScreen';
 import {deviceToken} from '../../API/ApiCalls';
-import SoundPlayer from 'react-native-sound-player';
+
 import Orientation from 'react-native-orientation';
 import messaging from '@react-native-firebase/messaging';
 
@@ -30,7 +30,8 @@ export const Home = props => {
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
-  // var i;
+  var Sound = require('react-native-sound');
+  Sound.setCategory('Playback');
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
@@ -80,14 +81,39 @@ export const Home = props => {
       console.log('additionalData: ', data);
       notificationReceivedEvent.complete(notificationreceived);
       setvisible(true);
-      SoundPlayer.playSoundFile('audio', 'mp3');
-      SoundPlayer.addEventListener('FinishedPlaying', ({success}) => {
-        SoundPlayer.play();
+      var whoosh = new Sound('audio.mp3', Sound.MAIN_BUNDLE, error => {
+        if (error) {
+          console.log('failed to load the sound', error);
+          return;
+        }
+        // loaded successfully
+        console.log(
+          'duration in seconds: ' +
+            whoosh.getDuration() +
+            'number of channels: ' +
+            whoosh.getNumberOfChannels(),
+        );
+        BackgroundTimer.runBackgroundTimer(() => {
+          whoosh.play(success => {
+            if (success) {
+              console.log('successfully finished playing');
+            } else {
+              console.log('playback failed due to audio decoding errors');
+            }
+          });
+        }, whoosh.getDuration());
       });
+      whoosh.setNumberOfLoops(-1);
       BackgroundTimer.setTimeout(() => {
         console.log('pause');
-        SoundPlayer.stop();
         setvisible(false);
+        BackgroundTimer.stopBackgroundTimer();
+        whoosh.stop(() => {
+          // Note: If you want to play a sound after stopping and rewinding it,
+          // it is important to call play() in a callback.
+          //whoosh.play();
+        });
+        whoosh.release();
       }, 30000);
       // Complete with null means don't show a notification.
     },
