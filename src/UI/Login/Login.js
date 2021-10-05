@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import {Input} from '../common/Input';
 import {Button} from '../common/Button';
@@ -149,6 +150,13 @@ export const Login = ({navigation}) => {
           {Inputs()}
           {LoginButton()}
         </View>
+        <TouchableOpacity
+          style={styles.forgotContainer}
+          onPress={() => {
+            navigation.navigate('ForgotPasswordScreen');
+          }}>
+          <Text style={styles.forgotTxt}>Forgot Password?</Text>
+        </TouchableOpacity>
         <View style={styles.versionContainer}>
           <Text style={styles.versionText}>
             {'\u00A9'}2020 popcornapps, All rights reserved{'\n'} Version{' '}
@@ -184,11 +192,20 @@ const styles = StyleSheet.create({
     marginTop: 60,
   },
   versionContainer: {
-    marginTop: 100,
+    marginTop: 70,
   },
   versionText: {
     fontSize: 12,
     color: '#606060',
     textAlign: 'center',
+  },
+  forgotContainer: {
+    // backgroundColor: 'red',
+    marginTop: 15,
+  },
+  forgotTxt: {
+    color: '#FB8B24',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
