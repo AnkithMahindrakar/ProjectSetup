@@ -30,7 +30,7 @@ export const Home = props => {
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
-  var i;
+  // var i;
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
