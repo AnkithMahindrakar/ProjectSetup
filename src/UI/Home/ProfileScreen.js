@@ -57,6 +57,7 @@ export const ProfileScreen = props => {
       await UpdateAgentStatusApi();
     }
   };
+
   useEffect(() => {
     ExtraFunction();
   }, [isAvailable]);
