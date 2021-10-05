@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.ocetnik.timer.BackgroundTimerPackage;
+import com.johnsonsu.rnsoundplayer.RNSoundPlayerPackage;
 import com.geektime.rnonesignalandroid.ReactNativeOneSignalPackage;
 import io.invertase.firebase.messaging.ReactNativeFirebaseMessagingPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;

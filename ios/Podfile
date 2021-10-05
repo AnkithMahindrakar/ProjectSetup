@@ -22,6 +22,10 @@ target 'ProjectSetup' do
 
   pod 'react-native-onesignal', :path => '../node_modules/react-native-onesignal'
 
+  pod 'RNSoundPlayer', :path => '../node_modules/react-native-sound-player'
+
+  pod 'react-native-background-timer', :path => '../node_modules/react-native-background-timer'
+
   target 'ProjectSetupTests' do
     inherit! :complete
     # Pods for testing

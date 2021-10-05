@@ -1,15 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  TouchableOpacity,
+  Modal,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
 import DeviceInfo from 'react-native-device-info';
 import OneSignal from 'react-native-onesignal';
+import BackgroundTimer from 'react-native-background-timer';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProfileScreen} from './ProfileScreen';
 import {deviceToken} from '../../API/ApiCalls';
+import SoundPlayer from 'react-native-sound-player';
 import Orientation from 'react-native-orientation';
 import messaging from '@react-native-firebase/messaging';
 
@@ -17,10 +26,11 @@ export const Home = props => {
   const [profile, setProfile] = useState(true);
   const [notification, setNotification] = useState(false);
   const [calendar, setCalendar] = useState(false);
+  const [visible, setvisible] = useState(false);
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
-
+  var i;
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
@@ -39,6 +49,10 @@ export const Home = props => {
       console.log(e);
     }
   };
+
+  // setTimeout(() => {
+  //   setvisible(false);
+  // }, 3000);
   //const Email = loginData.data.Email;
   //console.log('email of the universe', Email);
   const setAsyncToken = async token => {
@@ -64,8 +78,18 @@ export const Home = props => {
       console.log('notification: ', notificationreceived);
       const data = notification.additionalData;
       console.log('additionalData: ', data);
-      // Complete with null means don't show a notification.
       notificationReceivedEvent.complete(notificationreceived);
+      setvisible(true);
+      SoundPlayer.playSoundFile('audio', 'mp3');
+      SoundPlayer.addEventListener('FinishedPlaying', ({success}) => {
+        SoundPlayer.play();
+      });
+      BackgroundTimer.setTimeout(() => {
+        console.log('pause');
+        SoundPlayer.stop();
+        setvisible(false);
+      }, 30000);
+      // Complete with null means don't show a notification.
     },
   );
 
@@ -235,6 +259,17 @@ export const Home = props => {
   };
   return (
     <View style={styles.container}>
+      <Modal transparent={true} visible={visible}>
+        {visible && (
+          <View style={styles.banner}>
+            <Text style={styles.bannertext}>Incoming Call</Text>
+
+            <Button title="Accept" style={styles.bannerbox} color="#ff7f50" />
+
+            <Button title="Cancel" style={styles.bannerbox} color="#ff7f50" />
+          </View>
+        )}
+      </Modal>
       {profile && (
         <ProfileScreen
           onPress={LogoutHandler}
@@ -298,7 +333,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
   },
-
+  bannertext: {
+    textAlign: 'left',
+    color: '#f8f8ff',
+  },
+  bannerbox: {
+    color: '#ff8c00',
+    width: 50,
+    height: 100,
+    alignSelf: 'center',
+  },
+  banner: {
+    position: 'absolute',
+    top: 5,
+    height: '13%',
+    width: '100%',
+    backgroundColor: 'black',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
   iconContainer: {
     height: 60,
     width: 60,
