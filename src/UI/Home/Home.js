@@ -31,6 +31,7 @@ export const Home = props => {
   const [random, setRandom] = useState(false);
   const [isPortrait, setIsPortrait] = useState();
   var Sound = require('react-native-sound');
+  var whoosh;
   Sound.setCategory('Playback');
   const AsyncData = async () => {
     try {
@@ -81,28 +82,28 @@ export const Home = props => {
       console.log('additionalData: ', data);
       notificationReceivedEvent.complete(notificationreceived);
       setvisible(true);
-      var whoosh = new Sound('audio.mp3', Sound.MAIN_BUNDLE, error => {
+      whoosh = new Sound('audio.mp3', Sound.MAIN_BUNDLE, error => {
         if (error) {
           console.log('failed to load the sound', error);
           return;
         }
         // loaded successfully
-        console.log(
-          'duration in seconds: ' +
-            whoosh.getDuration() +
-            'number of channels: ' +
-            whoosh.getNumberOfChannels(),
-        );
-        BackgroundTimer.runBackgroundTimer(() => {
-          whoosh.play(success => {
-            if (success) {
-              console.log('successfully finished playing');
-            } else {
-              console.log('playback failed due to audio decoding errors');
-            }
-          });
-        }, whoosh.getDuration());
       });
+      console.log(
+        'duration in seconds: ' +
+          whoosh.getDuration() +
+          'number of channels: ' +
+          whoosh.getNumberOfChannels(),
+      );
+      BackgroundTimer.runBackgroundTimer(() => {
+        whoosh.play(success => {
+          if (success) {
+            console.log('successfully finished playing');
+          } else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      }, whoosh.getDuration());
       whoosh.setNumberOfLoops(-1);
       BackgroundTimer.setTimeout(() => {
         console.log('pause');
@@ -290,9 +291,31 @@ export const Home = props => {
           <View style={styles.banner}>
             <Text style={styles.bannertext}>Incoming Call</Text>
 
-            <Button title="Accept" style={styles.bannerbox} color="#ff7f50" />
+            <Button
+              title="Accept"
+              style={styles.bannerbox}
+              color="#ff7f50"
+              onPress={() => {
+                console.log('stop');
+                setvisible(false);
+                console.log('stop1');
+                BackgroundTimer.stopBackgroundTimer();
+                console.log('stop2');
+              }}
+            />
 
-            <Button title="Cancel" style={styles.bannerbox} color="#ff7f50" />
+            <Button
+              title="Cancel"
+              style={styles.bannerbox}
+              color="#ff7f50"
+              onPress={() => {
+                console.log('stop');
+                setvisible(false);
+                console.log('stop');
+                BackgroundTimer.stopBackgroundTimer();
+                console.log('stop');
+              }}
+            />
           </View>
         )}
       </Modal>
