@@ -305,7 +305,7 @@ export const Home = props => {
             />
 
             <Button
-              title="Cancel"
+              title="Decline"
               style={styles.bannerbox}
               color="#ff7f50"
               onPress={() => {
