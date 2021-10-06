@@ -22,29 +22,3 @@ export const checkPermission = async () => {
     // return 'granted';
   }
 };
-// export const checkPermission = () => {
-//   try {
-//     requestMultiple(
-//       Platform.OS === 'ios'
-//         ? [PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.MICROPHONE]
-//         : [PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.ANDROID.RECORD_AUDIO],
-//     ).then(result => {
-//       console.log(
-//         '::::::::::::::::::::::',
-//         result[PERMISSIONS.ANDROID.RECORD_AUDIO],
-//         // setPermission(result[PERMISSIONS.ANDROID.RECORD_AUDIO]),
-//         // AsyncStorage.setItem(
-//         //   'Mic_Permission',
-//         //   JSON.stringify(result[PERMISSIONS.ANDROID.RECORD_AUDIO]),
-//         // ),
-//         // AsyncStorage.setItem(
-//         //   'Camera_Permission',
-//         //   JSON.stringify(result[PERMISSIONS.ANDROID.CAMERA]),
-//         // ),
-//       );
-//       return 'hello';
-//     });
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
