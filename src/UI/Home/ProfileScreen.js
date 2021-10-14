@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-// import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useState} from 'react';
+import NetInfo from '@react-native-community/netinfo';
 import {
   View,
   Text,
@@ -9,24 +9,24 @@ import {
   Image,
   Switch,
   ToastAndroid,
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {checkPermission} from '../../Helper/PermissionHelper';
 import {updateAgentStatus} from '../../API/ApiCalls';
 
 export const ProfileScreen = props => {
-  const [isAvailable, setIsAvailable] = useState(() => {
-    console.log('hello');
-    return true;
-  });
+  const [isAvailable, setIsAvailable] = useState(true);
   const [permission, setPermission] = useState();
+  const [visible, setvisible] = useState(false);
+
   const showToast = () => {
     ToastAndroid.show(
       'Please allow all the permisions required',
       ToastAndroid.SHORT,
     );
   };
-  const UpdateAgentStatusApi = async () => {
+  const UpdateAgentStatusApi = async isavalableARG2 => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
       const asyncLoginData =
@@ -36,10 +36,12 @@ export const ProfileScreen = props => {
         asyncLoginData.data.RetailerId,
         asyncLoginData.data.RetailerUserId,
         asyncLoginData.agentSessionID,
-        isAvailable ? 'Available' : 'NotAvailable',
+        isavalableARG2 ? 'NotAvailable' : 'Available',
       );
     } catch (e) {
       console.log(e);
+      toggleSwitch();
+      Alert.alert('Error', e.message);
     }
   };
 
@@ -50,24 +52,40 @@ export const ProfileScreen = props => {
     return PermissionResult;
   };
 
-  const ExtraFunction = async () => {
+  const ExtraFunction = async isAvailableARG => {
+    // setIsToggleSuccess(true);
     const permissionResult = await AsyncFunction();
     console.log('permissionResult', permissionResult);
     if (permissionResult === 'granted') {
-      await UpdateAgentStatusApi();
+      await UpdateAgentStatusApi(isAvailableARG);
     }
   };
 
   useEffect(() => {
-    ExtraFunction();
-  }, [isAvailable]);
+    const removeNetInfoSubscription = NetInfo.addEventListener(state => {
+      if (state.isConnected === true && state.isInternetReachable === true) {
+        setvisible(false);
+        ExtraFunction(!isAvailable);
+      } else {
+        setvisible(true);
+      }
+    });
+    return () => removeNetInfoSubscription();
+  }, []);
 
   const toggleSwitch = () => {
-    setIsAvailable(!isAvailable);
+    setIsAvailable(prev => !prev);
   };
 
   return (
     <View style={props.isPortrait ? styles.mainitem : styles.mainItemLandScape}>
+      {visible && (
+        <View style={styles.banner}>
+          <Text style={styles.bannertext}>
+            Please check internet connection...
+          </Text>
+        </View>
+      )}
       {permission === 'granted' ? null : (
         <TouchableOpacity
           style={styles.permissionContainer}
@@ -96,12 +114,10 @@ export const ProfileScreen = props => {
               trackColor={{true: '#00ff00', false: '#767577'}}
               thumbColor={isAvailable ? '#f4f3f4' : '#f4f3f4'}
               ios_backgroundColor="#3e3e3e"
-              onValueChange={async () => {
+              onChange={() => {
                 toggleSwitch();
-                // console.log('toggle', toggle);
-                // UpdateAgentStatusApi2(toggle);
+                ExtraFunction(isAvailable);
               }}
-              // onChange={UpdateAgentStatusApi}
               style={{transform: [{scaleX: 1.3}, {scaleY: 1.3}]}}
               disabled={permission === 'granted' ? false : true}
               value={isAvailable && permission === 'granted' ? true : false}
@@ -243,6 +259,7 @@ const styles = StyleSheet.create({
   },
   mainitem: {
     flex: 1,
+    // backgroundColor: 'teal',
     // marginLeft: 200,
   },
   bottomLogo: {
@@ -250,6 +267,26 @@ const styles = StyleSheet.create({
     bottom: 80,
     height: 80,
     width: 80,
+    alignSelf: 'center',
+  },
+  bannertext: {
+    textAlign: 'left',
+    color: 'red',
+    fontSize: 18,
+  },
+  bannerbox: {
+    color: '#ff8c00',
+    width: 50,
+    height: 100,
+    alignSelf: 'center',
+  },
+  banner: {
+    position: 'absolute',
+    top: 5,
+    height: '4%',
+    marginRight: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
     alignSelf: 'center',
   },
   /////////////////////////////////////////////////////////

@@ -22,13 +22,14 @@ import {deviceToken} from '../../API/ApiCalls';
 import Orientation from 'react-native-orientation';
 import messaging from '@react-native-firebase/messaging';
 
-export const Home = props => {
+export function Home(props) {
   const [profile, setProfile] = useState(true);
   const [notification, setNotification] = useState(false);
   const [calendar, setCalendar] = useState(false);
   const [visible, setvisible] = useState(false);
   const [catalog, setCatalog] = useState(false);
   const [random, setRandom] = useState(false);
+  const [timeoutID, settimeoutID] = useState();
   const [isPortrait, setIsPortrait] = useState();
   var Sound = require('react-native-sound');
   var whoosh;
@@ -52,11 +53,6 @@ export const Home = props => {
     }
   };
 
-  // setTimeout(() => {
-  //   setvisible(false);
-  // }, 3000);
-  //const Email = loginData.data.Email;
-  //console.log('email of the universe', Email);
   const setAsyncToken = async token => {
     await AsyncStorage.setItem('FirebaseDeviceToken', token);
 
@@ -69,6 +65,47 @@ export const Home = props => {
     console.log('Message handled in the background!', remoteMessage);
   });
 
+  const onaudioRun = () => {
+    setvisible(true);
+    whoosh = new Sound('audio.mp3', Sound.MAIN_BUNDLE, error => {
+      if (error) {
+        console.log('failed to load the sound', error);
+        return;
+      }
+      // loaded successfully
+    });
+    console.log(
+      'duration in seconds: ' +
+        whoosh.getDuration() +
+        'number of channels: ' +
+        whoosh.getNumberOfChannels(),
+    );
+
+    BackgroundTimer.runBackgroundTimer(() => {
+      whoosh.play(success => {
+        if (success) {
+          console.log('successfully finished playing');
+        } else {
+          console.log('playback failed due to audio decoding errors');
+        }
+      });
+    }, whoosh.getDuration());
+    whoosh.setNumberOfLoops(-1);
+    var timeouttID = setTimeout(() => {
+      console.log('pause');
+      setvisible(false);
+      BackgroundTimer.stopBackgroundTimer();
+      whoosh.stop(() => {
+        // Note: If you want to play a sound after stopping and rewinding it,
+        // it is important to call play() in a callback.
+        //whoosh.play();
+      });
+      whoosh.release();
+    }, 30000);
+    settimeoutID(timeouttID);
+    // Complete with null means don't show a notification.
+  };
+
   // Method for handling notifications received while app in foreground
   OneSignal.setNotificationWillShowInForegroundHandler(
     notificationReceivedEvent => {
@@ -78,45 +115,8 @@ export const Home = props => {
       );
       let notificationreceived = notificationReceivedEvent.getNotification();
       console.log('notification: ', notificationreceived);
-      const data = notification.additionalData;
-      console.log('additionalData: ', data);
       notificationReceivedEvent.complete(notificationreceived);
-      setvisible(true);
-      whoosh = new Sound('audio.mp3', Sound.MAIN_BUNDLE, error => {
-        if (error) {
-          console.log('failed to load the sound', error);
-          return;
-        }
-        // loaded successfully
-      });
-      console.log(
-        'duration in seconds: ' +
-          whoosh.getDuration() +
-          'number of channels: ' +
-          whoosh.getNumberOfChannels(),
-      );
-      BackgroundTimer.runBackgroundTimer(() => {
-        whoosh.play(success => {
-          if (success) {
-            console.log('successfully finished playing');
-          } else {
-            console.log('playback failed due to audio decoding errors');
-          }
-        });
-      }, whoosh.getDuration());
-      whoosh.setNumberOfLoops(-1);
-      BackgroundTimer.setTimeout(() => {
-        console.log('pause');
-        setvisible(false);
-        BackgroundTimer.stopBackgroundTimer();
-        whoosh.stop(() => {
-          // Note: If you want to play a sound after stopping and rewinding it,
-          // it is important to call play() in a callback.
-          //whoosh.play();
-        });
-        whoosh.release();
-      }, 30000);
-      // Complete with null means don't show a notification.
+      onaudioRun();
     },
   );
 
@@ -129,12 +129,17 @@ export const Home = props => {
     const extraFunction = async () => {
       const AsyncDataResponse = await AsyncData();
       const getToken = await messaging().getToken();
-      const oneSignalPlayerID = await AsyncStorage.getItem('oneSignalPlayerID');
+      //const oneSignalPlayerID = await AsyncStorage.getItem('oneSignalPlayerID');
       console.log('firebasetoken', getToken, AsyncDataResponse);
 
       try {
+        const oneSignalPlayeruserID = (await OneSignal.getDeviceState()).userId;
+        console.log('onesignalplayerId', oneSignalPlayeruserID);
+        await AsyncStorage.setItem('oneSignalPlayerID', oneSignalPlayeruserID);
         AsyncStorage.getItem('FirebaseDeviceToken').then(value => {
-          if (value === null) {
+          if (value === getToken) {
+            console.log('token is same no need to update');
+          } else {
             setAsyncToken(getToken);
             deviceToken(
               AsyncDataResponse.data.Email,
@@ -145,25 +150,18 @@ export const Home = props => {
               AsyncDataResponse.data.RetailerId,
               AsyncDataResponse.data.RetailerUserId,
               AsyncDataResponse.agentSessionID,
-              oneSignalPlayerID,
+              oneSignalPlayeruserID,
             );
-          } else if (value === getToken) {
-            console.log('token is same no need to update');
           }
         });
 
-        console.log('end of extra function');
+        // console.log('end of extra function');
       } catch (e) {
         console.log('ERROR', e);
       }
     };
     try {
       extraFunction();
-    } catch (e) {
-      console.log(e);
-    }
-
-    try {
     } catch (e) {
       console.log(e);
     }
@@ -239,6 +237,15 @@ export const Home = props => {
     setRandom(true);
   };
 
+  function onCancel() {
+    setvisible(false);
+    console.log('stop1');
+    BackgroundTimer.stopBackgroundTimer();
+    console.log('timeoutId', timeoutID);
+    clearTimeout(timeoutID);
+    console.log('stop3');
+  }
+
   const BottomTab = () => {
     return (
       <>
@@ -296,11 +303,7 @@ export const Home = props => {
               style={styles.bannerbox}
               color="#ff7f50"
               onPress={() => {
-                console.log('stop');
-                setvisible(false);
-                console.log('stop1');
-                BackgroundTimer.stopBackgroundTimer();
-                console.log('stop2');
+                onCancel();
               }}
             />
 
@@ -309,11 +312,7 @@ export const Home = props => {
               style={styles.bannerbox}
               color="#ff7f50"
               onPress={() => {
-                console.log('stop');
-                setvisible(false);
-                console.log('stop');
-                BackgroundTimer.stopBackgroundTimer();
-                console.log('stop');
+                onCancel();
               }}
             />
           </View>
@@ -352,7 +351,7 @@ export const Home = props => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

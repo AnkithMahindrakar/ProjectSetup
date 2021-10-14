@@ -69,43 +69,46 @@ export const makeHeader = async (value, requestMethod) => {
 
 export const login = async (email, password) => {
   // console.log('in login call', email, password);
-  const key = crypto.CryptoJS.enc.Utf8.parse(apiKey);
-  const iv = crypto.CryptoJS.enc.Utf8.parse(apiIv);
-  const options = {
-    keySize: 128 / 8,
-    iv: iv,
-    mode: crypto.CryptoJS.mode.CBC,
-    padding: crypto.CryptoJS.pad.Pkcs7,
-  };
-  const encryptedPassword = crypto.encrypt(
-    crypto.CryptoJS.enc.Utf8.parse(password),
-    key,
-    options,
-  );
-  const header = await makeHeader('static', 'POST');
-  const data = {Email: email, EncPassword: encryptedPassword};
-  console.log('Login details:', data);
-  console.log(urls.user.login);
-  console.log('header....', JSON.stringify(header.headers));
-  console.log('Data', data);
-
-  const result = await axios.post(urls.user.login, data, header);
-
-  console.log('Login API Result:', result.status);
-  // console.log('Result status:', result.status);
-  if (result.status === 200) {
-    console.log('Login API Result Data:', JSON.stringify(result.data));
-    // console.log('Login API Result Data2:', JSON.stringify(result));
-    const localData = {
-      data: result.data.data,
-      agentSessionID: result.data.agentSessioinId,
+  try {
+    const key = crypto.CryptoJS.enc.Utf8.parse(apiKey);
+    const iv = crypto.CryptoJS.enc.Utf8.parse(apiIv);
+    const options = {
+      keySize: 128 / 8,
+      iv: iv,
+      mode: crypto.CryptoJS.mode.CBC,
+      padding: crypto.CryptoJS.pad.Pkcs7,
     };
-    console.log('======================', localData);
+    const encryptedPassword = crypto.encrypt(
+      crypto.CryptoJS.enc.Utf8.parse(password),
+      key,
+      options,
+    );
+    const header = await makeHeader('static', 'POST');
+    const data = {Email: email, EncPassword: encryptedPassword};
+    console.log('Login details:', data);
+    // console.log(urls.user.login);
+    // console.log('header....', JSON.stringify(header.headers));
+    // console.log('Data', data);
 
-    await AsyncStorage.setItem('LOGIN_DATA', JSON.stringify(localData));
-    return result;
-  } else {
-    throw new Error('Invalid login, please try again');
+    const result = await axios.post(urls.user.login, data, header);
+
+    // console.log('Login API Result:', result.status);
+    // console.log('Result status:', result.status);
+    if (result.status === 200) {
+      console.log('Login API Result Data:', JSON.stringify(result.data));
+      // console.log('Login API Result Data2:', JSON.stringify(result));
+      const localData = {
+        data: result.data.data,
+        agentSessionID: result.data.agentSessioinId,
+      };
+      // console.log('======================', localData);
+
+      await AsyncStorage.setItem('LOGIN_DATA', JSON.stringify(localData));
+      return result;
+    }
+  } catch (e) {
+    console.log(e);
+    throw new Error('Invalid Email or Password');
   }
 };
 
@@ -114,29 +117,32 @@ export const retailerConfig = async (
   retailerUserID,
   agentSessionID,
 ) => {
-  const data = {
-    RetailerId: retailerID,
-    RetailerUserId: retailerUserID,
-    AgentSessionId: agentSessionID,
-    UserType: 'Agent',
-  };
+  try {
+    const data = {
+      RetailerId: retailerID,
+      RetailerUserId: retailerUserID,
+      AgentSessionId: agentSessionID,
+      UserType: 'Agent',
+    };
 
-  const header = await makeHeader('static', 'POST');
-  console.log('Retailer config params:', data);
-  const result = await axios.post(urls.user.retailerConfig, data, header);
+    const header = await makeHeader('static', 'POST');
+    console.log('Retailer config params:', data);
+    const result = await axios.post(urls.user.retailerConfig, data, header);
 
-  if (result.status === 200) {
-    console.log(
-      'Retailer config API Result Data:',
-      JSON.stringify(result.data),
-    );
-    const retailerConfigData = {data: result.data.data};
-    await AsyncStorage.setItem(
-      'RETAILER_CONFIG',
-      JSON.stringify(retailerConfigData),
-    );
-    return result;
-  } else {
+    if (result.status === 200) {
+      console.log(
+        'Retailer config API Result Data:',
+        JSON.stringify(result.data),
+      );
+      const retailerConfigData = {data: result.data.data};
+      await AsyncStorage.setItem(
+        'RETAILER_CONFIG',
+        JSON.stringify(retailerConfigData),
+      );
+      return result;
+    }
+  } catch (e) {
+    console.log(e);
     throw new Error('Retailer config failed');
   }
 };
@@ -152,28 +158,33 @@ export const deviceToken = async (
   agentSessionID,
   oneSignalPlayerID,
 ) => {
-  const data = {
-    Email: email,
-    AppDeviceToken: appDeviceToken,
-    VOIPToken: voipToken,
-    DeviceType: platform,
-    AppVersion: version,
-    RetailerId: retailerID,
-    RetailerUserId: retailerUserID,
-    AgentSessionId: agentSessionID,
-    OneSignalPlayerId_NormalPN: oneSignalPlayerID,
-  };
+  try {
+    let data = {
+      Email: email,
+      AppDeviceToken: appDeviceToken,
+      VOIPToken: voipToken,
+      DeviceType: platform,
+      AppVersion: version,
+      Env: 'Dev',
+      RetailerId: retailerID,
+      RetailerUserId: retailerUserID,
+      AgentSessionId: agentSessionID,
+      OneSignalPlayerId_NormalPN: oneSignalPlayerID,
+    };
+    // if (__DEV__) {
+    //   data = {...data, Env: 'Dev'};
+    // }
+    const header = await makeHeader('static', 'POST');
+    console.log('device token params:', data);
+    const result = await axios.post(urls.user.token, data, header);
 
-  const header = await makeHeader('static', 'POST');
-  console.log('device token params:', data);
-  const result = await axios.post(urls.user.token, data, header);
+    if (result.status === 200) {
+      console.log('Device token API Result Data:', result.data);
+      await AsyncStorage.setItem('DeviceToken', JSON.stringify(result.data));
 
-  if (result.status === 200) {
-    console.log('Device token API Result Data:', result.data);
-    await AsyncStorage.setItem('DeviceToken', JSON.stringify(result.data));
-
-    return result.data;
-  } else {
+      return result.data;
+    }
+  } catch (e) {
     throw new Error('Device token failed');
   }
 };
@@ -183,39 +194,46 @@ export const updateAgentStatus = async (
   agentSessionID,
   status,
 ) => {
-  const data = {
-    RetailerId: retailerID,
-    RetailerUserId: retailerUserID,
-    AgentSessionId: agentSessionID,
-    Status: status,
-  };
-
-  const header = await makeHeader('static', 'POST');
-  console.log('Update Agent status params:', data);
-  const result = await axios.post(urls.user.updateAgentStatus, data, header);
-
-  if (result.status === 200) {
-    console.log('Update Agent status API Result Data:', result.data);
-
-    return result.data;
-  } else {
+  try {
+    const data = {
+      RetailerId: retailerID,
+      RetailerUserId: retailerUserID,
+      AgentSessionId: agentSessionID,
+      Status: status,
+    };
+    const header = await makeHeader('static', 'POST');
+    console.log('Update Agent status params:', data);
+    const result = await axios.post(urls.user.updateAgentStatus, data, header);
+    // console.log('abcd', result);
+    if (result.status === 200) {
+      console.log('Update Agent status API Result Data:', result.data);
+      return result.data;
+    }
+  } catch (e) {
+    console.log('Error in Update agent status API', e);
     throw new Error('Update Agent status API failed');
   }
 };
 export const AgentForgotPassword = async email => {
-  const data = {
-    Email: email,
-  };
+  try {
+    const data = {
+      Email: email,
+    };
 
-  const header = await makeHeader('static', 'POST');
-  console.log('AgentForgotPassword params:', data);
-  const result = await axios.post(urls.user.AgentForgotPassword, data, header);
+    const header = await makeHeader('static', 'POST');
+    console.log('AgentForgotPassword params:', data);
+    const result = await axios.post(
+      urls.user.AgentForgotPassword,
+      data,
+      header,
+    );
 
-  if (result.status === 200) {
-    console.log('Agent Forgot Password API Result Data:', result.data);
+    if (result.status === 200) {
+      console.log('Agent Forgot Password API Result Data:', result.data);
 
-    return result;
-  } else {
+      return result;
+    }
+  } catch (e) {
     throw new Error('Agent Forgot Password API failed');
   }
 };

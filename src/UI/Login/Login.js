@@ -68,6 +68,7 @@ export const Login = ({navigation}) => {
           RetailerUserId,
           AgentSessionId,
         );
+        console.log('>>>>>>>>>>>>>>>>>>>>', retailerConfigData.data);
         if (retailerConfigData.status === 200) {
           emailResult
             ? mobile
@@ -76,15 +77,16 @@ export const Login = ({navigation}) => {
             : Alert.alert('Error', 'Enter valid Email ID ');
           console.log('Result status is 200 in retail config');
         } else {
-          console.log('Error, reult status is not 200 in retail config');
+          console.log('Error, result status is not 200 in retail config');
         }
       } else {
-        console.log('Error, reult status is not 200 in Login');
+        console.log('Error, result status is not 200 in Login');
       }
 
       // console.log('Return RetailerConfig response', retailerConfigData);
     } catch (error) {
       console.log('Error from Login Screen--->', error);
+      Alert.alert('Error', error.message);
     }
   };
 

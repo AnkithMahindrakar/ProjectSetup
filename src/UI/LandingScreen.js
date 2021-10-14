@@ -12,7 +12,7 @@ export const LandingScreen = ({navigation}) => {
   useEffect(() => {
     Orientation.lockToPortrait();
     setTimeout(() => {
-      NetInfo.addEventListener(state => {
+      const removeNetInfoSubscription = NetInfo.addEventListener(state => {
         if (state.isConnected === true && state.isInternetReachable === true) {
           setinternet(true);
         } else {
@@ -26,7 +26,9 @@ export const LandingScreen = ({navigation}) => {
             : navigation.replace('Login');
         }
       });
+      return () => removeNetInfoSubscription();
     }, 2000);
+    // return () => removeNetInfoSubscription();
   }, [internet, navigation]);
 
   return (

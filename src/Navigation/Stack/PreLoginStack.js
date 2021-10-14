@@ -1,11 +1,11 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import * as React from 'react';
+import React from 'react';
 // import {Home} from '../../UI/Home/Home';
 
 import {Login} from '../../UI/Login/Login';
 import {OTPScreen} from '../../UI/Login/OTPScreen';
 import {LandingScreen} from '../../UI/LandingScreen';
-import {Home} from '../../UI/Home/Home';
+// import {Home} from '../../UI/Home/Home';
 import {ForgotPasswordScreen} from '../../UI/Login/ForgotPasswordScreen';
 import {PostLoginStackRoutes} from './PostLoginStack';
 
