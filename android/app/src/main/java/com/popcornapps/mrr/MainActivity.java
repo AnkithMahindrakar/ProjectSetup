@@ -1,4 +1,4 @@
-package com.popcornapps.mrr;
+package com.popcornapps.MRR;
 import org.devio.rn.splashscreen.SplashScreen;
 import com.facebook.react.ReactActivity;
 import android.os.Bundle;
