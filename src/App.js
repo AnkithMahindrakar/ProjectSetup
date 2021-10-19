@@ -8,9 +8,10 @@ import Firebase from '@react-native-firebase/app';
 export const App = () => {
   const onesignal = async () => {
     try {
-      OneSignal.setAppId('4b6816e6-57aa-4765-8898-a83164203baa');
+      // OneSignal.setAppId('4b6816e6-57aa-4765-8898-a83164203baa');
+      OneSignal.setAppId('e2155928-db3f-4fdc-881f-59940ab3e57b');
     } catch (e) {
-      console.log('hellochhc', e);
+      console.log('Error in App.js ', e);
     }
   };
 

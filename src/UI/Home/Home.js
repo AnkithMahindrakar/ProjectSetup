@@ -7,6 +7,7 @@ import {
   Button,
   TouchableOpacity,
   Modal,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
@@ -126,6 +127,7 @@ export function Home(props) {
   });
 
   useEffect(() => {
+    console.log('Platform OS', Platform.OS);
     const extraFunction = async () => {
       const AsyncDataResponse = await AsyncData();
       const getToken = await messaging().getToken();
@@ -145,7 +147,7 @@ export function Home(props) {
               AsyncDataResponse.data.Email,
               getToken,
               getToken,
-              'android',
+              Platform.OS,
               DeviceInfo.getReadableVersion(),
               AsyncDataResponse.data.RetailerId,
               AsyncDataResponse.data.RetailerUserId,
