@@ -13,7 +13,7 @@
       android:allowBackup="false"
       android:theme="@style/AppTheme">
        <meta-data android:name="com.onesignal.NotificationServiceExtension"
-     android:value="com.projectsetup.NotificationServiceExtension" />
+     android:value="com.popcornapps.MRR.NotificationServiceExtension" />
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"

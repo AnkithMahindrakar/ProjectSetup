@@ -19,6 +19,7 @@ export const ProfileScreen = props => {
   const [isAvailable, setIsAvailable] = useState(true);
   const [permission, setPermission] = useState();
   const [visible, setvisible] = useState(false);
+  const [loginData, setLoginData] = useState([]);
 
   const showToast = () => {
     ToastAndroid.show(
@@ -26,12 +27,14 @@ export const ProfileScreen = props => {
       ToastAndroid.SHORT,
     );
   };
+
   const UpdateAgentStatusApi = async isavalableARG2 => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
       const asyncLoginData =
         JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
-
+      setLoginData(asyncLoginData.data);
+      console.log('?>?????>?>?>?>?>?>?>?>', loginData);
       await updateAgentStatus(
         asyncLoginData.data.RetailerId,
         asyncLoginData.data.RetailerUserId,
@@ -54,6 +57,7 @@ export const ProfileScreen = props => {
 
   const ExtraFunction = async isAvailableARG => {
     // setIsToggleSuccess(true);
+    // const login_Data = await AsyncStorage.getItem('LOGIN_DATA');
     const permissionResult = await AsyncFunction();
     console.log('permissionResult', permissionResult);
     if (permissionResult === 'granted') {
@@ -140,7 +144,7 @@ export const ProfileScreen = props => {
             style={styles.ImageItem}
           />
           <Text style={{...styles.textcolour, ...{fontWeight: 'bold'}}}>
-            John Michaels
+            {loginData.FirstName} {loginData.LastName}
           </Text>
         </View>
         <View style={props.isPortrait ? null : styles.detailsLandScape}>
