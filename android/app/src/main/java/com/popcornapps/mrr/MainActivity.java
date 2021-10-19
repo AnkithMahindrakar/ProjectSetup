@@ -1,4 +1,4 @@
-package com.projectsetup;
+package com.popcornapps.mrr;
 import org.devio.rn.splashscreen.SplashScreen;
 import com.facebook.react.ReactActivity;
 import android.os.Bundle;
@@ -22,7 +22,7 @@ public class MainActivity extends ReactActivity {
     
   @Override
   protected String getMainComponentName() {
-    return "ProjectSetup";
+    return "Connect";
   }
   @Override
 protected void onCreate(Bundle savedInstanceState) {

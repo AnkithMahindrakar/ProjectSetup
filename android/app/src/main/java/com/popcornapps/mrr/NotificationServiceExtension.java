@@ -1,4 +1,4 @@
-package com.projectsetup;
+package com.popcornapps.mrr;
   
 import android.content.Context;
 import android.util.Log;
