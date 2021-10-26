@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Modal,
   Platform,
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
@@ -19,9 +20,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProfileScreen} from './ProfileScreen';
 import {deviceToken} from '../../API/ApiCalls';
-
+import NetInfo from '@react-native-community/netinfo';
 import Orientation from 'react-native-orientation';
 import messaging from '@react-native-firebase/messaging';
+import {checkPermission} from '../../Helper/PermissionHelper';
+import {updateAgentStatus} from '../../API/ApiCalls';
 
 export function Home(props) {
   const [profile, setProfile] = useState(true);
@@ -32,6 +35,11 @@ export function Home(props) {
   const [random, setRandom] = useState(false);
   const [timeoutID, settimeoutID] = useState();
   const [isPortrait, setIsPortrait] = useState();
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [permission, setPermission] = useState();
+  const [binary, setBinary] = useState();
+  const [networkBanner, setNetworkBanner] = useState();
+  console.log('permissionpermission', permission);
   var Sound = require('react-native-sound');
   var whoosh;
   Sound.setCategory('Playback');
@@ -51,6 +59,42 @@ export function Home(props) {
       return asyncLoginData;
     } catch (e) {
       console.log(e);
+    }
+  };
+  const UpdateAgentStatusApi = async () => {
+    try {
+      const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
+      const asyncLoginData =
+        JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
+      // setLoginData(asyncLoginData.data);
+      // console.log('?>?????>?>?>?>?>?>?>?>', loginData);
+      await updateAgentStatus(
+        asyncLoginData.data.RetailerId,
+        asyncLoginData.data.RetailerUserId,
+        asyncLoginData.agentSessionID,
+        'Available',
+      );
+      setBinary(true);
+    } catch (e) {
+      console.log(e);
+      Alert.alert('Error', e.message);
+    }
+  };
+
+  const AsyncFunction = async () => {
+    const PermissionResult = await checkPermission();
+    console.log('Permission in useEffect', PermissionResult);
+    setPermission(PermissionResult);
+    return PermissionResult;
+  };
+
+  const ExtraFunction = async () => {
+    // setIsToggleSuccess(true);
+    // const login_Data = await AsyncStorage.getItem('LOGIN_DATA');
+    const permissionResult = await AsyncFunction();
+    console.log('permissionResult', permissionResult);
+    if (permissionResult === 'granted') {
+      await UpdateAgentStatusApi();
     }
   };
 
@@ -139,22 +183,22 @@ export function Home(props) {
         console.log('onesignalplayerId', oneSignalPlayeruserID);
         await AsyncStorage.setItem('oneSignalPlayerID', oneSignalPlayeruserID);
         AsyncStorage.getItem('FirebaseDeviceToken').then(value => {
-          if (value === getToken) {
-            console.log('token is same no need to update');
-          } else {
-            setAsyncToken(getToken);
-            deviceToken(
-              AsyncDataResponse.data.Email,
-              getToken,
-              getToken,
-              Platform.OS,
-              DeviceInfo.getReadableVersion(),
-              AsyncDataResponse.data.RetailerId,
-              AsyncDataResponse.data.RetailerUserId,
-              AsyncDataResponse.agentSessionID,
-              oneSignalPlayeruserID,
-            );
-          }
+          // if (value === getToken) {
+          //   console.log('token is same no need to update');
+          // } else {
+          setAsyncToken(getToken);
+          deviceToken(
+            AsyncDataResponse.data.Email,
+            getToken,
+            getToken,
+            Platform.OS,
+            DeviceInfo.getReadableVersion(),
+            AsyncDataResponse.data.RetailerId,
+            AsyncDataResponse.data.RetailerUserId,
+            AsyncDataResponse.agentSessionID,
+            oneSignalPlayeruserID,
+          );
+          // }
         });
 
         // console.log('end of extra function');
@@ -187,6 +231,18 @@ export function Home(props) {
     Orientation.addOrientationListener(_orientationDidChange);
 
     return () => Orientation.removeOrientationListener(_orientationDidChange);
+  }, []);
+
+  useEffect(() => {
+    const removeNetInfoSubscription = NetInfo.addEventListener(state => {
+      if (state.isConnected === true && state.isInternetReachable === true) {
+        setNetworkBanner(false);
+        ExtraFunction();
+      } else {
+        setNetworkBanner(true);
+      }
+    });
+    return () => removeNetInfoSubscription();
   }, []);
   // console.log('LOGIN_DATA', loginData);
   //console.log('RETAILER_CONFIG', retailConfigData);
@@ -322,9 +378,11 @@ export function Home(props) {
       </Modal>
       {profile && (
         <ProfileScreen
-          onPress={LogoutHandler}
+          LogoutHandler={LogoutHandler}
           isPortrait={isPortrait}
-          // permission={PermissionCheck}
+          binary={binary}
+          networkBanner={networkBanner}
+          homePermission={permission}
         />
       )}
 

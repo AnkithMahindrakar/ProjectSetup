@@ -15,12 +15,41 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {checkPermission} from '../../Helper/PermissionHelper';
 import {updateAgentStatus} from '../../API/ApiCalls';
 
-export const ProfileScreen = props => {
+export const ProfileScreen = ({
+  isPortrait,
+  LogoutHandler,
+  binary,
+  networkBanner,
+  homePermission,
+}) => {
   const [isAvailable, setIsAvailable] = useState(true);
   const [permission, setPermission] = useState();
-  const [visible, setvisible] = useState(false);
+  // const [visible, setvisible] = useState(false);
   const [loginData, setLoginData] = useState([]);
+  console.log('Binary data', binary);
+  console.log('home Permission data', homePermission);
+  console.log('networkBanner data', networkBanner);
+  console.log('isPortrait data', isPortrait);
+  console.log('login Data', loginData);
+  console.log('login Data', loginData.FirstName);
+  console.log('login Data', loginData.LastName);
+  // console.log('BInary data', binary);
 
+  useEffect(() => {
+    getAgentData();
+  }, []);
+
+  const getAgentData = async () => {
+    try {
+      const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
+      const asyncLoginData =
+        JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
+      setLoginData(asyncLoginData.data);
+      return asyncLoginData;
+    } catch (e) {
+      console.log(e);
+    }
+  };
   const showToast = () => {
     ToastAndroid.show(
       'Please allow all the permisions required',
@@ -28,18 +57,25 @@ export const ProfileScreen = props => {
     );
   };
 
-  const UpdateAgentStatusApi = async isavalableARG2 => {
+  const UpdateAgentStatusApi = async () => {
     try {
-      const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
-      const asyncLoginData =
-        JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
-      setLoginData(asyncLoginData.data);
-      console.log('?>?????>?>?>?>?>?>?>?>', loginData);
+      // const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
+      // const asyncLoginData =
+      //   JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
+
+      const asyncLoginData2 = await getAgentData();
+      console.log('?>?????>?>?>?>?>?>?>?>', asyncLoginData2);
+      console.log('?>?????>?>?>?>?>?>?>?>', asyncLoginData2.data.RetailerId);
+      console.log(
+        '?>?????>?>?>?>?>?>?>?>',
+        asyncLoginData2.data.RetailerUserId,
+      );
+      console.log('?>?????>?>?>?>?>?>?>?>', asyncLoginData2.agentSessionID);
       await updateAgentStatus(
-        asyncLoginData.data.RetailerId,
-        asyncLoginData.data.RetailerUserId,
-        asyncLoginData.agentSessionID,
-        isavalableARG2 ? 'NotAvailable' : 'Available',
+        asyncLoginData2.data.RetailerId,
+        asyncLoginData2.data.RetailerUserId,
+        asyncLoginData2.agentSessionID,
+        isAvailable ? 'NotAvailable' : 'Available',
       );
     } catch (e) {
       console.log(e);
@@ -55,54 +91,40 @@ export const ProfileScreen = props => {
     return PermissionResult;
   };
 
-  const ExtraFunction = async isAvailableARG => {
-    // setIsToggleSuccess(true);
-    // const login_Data = await AsyncStorage.getItem('LOGIN_DATA');
+  const ExtraFunction = async () => {
     const permissionResult = await AsyncFunction();
     console.log('permissionResult', permissionResult);
     if (permissionResult === 'granted') {
-      await UpdateAgentStatusApi(isAvailableARG);
+      await UpdateAgentStatusApi();
     }
   };
-
-  useEffect(() => {
-    const removeNetInfoSubscription = NetInfo.addEventListener(state => {
-      if (state.isConnected === true && state.isInternetReachable === true) {
-        setvisible(false);
-        ExtraFunction(!isAvailable);
-      } else {
-        setvisible(true);
-      }
-    });
-    return () => removeNetInfoSubscription();
-  }, []);
 
   const toggleSwitch = () => {
     setIsAvailable(prev => !prev);
   };
 
   return (
-    <View style={props.isPortrait ? styles.mainitem : styles.mainItemLandScape}>
-      {visible && (
+    <View style={isPortrait ? styles.mainitem : styles.mainItemLandScape}>
+      {networkBanner && (
         <View style={styles.banner}>
           <Text style={styles.bannertext}>
             Please check internet connection...
           </Text>
         </View>
       )}
-      {permission === 'granted' ? null : (
+      {homePermission === 'granted' || permission === 'granted' ? null : (
         <TouchableOpacity
           style={styles.permissionContainer}
           onPress={ExtraFunction}>
           <Text style={styles.permissionTxt}>Tap to grant permissions</Text>
         </TouchableOpacity>
       )}
-      <View style={props.isPortrait ? styles.rowitem : styles.rowItemLandScape}>
+      <View style={isPortrait ? styles.rowitem : styles.rowItemLandScape}>
         <Text style={styles.profileItem}>Profile</Text>
         <View style={styles.topItem}>
           <View style={styles.avaliableContainer}>
             <Text style={styles.profiletwoItem}>
-              {permission === 'granted' && isAvailable
+              {homePermission === 'granted' && isAvailable
                 ? 'Avaliable'
                 : 'Not avaliable'}
             </Text>
@@ -110,9 +132,7 @@ export const ProfileScreen = props => {
           <TouchableOpacity
             activeOpacity={1}
             onPress={() => {
-              permission === 'granted' ? null : showToast();
-              // console.log(permission);
-              // UpdateAgentStatusApi();
+              homePermission === 'granted' ? null : showToast();
             }}>
             <Switch
               trackColor={{true: '#00ff00', false: '#767577'}}
@@ -120,22 +140,20 @@ export const ProfileScreen = props => {
               ios_backgroundColor="#3e3e3e"
               onChange={() => {
                 toggleSwitch();
-                ExtraFunction(isAvailable);
+                ExtraFunction();
               }}
               style={{transform: [{scaleX: 1.3}, {scaleY: 1.3}]}}
-              disabled={permission === 'granted' ? false : true}
-              value={isAvailable && permission === 'granted' ? true : false}
+              disabled={homePermission === 'granted' ? false : true}
+              value={binary && isAvailable ? true : false}
             />
           </TouchableOpacity>
         </View>
       </View>
       <View
-        style={
-          props.isPortrait ? styles.middleItem : styles.middleItemsLandScape
-        }>
+        style={isPortrait ? styles.middleItem : styles.middleItemsLandScape}>
         <View
           style={
-            props.isPortrait
+            isPortrait
               ? styles.secondmiddleitem
               : styles.secondMiddleitemLandScape
           }>
@@ -147,7 +165,7 @@ export const ProfileScreen = props => {
             {loginData.FirstName} {loginData.LastName}
           </Text>
         </View>
-        <View style={props.isPortrait ? null : styles.detailsLandScape}>
+        <View style={isPortrait ? null : styles.detailsLandScape}>
           <View style={styles.thirdmiddleitem}>
             <Text style={styles.textbold}>Location</Text>
             <Text style={styles.textcolour}>
@@ -160,15 +178,12 @@ export const ProfileScreen = props => {
             <Text style={styles.textcolour}>HP Laptops</Text>
             <Text style={styles.textcolour}>System processors</Text>
           </View>
-          <TouchableOpacity style={styles.button} onPress={props.onPress}>
+          <TouchableOpacity style={styles.button} onPress={LogoutHandler}>
             <Text style={styles.text}>Logout</Text>
           </TouchableOpacity>
         </View>
       </View>
-      <View
-        style={
-          props.isPortrait ? styles.bottomLogo : styles.bottomLogoLandScape
-        }>
+      <View style={isPortrait ? styles.bottomLogo : styles.bottomLogoLandScape}>
         <Image
           source={require('../../Resources/Images/Logo.png')}
           style={styles.BelowImage}

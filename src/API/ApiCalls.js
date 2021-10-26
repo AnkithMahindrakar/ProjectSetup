@@ -165,17 +165,18 @@ export const deviceToken = async (
       VOIPToken: voipToken,
       DeviceType: platform,
       AppVersion: version,
-      Env: 'Dev',
+      // Env: 'Dev',
       RetailerId: retailerID,
       RetailerUserId: retailerUserID,
       AgentSessionId: agentSessionID,
       OneSignalPlayerId_NormalPN: oneSignalPlayerID,
     };
-    // if (__DEV__) {
-    //   data = {...data, Env: 'Dev'};
-    // }
-    const header = await makeHeader('static', 'POST');
-    console.log('device token params:', data);
+    if (__DEV__) {
+      data = {...data, Env: 'Dev'};
+    }
+    const header = await makeHeader('dynamic', 'POST');
+    console.log('>>>>>>Device token parameters:', data);
+    console.log('>>>>>>Device token URL', urls.user.token);
     const result = await axios.post(urls.user.token, data, header);
 
     if (result.status === 200) {
@@ -203,6 +204,7 @@ export const updateAgentStatus = async (
     };
     const header = await makeHeader('static', 'POST');
     console.log('Update Agent status params:', data);
+
     const result = await axios.post(urls.user.updateAgentStatus, data, header);
     // console.log('abcd', result);
     if (result.status === 200) {
