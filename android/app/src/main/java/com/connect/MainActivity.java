@@ -1,4 +1,4 @@
-package com.connect;
+package com.popcornapps.MRR;
 
 import com.facebook.react.ReactActivity;
 

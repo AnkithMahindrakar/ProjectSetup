@@ -106,10 +106,10 @@ export function Home(props) {
     console.log('token excuted', token);
   };
 
-  //for background notifications
-  // messaging().setBackgroundMessageHandler(async remoteMessage => {
-  //   console.log('Message handled in the background!', remoteMessage);
-  // });
+  // for background notifications
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log('Message handled in the background!', remoteMessage);
+  });
 
   const onaudioRun = () => {
     setvisible(true);
@@ -175,19 +175,19 @@ export function Home(props) {
     console.log('Platform OS', Platform.OS);
     const extraFunction = async () => {
       const AsyncDataResponse = await AsyncData();
-      // const getToken = await messaging().getToken();
+      const getToken = await messaging().getToken();
       //const oneSignalPlayerID = await AsyncStorage.getItem('oneSignalPlayerID');
-      console.log('firebasetoken', AsyncDataResponse);
+      console.log('firebasetoken', getToken);
 
       try {
         const oneSignalPlayeruserID = (await OneSignal.getDeviceState()).userId;
         console.log('onesignalplayerId', oneSignalPlayeruserID);
         await AsyncStorage.setItem('oneSignalPlayerID', oneSignalPlayeruserID);
-        // AsyncStorage.getItem('FirebaseDeviceToken').then(value => {
-          // if (value === getToken) {
-          //   console.log('token is same no need to update');
-          // } else {
-          // setAsyncToken(getToken);
+        AsyncStorage.getItem('FirebaseDeviceToken').then(value => {
+          if (value === getToken) {
+            console.log('token is same no need to update');
+          } else {
+          setAsyncToken(getToken);
           deviceToken(
             AsyncDataResponse.data.Email,
             getToken,
@@ -199,12 +199,12 @@ export function Home(props) {
             AsyncDataResponse.agentSessionID,
             oneSignalPlayeruserID,
           );
-          // }
-        // }
-        // );
+          }
+        }
+        );
 
         // console.log('end of extra function');
-      } catch (e) {
+      }catch (e) {
         console.log('ERROR', e);
       }
     };
