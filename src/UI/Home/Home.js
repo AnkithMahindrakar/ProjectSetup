@@ -9,6 +9,7 @@ import {
   Modal,
   Platform,
   Alert,
+  SafeAreaView
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
@@ -106,9 +107,9 @@ export function Home(props) {
   };
 
   //for background notifications
-  messaging().setBackgroundMessageHandler(async remoteMessage => {
-    console.log('Message handled in the background!', remoteMessage);
-  });
+  // messaging().setBackgroundMessageHandler(async remoteMessage => {
+  //   console.log('Message handled in the background!', remoteMessage);
+  // });
 
   const onaudioRun = () => {
     setvisible(true);
@@ -174,19 +175,19 @@ export function Home(props) {
     console.log('Platform OS', Platform.OS);
     const extraFunction = async () => {
       const AsyncDataResponse = await AsyncData();
-      const getToken = await messaging().getToken();
+      // const getToken = await messaging().getToken();
       //const oneSignalPlayerID = await AsyncStorage.getItem('oneSignalPlayerID');
-      console.log('firebasetoken', getToken, AsyncDataResponse);
+      console.log('firebasetoken', AsyncDataResponse);
 
       try {
         const oneSignalPlayeruserID = (await OneSignal.getDeviceState()).userId;
         console.log('onesignalplayerId', oneSignalPlayeruserID);
         await AsyncStorage.setItem('oneSignalPlayerID', oneSignalPlayeruserID);
-        AsyncStorage.getItem('FirebaseDeviceToken').then(value => {
+        // AsyncStorage.getItem('FirebaseDeviceToken').then(value => {
           // if (value === getToken) {
           //   console.log('token is same no need to update');
           // } else {
-          setAsyncToken(getToken);
+          // setAsyncToken(getToken);
           deviceToken(
             AsyncDataResponse.data.Email,
             getToken,
@@ -199,7 +200,8 @@ export function Home(props) {
             oneSignalPlayeruserID,
           );
           // }
-        });
+        // }
+        // );
 
         // console.log('end of extra function');
       } catch (e) {
@@ -350,7 +352,7 @@ export function Home(props) {
     );
   };
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Modal transparent={true} visible={visible}>
         {visible && (
           <View style={styles.banner}>
@@ -409,7 +411,7 @@ export function Home(props) {
       <View style={isPortrait ? styles.BottomTabConatiner : styles.sideTab}>
         {BottomTab()}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

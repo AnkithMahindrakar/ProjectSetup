@@ -20,6 +20,7 @@ export const App = () => {
 
     //check whether firebase is initilized or not
     if (Firebase.apps.length === 0) {
+      console.log("firebase initialized");
       Firebase.initializeApp();
     }
 

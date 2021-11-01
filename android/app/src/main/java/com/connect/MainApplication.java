@@ -1,20 +1,12 @@
-package com.popcornapps.MRR;
-import com.oblador.vectoricons.VectorIconsPackage;
+package com.connect;
+
 import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
-import com.zmxv.RNSound.RNSoundPackage;
-import com.zmxv.RNSound.RNSoundPackage;
-import com.ocetnik.timer.BackgroundTimerPackage;
-import com.johnsonsu.rnsoundplayer.RNSoundPlayerPackage;
-import com.geektime.rnonesignalandroid.ReactNativeOneSignalPackage;
-import io.invertase.firebase.messaging.ReactNativeFirebaseMessagingPackage;
-import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
-import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
-import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
-import com.github.yamill.orientation.OrientationPackage;
-import org.devio.rn.splashscreen.SplashScreenReactPackage;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -74,7 +66,7 @@ public class MainApplication extends Application implements ReactApplication {
          We use reflection here to pick up the class that initializes Flipper,
         since Flipper library is not available in release mode
         */
-        Class<?> aClass = Class.forName("com.popcornapps.MRR.ReactNativeFlipper");
+        Class<?> aClass = Class.forName("com.connect.ReactNativeFlipper");
         aClass
             .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
             .invoke(null, context, reactInstanceManager);

@@ -9,16 +9,27 @@ export const checkPermission = async () => {
       : [PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.ANDROID.RECORD_AUDIO],
   );
   console.log(
-    'check Permission 2',
-    result[PERMISSIONS.ANDROID.RECORD_AUDIO],
-    result[PERMISSIONS.ANDROID.CAMERA],
+    'check Permission in permission Helper file',
+    Platform.OS === 'ios'
+      ? (result[PERMISSIONS.IOS.MICROPHONE], result[PERMISSIONS.IOS.CAMERA])
+      : (result[PERMISSIONS.ANDROID.RECORD_AUDIO],
+        result[PERMISSIONS.ANDROID.CAMERA]),
   );
   if (
+    Platform.OS === 'android' &&
     result[PERMISSIONS.ANDROID.RECORD_AUDIO] === 'granted' &&
     result[PERMISSIONS.ANDROID.CAMERA] === 'granted'
   ) {
-    console.log('isGRanted');
+    console.log('isGRanted for android');
     return result[PERMISSIONS.ANDROID.RECORD_AUDIO];
     // return 'granted';
+  } else if (
+    result[PERMISSIONS.IOS.MICROPHONE] === 'granted' &&
+    result[PERMISSIONS.IOS.CAMERA] === 'granted'
+  ) {
+    console.log('isGRanted for IOS');
+    return result[PERMISSIONS.IOS.MICROPHONE];
+  } else {
+    return null;
   }
 };

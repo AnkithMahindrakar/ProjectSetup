@@ -4,6 +4,9 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 platform :ios, '11.0'
 
 target 'Connect' do
+  permissions_path = '../node_modules/react-native-permissions/ios'
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
+  pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
   config = use_native_modules!
 
   use_react_native!(
@@ -12,21 +15,7 @@ target 'Connect' do
     :hermes_enabled => false
   )
 
-  pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
 
-  pod 'react-native-orientation', :path => '../node_modules/react-native-orientation'
-
-  pod 'RNFBApp', :path => '../node_modules/@react-native-firebase/app'
-
-  pod 'RNFBMessaging', :path => '../node_modules/@react-native-firebase/messaging'
-
-  pod 'react-native-onesignal', :path => '../node_modules/react-native-onesignal'
-
-  pod 'RNSoundPlayer', :path => '../node_modules/react-native-sound-player'
-
-  pod 'react-native-background-timer', :path => '../node_modules/react-native-background-timer'
-
-  pod 'RNSound', :path => '../node_modules/react-native-sound'
 
   target 'ConnectTests' do
     inherit! :complete
