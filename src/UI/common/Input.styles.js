@@ -6,13 +6,14 @@ export const inputStyles = (appData, isFocused) => {
   return StyleSheet.create({
     mainContainerStyle: {
       borderBottomWidth: 1,
-      paddingBottom: 4,
+      paddingBottom: 0,
       borderColor: colors.borderColor,
+      // backgroundColor: 'teal',
     },
     headingTextstyle: {
-      fontSize: 12,
+      fontSize: 13,
       color: colors.fontColor,
-      marginBottom: Platform.OS === 'ios' ? 4 : 0,
+      marginBottom: Platform.OS === 'ios' ? 8 : 0,
     },
     inputTextStyles: {
       fontSize: 16,

@@ -9,7 +9,7 @@ import {
   Modal,
   Platform,
   Alert,
-  SafeAreaView
+  SafeAreaView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
@@ -40,7 +40,9 @@ export function Home(props) {
   const [permission, setPermission] = useState();
   const [binary, setBinary] = useState();
   const [networkBanner, setNetworkBanner] = useState();
+  const [notificationData, setNotificationData] = useState({});
   console.log('permissionpermission', permission);
+  console.log('<<<<<<Notification Data>>>>>>', notificationData);
   var Sound = require('react-native-sound');
   var whoosh;
   Sound.setCategory('Playback');
@@ -81,7 +83,10 @@ export function Home(props) {
       Alert.alert('Error', e.message);
     }
   };
-
+  const toggleSwitch = () => {
+    setIsAvailable(prev => !prev);
+    return isAvailable;
+  };
   const AsyncFunction = async () => {
     const PermissionResult = await checkPermission();
     console.log('Permission in useEffect', PermissionResult);
@@ -162,6 +167,7 @@ export function Home(props) {
       let notificationreceived = notificationReceivedEvent.getNotification();
       console.log('notification: ', notificationreceived);
       notificationReceivedEvent.complete(notificationreceived);
+      setNotificationData(notificationreceived);
       onaudioRun();
     },
   );
@@ -187,24 +193,24 @@ export function Home(props) {
           if (value === getToken) {
             console.log('token is same no need to update');
           } else {
-          setAsyncToken(getToken);
-          deviceToken(
-            AsyncDataResponse.data.Email,
-            getToken,
-            getToken,
-            Platform.OS,
-            DeviceInfo.getReadableVersion(),
-            AsyncDataResponse.data.RetailerId,
-            AsyncDataResponse.data.RetailerUserId,
-            AsyncDataResponse.agentSessionID,
-            oneSignalPlayeruserID,
-          );
+            setAsyncToken(getToken);
+            deviceToken(
+              AsyncDataResponse.data.Email,
+              getToken,
+              getToken,
+              Platform.OS === 'android' ? 'Android' : 'iOS',
+              // "Android",
+              DeviceInfo.getReadableVersion(),
+              AsyncDataResponse.data.RetailerId,
+              AsyncDataResponse.data.RetailerUserId,
+              AsyncDataResponse.agentSessionID,
+              oneSignalPlayeruserID,
+            );
           }
-        }
-        );
+        });
 
         // console.log('end of extra function');
-      }catch (e) {
+      } catch (e) {
         console.log('ERROR', e);
       }
     };
@@ -364,6 +370,7 @@ export function Home(props) {
               color="#ff7f50"
               onPress={() => {
                 onCancel();
+                props.navigation.navigate('CallScreen', notificationData);
               }}
             />
 
@@ -385,6 +392,8 @@ export function Home(props) {
           binary={binary}
           networkBanner={networkBanner}
           homePermission={permission}
+          toggleFunction={toggleSwitch}
+          isAvailable={isAvailable}
         />
       )}
 
@@ -426,17 +435,19 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     width: '100%',
-    height: 70,
+    height: Platform.OS === 'ios' ? 80 : 70,
     backgroundColor: '#FB8B24',
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
+    // marginBottom:20
+    paddingBottom: Platform.OS === 'ios' ? 15 : 0,
   },
   sideTab: {
     position: 'absolute',
-    height: '100%',
+    height: '110%',
     width: 90,
     left: 0,
     backgroundColor: '#FB8B24',

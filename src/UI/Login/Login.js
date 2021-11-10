@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {scale, verticalScale, moderateScale} from 'react-native-size-matters';
+import {ScaledSheet} from 'react-native-size-matters';
 import {
   View,
   StyleSheet,
@@ -11,6 +13,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 import {Input} from '../common/Input';
 import {Button} from '../common/Button';
@@ -107,17 +110,24 @@ export const Login = ({navigation}) => {
           onUpdate={emailHandler}
           textInputProps={{
             keyboardType: 'email-address',
+            autoCorrect: false,
+            autoCapitalize: 'none',
+            autoFocus: true,
+            clearButtonMode: 'always',
           }}
           mainContainerStyle={styles.inputMainContainer}
         />
         <Input
-          label={'Mobile Number'}
+          label={'Password'}
           inputType={'text'}
           value={mobile}
           onUpdate={mobileHandler}
-          // textInputProps={{
-          //   keyboardType: 'number-pad',
-          // }}
+          isPassword={true}
+          textInputProps={{
+            autoCorrect: false,
+            autoCapitalize: 'none',
+            clearButtonMode: 'always',
+          }}
           mainContainerStyle={styles.inputMainContainer}
         />
       </>
@@ -142,16 +152,18 @@ export const Login = ({navigation}) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
+        enabled
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        {/* <SafeAreaView> */}
         {/* <Logo /> */}
         {Logo()}
         <View style={styles.inputContainer}>
           {/* <Inputs /> */}
           {/* <LoginButton /> */}
           {Inputs()}
-          {LoginButton()}
         </View>
+        {LoginButton()}
         <TouchableOpacity
           style={styles.forgotContainer}
           onPress={() => {
@@ -159,55 +171,78 @@ export const Login = ({navigation}) => {
           }}>
           <Text style={styles.forgotTxt}>Forgot Password?</Text>
         </TouchableOpacity>
-        <View style={styles.versionContainer}>
+        {/* </SafeAreaView> */}
+        <KeyboardAvoidingView
+          style={styles.versionContainer}
+          enabled
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <Text style={styles.versionText}>
-            {'\u00A9'}2020 popcornapps, All rights reserved{'\n'} Version{' '}
+            {'\u00A9'}2021 popcornapps, All rights reserved{'\n'} Version{' '}
             {DeviceInfo.getReadableVersion()}
           </Text>
-        </View>
+        </KeyboardAvoidingView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = ScaledSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'white',
+    // backgroundColor: 'yellow',
+    // height: '80%',
     justifyContent: 'center',
   },
   inputContainer: {
-    backgroundColor: 'white',
-    width: 330,
-    marginTop: 40,
+    // backgroundColor: 'red',
+    width: '310@s',
+    height: '160@s',
+    marginTop: '40@s',
+
+    justifyContent: 'center',
+    // padding:10
   },
   inputMainContainer: {
-    marginVertical: 20,
+    marginVertical: '20@s',
+    // backgroundColor: 'teal',
+    // height: 35,
+    // paddingVertical: 0,
+    // fontSize: 30,
   },
   logoContainer: {
+    // backgroundColor: 'yellow',
     alignItems: 'center',
-    marginTop: 90,
+    height: '150@s',
+    width: '140@s',
+    marginTop: Platform.OS === 'ios' ? '140@s' : '80@s',
   },
   btnContainer: {
-    width: 330,
-    marginTop: 60,
+    width: '310@s',
+    marginTop: '60@s',
   },
   versionContainer: {
-    marginTop: 70,
+    flex: 1,
+    // marginTop: 70,
+    // height: 50,
+    // backgroundColor: 'green',
+    justifyContent: 'flex-end',
+    marginBottom: '20@s',
+    // position: 'absolute',
+    // bottom: 20,
   },
   versionText: {
-    fontSize: 12,
+    fontSize: '11@s',
     color: '#606060',
     textAlign: 'center',
   },
   forgotContainer: {
     // backgroundColor: 'red',
-    marginTop: 15,
+    marginTop: '15@s',
   },
   forgotTxt: {
     color: '#FB8B24',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: '14@s',
   },
 });

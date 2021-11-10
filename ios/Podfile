@@ -19,6 +19,8 @@ target 'Connect' do
 
 
 
+  pod 'opentok-react-native', :path => '../node_modules/opentok-react-native'
+
   target 'ConnectTests' do
     inherit! :complete
     # Pods for testing

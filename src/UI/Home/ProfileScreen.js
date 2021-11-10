@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
 import NetInfo from '@react-native-community/netinfo';
+import {ScaledSheet} from 'react-native-size-matters';
 import {
   View,
   Text,
@@ -21,19 +22,11 @@ export const ProfileScreen = ({
   binary,
   networkBanner,
   homePermission,
+  toggleFunction,
+  isAvailable,
 }) => {
-  const [isAvailable, setIsAvailable] = useState(true);
   const [permission, setPermission] = useState();
-  // const [visible, setvisible] = useState(false);
   const [loginData, setLoginData] = useState([]);
-  console.log('Binary data', binary);
-  console.log('home Permission data', homePermission);
-  console.log('networkBanner data', networkBanner);
-  console.log('isPortrait data', isPortrait);
-  console.log('login Data', loginData);
-  console.log('login Data', loginData.FirstName);
-  console.log('login Data', loginData.LastName);
-  // console.log('BInary data', binary);
 
   useEffect(() => {
     getAgentData();
@@ -64,13 +57,13 @@ export const ProfileScreen = ({
       //   JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
 
       const asyncLoginData2 = await getAgentData();
-      console.log('?>?????>?>?>?>?>?>?>?>', asyncLoginData2);
-      console.log('?>?????>?>?>?>?>?>?>?>', asyncLoginData2.data.RetailerId);
-      console.log(
-        '?>?????>?>?>?>?>?>?>?>',
-        asyncLoginData2.data.RetailerUserId,
-      );
-      console.log('?>?????>?>?>?>?>?>?>?>', asyncLoginData2.agentSessionID);
+      // console.log('?>?????>?>?>?>?>?>?>?>', asyncLoginData2);
+      // console.log('?>?????>?>?>?>?>?>?>?>', asyncLoginData2.data.RetailerId);
+      // console.log(
+      //   '?>?????>?>?>?>?>?>?>?>',
+      //   asyncLoginData2.data.RetailerUserId,
+      // );
+      // console.log('?>?????>?>?>?>?>?>?>?>', asyncLoginData2.agentSessionID);
       await updateAgentStatus(
         asyncLoginData2.data.RetailerId,
         asyncLoginData2.data.RetailerUserId,
@@ -86,22 +79,23 @@ export const ProfileScreen = ({
 
   const AsyncFunction = async () => {
     const PermissionResult = await checkPermission();
-    console.log('Permission in useEffect', PermissionResult);
+    // console.log('Permission in useEffect', PermissionResult);
     setPermission(PermissionResult);
     return PermissionResult;
   };
 
   const ExtraFunction = async () => {
     const permissionResult = await AsyncFunction();
-    console.log('permissionResult', permissionResult);
+    // console.log('permissionResult', permissionResult);
     if (permissionResult === 'granted') {
       await UpdateAgentStatusApi();
     }
   };
 
-  const toggleSwitch = () => {
-    setIsAvailable(prev => !prev);
-  };
+  // const toggleSwitch = () => {
+  //   setIsAvailable(prev => !prev);
+  //   return isAvailable;
+  // };
 
   return (
     <View style={isPortrait ? styles.mainitem : styles.mainItemLandScape}>
@@ -139,7 +133,7 @@ export const ProfileScreen = ({
               thumbColor={isAvailable ? '#f4f3f4' : '#f4f3f4'}
               ios_backgroundColor="#3e3e3e"
               onChange={() => {
-                toggleSwitch();
+                toggleFunction();
                 ExtraFunction();
               }}
               style={{transform: [{scaleX: 1.3}, {scaleY: 1.3}]}}
@@ -193,117 +187,126 @@ export const ProfileScreen = ({
   );
 };
 
-const styles = StyleSheet.create({
+const styles = ScaledSheet.create({
   rowitem: {
     flexDirection: 'row',
-    marginVertical: 50,
-    paddingBottom: 10,
+    marginVertical: '40@s',
+    paddingBottom: '10@s',
     justifyContent: 'space-between',
   },
   textcolour: {
     color: '#606060',
     fontWeight: '600',
-    lineHeight: 20,
+    lineHeight: '20@s',
+    fontSize: '13@s',
   },
   textbold: {
     fontWeight: 'bold',
+    fontSize: '15@s',
   },
   topItem: {
     flexDirection: 'row',
+    // backgroundColor: 'yellow',
   },
   avaliableContainer: {
-    width: 100,
+    // backgroundColor: 'yellow',
+    width: '90@s',
   },
   permissionContainer: {
     // backgroundColor: 'red',
-    height: 40,
+    height: '40@s',
     // width: '100%',
     position: 'absolute',
-    top: 10,
+    top: '10@s',
     justifyContent: 'center',
     right: 0,
   },
   permissionTxt: {
-    fontSize: 20,
+    fontSize: '18@s',
     color: 'red',
   },
   BelowImage: {
+    // backgroundColor: 'yellow',
     alignSelf: 'center',
     position: 'absolute',
-    height: 70,
-    width: 60,
+    height: '70@s',
+    width: '60@s',
   },
   profileItem: {
-    paddingRight: 150,
-    fontSize: 18,
+    // backgroundColor: 'yellow',
+    // paddingRight: '1@s',
+    fontSize: '18@s',
     color: '#606060',
     fontWeight: 'bold',
   },
   ImageItem: {
-    marginBottom: 10,
-    width: 90,
-    height: 90,
+    // backgroundColor: 'yellow',
+    marginBottom: '14@s',
+    width: '90@s',
+    height: '90@s',
   },
   profiletwoItem: {
     color: '#ABB4BD',
-    position: 'relative',
-    top: 4,
+    // position: 'relative',
+    marginTop: '4@s',
   },
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: '20@s',
     width: '30%',
     height: '10%',
-    marginBottom: 50,
+    marginBottom: '50@s',
     borderWidth: 2,
     borderColor: 'orange',
     backgroundColor: 'white',
   },
   text: {
-    fontSize: 12,
-    lineHeight: 21,
+    fontSize: '12@s',
+    lineHeight: '21@s',
     fontWeight: 'bold',
-    letterSpacing: 0.4,
+    letterSpacing: '0.4@s',
     color: 'orange',
   },
   secondmiddleitem: {
-    paddingBottom: 20,
+    paddingBottom: '20@s',
   },
   thirdmiddleitem: {
-    paddingBottom: 40,
+    paddingBottom: '40@s',
   },
   middleItem: {
     flexDirection: 'column',
   },
   mainitem: {
     flex: 1,
+    // padding: '0@s',
     // backgroundColor: 'teal',
     // marginLeft: 200,
+    width: '320@s',
   },
   bottomLogo: {
     position: 'absolute',
-    bottom: 80,
-    height: 80,
-    width: 80,
+    bottom: '40@s',
+    height: '80@s',
+    width: '80@s',
     alignSelf: 'center',
   },
   bannertext: {
     textAlign: 'left',
     color: 'red',
-    fontSize: 18,
+    fontSize: '18@s',
   },
   bannerbox: {
     color: '#ff8c00',
-    width: 50,
-    height: 100,
+    width: '50@s',
+    height: '100@s',
     alignSelf: 'center',
   },
   banner: {
     position: 'absolute',
-    top: 5,
+    top: '5@s',
     height: '4%',
-    marginRight: 50,
+    marginRight: '50@s',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
@@ -315,13 +318,13 @@ const styles = StyleSheet.create({
     width: '80%',
     height: '100%',
     position: 'absolute',
-    left: 120,
+    left: '120@s',
   },
   rowItemLandScape: {
     // backgroundColor: 'red',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 10,
+    marginVertical: '10@s',
   },
   middleItemsLandScape: {
     // backgroundColor: 'green',
@@ -331,16 +334,16 @@ const styles = StyleSheet.create({
   },
   secondMiddleitemLandScape: {
     // position: 'absolute',
-    marginRight: 120,
+    marginRight: '120@s',
   },
   detailsLandScape: {
     // backgroundColor: 'red',
-    marginTop: 10,
+    marginTop: '10@s',
   },
   bottomLogoLandScape: {
     position: 'absolute',
     alignSelf: 'center',
-    bottom: 80,
+    bottom: '80@s',
   },
 });
 
