@@ -418,21 +418,18 @@ export function Home(props) {
       )}
       {calendar && (
         <View>
-          <Text style={styles.screenText}>
-            <SignalChatClass />
-          </Text>
+          <Text style={styles.screenText}>calendar Screen</Text>
         </View>
       )}
       {catalog && (
         <View>
-          <Text style={styles.screenText}>
-            <SignalChat3 />
-          </Text>
+          <Text style={styles.screenText}>Catalog</Text>
         </View>
       )}
       {random && (
         <View>
-          <Text style={styles.screenText}>Random screen</Text>
+          {/* <Text style={styles.screenText}>Random screen</Text> */}
+          <SignalChatClass />
         </View>
       )}
       <KeyboardAvoidingView
