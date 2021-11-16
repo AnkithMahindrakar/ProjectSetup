@@ -96,7 +96,11 @@ export const Login = ({navigation}) => {
   const Logo = () => {
     return (
       <View style={styles.logoContainer}>
-        <Image source={require('../../Resources/Images/Logo.png')} />
+        <Image
+          source={require('../../Resources/Images/Logo.png')}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
       </View>
     );
   };
@@ -197,29 +201,45 @@ const styles = ScaledSheet.create({
   inputContainer: {
     // backgroundColor: 'red',
     width: '310@s',
-    height: '160@s',
-    marginTop: '40@s',
+    height: '160@vs',
+    marginTop: '40@vs',
 
     justifyContent: 'center',
     // padding:10
   },
   inputMainContainer: {
-    marginVertical: '20@s',
+    marginVertical: '20@vs',
     // backgroundColor: 'teal',
     // height: 35,
     // paddingVertical: 0,
     // fontSize: 30,
   },
   logoContainer: {
-    // backgroundColor: 'yellow',
-    alignItems: 'center',
-    height: '150@s',
-    width: '140@s',
-    marginTop: Platform.OS === 'ios' ? '140@s' : '80@s',
+    backgroundColor: 'yellow',
+    // alignItems: 'center',
+    // height: '150@vs',
+    // width: '120@s',
+    marginTop: Platform.OS === 'ios' ? '90@vs' : '60@vs',
+    // resizeMode: '',
+    // overflow: 'hidden',
+    // flexDirection: 'row',
+    // flexWrap: 'wrap',
+    // height: '140@vs',
+    // width: '140@s',
+    // position: 'absolute',
+  },
+  logoImage: {
+    // position: 'absolute',
+    // flex: 1,
+    // height: 200,
+    // width: 200,
+    alignSelf: 'center',
+    height: '130@vs',
+    width: '110@s',
   },
   btnContainer: {
     width: '310@s',
-    marginTop: '60@s',
+    marginTop: '50@vs',
   },
   versionContainer: {
     flex: 1,
@@ -227,22 +247,22 @@ const styles = ScaledSheet.create({
     // height: 50,
     // backgroundColor: 'green',
     justifyContent: 'flex-end',
-    marginBottom: '20@s',
+    marginBottom: '20@vs',
     // position: 'absolute',
     // bottom: 20,
   },
   versionText: {
-    fontSize: '11@s',
+    fontSize: '11@ms',
     color: '#606060',
     textAlign: 'center',
   },
   forgotContainer: {
     // backgroundColor: 'red',
-    marginTop: '15@s',
+    marginTop: '15@vs',
   },
   forgotTxt: {
     color: '#FB8B24',
     fontWeight: 'bold',
-    fontSize: '14@s',
+    fontSize: '14@ms',
   },
 });

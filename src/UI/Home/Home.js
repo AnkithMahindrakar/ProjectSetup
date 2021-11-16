@@ -10,6 +10,7 @@ import {
   Platform,
   Alert,
   SafeAreaView,
+  KeyboardAvoidingView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
@@ -26,6 +27,10 @@ import Orientation from 'react-native-orientation';
 import messaging from '@react-native-firebase/messaging';
 import {checkPermission} from '../../Helper/PermissionHelper';
 import {updateAgentStatus} from '../../API/ApiCalls';
+import {ScaledSheet} from 'react-native-size-matters';
+import SignalChatFunc from './SignalChat';
+import SignalChat3 from './SignalChat3';
+import SignalChatClass from './o';
 
 export function Home(props) {
   const [profile, setProfile] = useState(true);
@@ -64,7 +69,7 @@ export function Home(props) {
       console.log(e);
     }
   };
-  const UpdateAgentStatusApi = async () => {
+  const UpdateAgentStatusApi = async input => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
       const asyncLoginData =
@@ -75,12 +80,12 @@ export function Home(props) {
         asyncLoginData.data.RetailerId,
         asyncLoginData.data.RetailerUserId,
         asyncLoginData.agentSessionID,
-        'Available',
+        input,
       );
       setBinary(true);
     } catch (e) {
       console.log(e);
-      Alert.alert('Error', e.message);
+      // Alert.alert('Error', e.message);
     }
   };
   const toggleSwitch = () => {
@@ -100,7 +105,7 @@ export function Home(props) {
     const permissionResult = await AsyncFunction();
     console.log('permissionResult', permissionResult);
     if (permissionResult === 'granted') {
-      await UpdateAgentStatusApi();
+      await UpdateAgentStatusApi('Available');
     }
   };
 
@@ -369,8 +374,13 @@ export function Home(props) {
               style={styles.bannerbox}
               color="#ff7f50"
               onPress={() => {
-                onCancel();
-                props.navigation.navigate('CallScreen', notificationData);
+                try {
+                  UpdateAgentStatusApi('Connected');
+                  props.navigation.navigate('CallScreen', notificationData);
+                  onCancel();
+                } catch (e) {
+                  console.log(e);
+                }
               }}
             />
 
@@ -394,22 +404,30 @@ export function Home(props) {
           homePermission={permission}
           toggleFunction={toggleSwitch}
           isAvailable={isAvailable}
+          navigationHandler={() => {
+            props.navigation.navigate('CallScreen');
+          }}
         />
       )}
 
       {notification && (
         <View>
-          <Text style={styles.screenText}>Notification screen</Text>
+          {/* <Text style={styles.screenText}>Notification screen</Text> */}
+          <SignalChatFunc />
         </View>
       )}
       {calendar && (
         <View>
-          <Text style={styles.screenText}>Calendar screen</Text>
+          <Text style={styles.screenText}>
+            <SignalChatClass />
+          </Text>
         </View>
       )}
       {catalog && (
         <View>
-          <Text style={styles.screenText}>Catalog screen</Text>
+          <Text style={styles.screenText}>
+            <SignalChat3 />
+          </Text>
         </View>
       )}
       {random && (
@@ -417,42 +435,48 @@ export function Home(props) {
           <Text style={styles.screenText}>Random screen</Text>
         </View>
       )}
-      <View style={isPortrait ? styles.BottomTabConatiner : styles.sideTab}>
+      <KeyboardAvoidingView
+        style={isPortrait ? styles.BottomTabConatiner : styles.sideTab}>
+        {/* <View style={styles.sideTab}> */}
         {BottomTab()}
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = ScaledSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    // justifyContent: 'center',
     backgroundColor: 'white',
   },
   BottomTabConatiner: {
     position: 'absolute',
     bottom: 0,
+    // flex: 1,
     width: '100%',
-    height: Platform.OS === 'ios' ? 80 : 70,
+    height: Platform.OS === 'ios' ? '70@vs' : '65@vs',
     backgroundColor: '#FB8B24',
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    // marginBottom:20
-    paddingBottom: Platform.OS === 'ios' ? 15 : 0,
+    alignSelf: 'flex-end',
+    // marginBottom: 20,
+    paddingBottom: Platform.OS === 'ios' ? '15@vs' : 0,
   },
   sideTab: {
     position: 'absolute',
-    height: '110%',
-    width: 90,
+    height: '107%',
+    width: Platform.OS === 'ios' ? '90@s' : '80@s',
     left: 0,
     backgroundColor: '#FB8B24',
     justifyContent: 'space-around',
     alignItems: 'center',
+    paddingLeft: Platform.OS === 'ios' ? '20@s' : 0,
+    paddingVertical: '16@vs',
   },
   bannertext: {
     textAlign: 'left',
@@ -460,14 +484,14 @@ const styles = StyleSheet.create({
   },
   bannerbox: {
     color: '#ff8c00',
-    width: 50,
-    height: 100,
+    width: '50@s',
+    height: '100@vs',
     alignSelf: 'center',
   },
   banner: {
     position: 'absolute',
-    top: 5,
-    height: '13%',
+    top: '6@vs',
+    height: '14%',
     width: '100%',
     backgroundColor: 'black',
     justifyContent: 'space-around',
@@ -475,12 +499,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   iconContainer: {
-    height: 60,
-    width: 60,
+    height: '60@vs',
+    width: '60@s',
     alignItems: 'center',
     justifyContent: 'center',
   },
   screenText: {
-    fontSize: 30,
+    fontSize: '30@ms',
   },
 });

@@ -11,6 +11,7 @@ import {
   Switch,
   ToastAndroid,
   Alert,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {checkPermission} from '../../Helper/PermissionHelper';
@@ -24,6 +25,8 @@ export const ProfileScreen = ({
   homePermission,
   toggleFunction,
   isAvailable,
+  navigation,
+  navigationHandler,
 }) => {
   const [permission, setPermission] = useState();
   const [loginData, setLoginData] = useState([]);
@@ -72,7 +75,7 @@ export const ProfileScreen = ({
       );
     } catch (e) {
       console.log(e);
-      toggleSwitch();
+      toggleFunction();
       Alert.alert('Error', e.message);
     }
   };
@@ -99,6 +102,7 @@ export const ProfileScreen = ({
 
   return (
     <View style={isPortrait ? styles.mainitem : styles.mainItemLandScape}>
+      {/*  <View style={styles.mainItemLandScape}> */}
       {networkBanner && (
         <View style={styles.banner}>
           <Text style={styles.bannertext}>
@@ -114,11 +118,12 @@ export const ProfileScreen = ({
         </TouchableOpacity>
       )}
       <View style={isPortrait ? styles.rowitem : styles.rowItemLandScape}>
+        {/* <View style={styles.rowItemLandScape}> */}
         <Text style={styles.profileItem}>Profile</Text>
         <View style={styles.topItem}>
           <View style={styles.avaliableContainer}>
             <Text style={styles.profiletwoItem}>
-              {homePermission === 'granted' && isAvailable
+              {homePermission === 'granted' && isAvailable && binary
                 ? 'Avaliable'
                 : 'Not avaliable'}
             </Text>
@@ -145,12 +150,14 @@ export const ProfileScreen = ({
       </View>
       <View
         style={isPortrait ? styles.middleItem : styles.middleItemsLandScape}>
+        {/* <View style={styles.middleItemsLandScape}> */}
         <View
           style={
             isPortrait
               ? styles.secondmiddleitem
               : styles.secondMiddleitemLandScape
           }>
+          {/* <View style={styles.secondMiddleitemLandScape}> */}
           <Image
             source={require('../../Resources/Images/demoProfile.jpg')}
             style={styles.ImageItem}
@@ -160,8 +167,9 @@ export const ProfileScreen = ({
           </Text>
         </View>
         <View style={isPortrait ? null : styles.detailsLandScape}>
+          {/* <View style={styles.detailsLandScape}> */}
           <View style={styles.thirdmiddleitem}>
-            <Text style={styles.textbold}>Location</Text>
+            <Text style={styles.textbold}>Locatio</Text>
             <Text style={styles.textcolour}>
               510, Gulfgate Centre Mall, Houston ,TX 77098
             </Text>
@@ -176,13 +184,19 @@ export const ProfileScreen = ({
             <Text style={styles.text}>Logout</Text>
           </TouchableOpacity>
         </View>
+        <TouchableOpacity style={styles.button} onPress={navigationHandler}>
+          <Text style={styles.text}>Call Screen</Text>
+        </TouchableOpacity>
       </View>
-      <View style={isPortrait ? styles.bottomLogo : styles.bottomLogoLandScape}>
-        <Image
-          source={require('../../Resources/Images/Logo.png')}
-          style={styles.BelowImage}
-        />
-      </View>
+      {isPortrait && (
+        <View style={styles.bottomLogo}>
+          {/* <View style={styles.bottomLogoLandScape}> */}
+          <Image
+            source={require('../../Resources/Images/Logo.png')}
+            style={styles.BelowImage}
+          />
+        </View>
+      )}
     </View>
   );
 };
@@ -190,19 +204,19 @@ export const ProfileScreen = ({
 const styles = ScaledSheet.create({
   rowitem: {
     flexDirection: 'row',
-    marginVertical: '40@s',
-    paddingBottom: '10@s',
+    marginVertical: '40@vs',
+    paddingBottom: '10@vs',
     justifyContent: 'space-between',
   },
   textcolour: {
     color: '#606060',
     fontWeight: '600',
-    lineHeight: '20@s',
-    fontSize: '13@s',
+    lineHeight: '20@vs',
+    fontSize: '13@ms',
   },
   textbold: {
     fontWeight: 'bold',
-    fontSize: '15@s',
+    fontSize: '15@ms',
   },
   topItem: {
     flexDirection: 'row',
@@ -210,45 +224,38 @@ const styles = ScaledSheet.create({
   },
   avaliableContainer: {
     // backgroundColor: 'yellow',
-    width: '90@s',
+    width: '80@s',
   },
   permissionContainer: {
     // backgroundColor: 'red',
-    height: '40@s',
+    height: '40@vs',
     // width: '100%',
     position: 'absolute',
-    top: '10@s',
+    top: '10@vs',
     justifyContent: 'center',
     right: 0,
   },
   permissionTxt: {
-    fontSize: '18@s',
+    fontSize: '18@ms',
     color: 'red',
-  },
-  BelowImage: {
-    // backgroundColor: 'yellow',
-    alignSelf: 'center',
-    position: 'absolute',
-    height: '70@s',
-    width: '60@s',
   },
   profileItem: {
     // backgroundColor: 'yellow',
     // paddingRight: '1@s',
-    fontSize: '18@s',
+    fontSize: '18@ms',
     color: '#606060',
     fontWeight: 'bold',
   },
   ImageItem: {
     // backgroundColor: 'yellow',
-    marginBottom: '14@s',
-    width: '90@s',
-    height: '90@s',
+    marginBottom: '12@vs',
+    width: '90@vs',
+    height: '90@vs',
   },
   profiletwoItem: {
     color: '#ABB4BD',
     // position: 'relative',
-    marginTop: '4@s',
+    marginTop: '4@vs',
   },
   button: {
     alignItems: 'center',
@@ -256,23 +263,23 @@ const styles = ScaledSheet.create({
     borderRadius: '20@s',
     width: '30%',
     height: '10%',
-    marginBottom: '50@s',
+    marginBottom: '50@vs',
     borderWidth: 2,
     borderColor: 'orange',
     backgroundColor: 'white',
   },
   text: {
     fontSize: '12@s',
-    lineHeight: '21@s',
+    lineHeight: '21@vs',
     fontWeight: 'bold',
-    letterSpacing: '0.4@s',
+    letterSpacing: '0.4@vs',
     color: 'orange',
   },
   secondmiddleitem: {
-    paddingBottom: '20@s',
+    paddingBottom: '20@vs',
   },
   thirdmiddleitem: {
-    paddingBottom: '40@s',
+    paddingBottom: '40@vs',
   },
   middleItem: {
     flexDirection: 'column',
@@ -283,13 +290,22 @@ const styles = ScaledSheet.create({
     // backgroundColor: 'teal',
     // marginLeft: 200,
     width: '320@s',
+    // height: '500@vs',
   },
   bottomLogo: {
     position: 'absolute',
-    bottom: '40@s',
-    height: '80@s',
+    bottom: Platform.OS === 'ios' ? '30@vs' : '50@vs',
+    height: '90@vs',
     width: '80@s',
     alignSelf: 'center',
+    backgroundColor: 'yellow',
+  },
+  BelowImage: {
+    // backgroundColor: 'yellow',
+    alignSelf: 'center',
+    // position: 'absolute',
+    height: '70@vs',
+    width: '60@vs',
   },
   bannertext: {
     textAlign: 'left',
@@ -299,12 +315,12 @@ const styles = ScaledSheet.create({
   bannerbox: {
     color: '#ff8c00',
     width: '50@s',
-    height: '100@s',
+    height: '100@vs',
     alignSelf: 'center',
   },
   banner: {
     position: 'absolute',
-    top: '5@s',
+    top: '5@vs',
     height: '4%',
     marginRight: '50@s',
     justifyContent: 'center',
@@ -315,26 +331,28 @@ const styles = ScaledSheet.create({
   mainItemLandScape: {
     // backgroundColor: 'yellow',
     flex: 1,
-    width: '80%',
+    width: '530@vs',
     height: '100%',
     position: 'absolute',
-    left: '120@s',
+    left: '110@s',
   },
   rowItemLandScape: {
     // backgroundColor: 'red',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: '10@s',
+    marginVertical: '10@vs',
   },
   middleItemsLandScape: {
     // backgroundColor: 'green',
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    width: '80%',
+    // justifyContent: 'space-evenly',
+    // width: '90%',
+    // height: '50%',
+    flex: 1,
   },
   secondMiddleitemLandScape: {
     // position: 'absolute',
-    marginRight: '120@s',
+    marginRight: '40@s',
   },
   detailsLandScape: {
     // backgroundColor: 'red',
@@ -343,7 +361,7 @@ const styles = ScaledSheet.create({
   bottomLogoLandScape: {
     position: 'absolute',
     alignSelf: 'center',
-    bottom: '80@s',
+    bottom: '70@s',
   },
 });
 

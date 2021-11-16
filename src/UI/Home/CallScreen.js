@@ -3,8 +3,13 @@ import SplashScreen from 'react-native-splash-screen';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome';
 import {useState} from 'react';
 import {FlatList} from 'react-native';
-import {scale, verticalScale, moderateScale} from 'react-native-size-matters';
-import {ScaledSheet} from 'react-native-size-matters';
+import {
+  scale,
+  verticalScale,
+  moderateScale,
+  ScaledSheet,
+} from 'react-native-size-matters';
+// import {ScaledSheet} from 'react-native-size-matters';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {OTPublisher, OTSession, OTSubscriber} from 'opentok-react-native';
@@ -57,17 +62,55 @@ const subscriberEventHandlers = {
   },
 };
 const publisherEventHandlers = {
+  // audioLevel: level => {
+  //   console.log('publisher audio level', level);
+  // },
   streamCreated: event => {
-    console.log('Publisher stream created!');
+    console.log('Publisher stream created!', event);
   },
   streamDestroyed: event => {
-    console.log('Publisher stream destroyed!');
+    console.log('Publisher stream destroyed!', event);
   },
   // audioLevel: (number) =>{
   //   console.log('audiolevel', number);
   // }
 };
-const sessionId = value => {
+const sessionEventHandlers = {
+  audioLevel: level => {
+    console.log('publisher audio level', level);
+  },
+  streamCreated: event => {
+    console.log('session stream created!', event);
+  },
+  streamDestroyed: event => {
+    console.log('session stream destroyed!', event);
+  },
+  connectionCreated: obj => {
+    console.log('session connection created', obj);
+  },
+  connectionDestroyed: obj => {
+    console.log('session connection Destroyed', obj);
+  },
+  error: err => {
+    console.log('Error in session', err);
+  },
+  sessionConnected: () => {
+    console.log('session connected');
+  },
+  sessionDisconnected: () => {
+    console.log('session disconnected');
+  },
+  sessionReconnected: obj => {
+    console.log('session Reconnected');
+  },
+  sessionReconnecting: obj => {
+    console.log('session Reconnecting');
+  },
+  // audioLevel: (number) =>{
+  //   console.log('audiolevel', number);
+  // }
+};
+const sessionIdFunc = value => {
   console.log('the session', value);
 };
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -167,12 +210,16 @@ function CallScreen({route}) {
 
   //snackbar for catalog and original screen
   const notificationData = route.params;
-  console.log('------------------------', notificationData);
-  console.log('------------------------', notificationData.additionalData);
-  console.log(
-    '------------------------',
-    notificationData.additionalData.SessionId,
-  );
+  // console.log('------------------------', notificationData);
+  // console.log('------------------------', notificationData.additionalData);
+  // console.log(
+  //   '------------------------',
+  //   typeof notificationData.additionalData.SessionId,
+  // );
+  // console.log(
+  //   '------------------------',
+  //   notificationData.additionalData.TokenId,
+  // );
   //   console.log(
   //     '------------------------',
   //     notificationData.additionalData.SessionId,
@@ -536,29 +583,34 @@ function CallScreen({route}) {
     //call
     content = (
       <>
-        <View
-          style={{
-            justifyContent: 'space-evenly',
-            alignItems: 'center',
-            position: 'relative',
-            top: 20,
-            height: '90%',
-            backgroundColor: 'blue',
-          }}>
+        <View style={styles.OTcontainer}>
           <OTSession
-            apiKey="47338451"
-            sessionId="2_MX40NzMzODQ1MX5-MTYzNjUyODE3NDExMX4rUUtTVWVMaXV2alBKS1Y5WmFQd3Z4NzF-fg"
-            token="T1==cGFydG5lcl9pZD00NzMzODQ1MSZzaWc9NGU5OThlNTUyMDU1OWJiN2U5MDVlN2EzY2E5ZjlmNzEzZTQ1YmM0NzpzZXNzaW9uX2lkPTJfTVg0ME56TXpPRFExTVg1LU1UWXpOalV5T0RFM05ERXhNWDRyVVV0VFZXVk1hWFYyYWxCS1MxWTVXbUZRZDNaNE56Ri1mZyZjcmVhdGVfdGltZT0xNjM2NTI4MjAwJm5vbmNlPTAuNjA3MDg5NTQ0Njg3NjYzJnJvbGU9cHVibGlzaGVyJmV4cGlyZV90aW1lPTE2MzY2MTQ1OTgmaW5pdGlhbF9sYXlvdXRfY2xhc3NfbGlzdD0=">
-            <OTPublisher
-              properties={publisherProperties}
-              eventHandlers={publisherEventHandlers}
-              style={{height: 300, width: 400}}
-            />
-            <OTSubscriber
-              style={{height: 300, width: 400}}
-              eventHandlers={subscriberEventHandlers}
-              sessionId={sessionId}
-            />
+            apiKey="47339381"
+            sessionId={
+              '1_MX40NzMzOTM4MX5-MTYzNjU0NzE0NDMzMH41MDR0c2V6VlhVN1Y0Q09aaWJnSjN3N21-fg'
+            }
+            token={
+              'T1==cGFydG5lcl9pZD00NzMzOTM4MSZzaWc9Yjc0Njg3ZTlmOGY5MDgyZTdmZjdkNTYyZTQ1NjU1OGI4NTU3Y2I5MjpzZXNzaW9uX2lkPTFfTVg0ME56TXpPVE00TVg1LU1UWXpOalUwTnpFME5ETXpNSDQxTURSMGMyVjZWbGhWTjFZMFEwOWFhV0puU2pOM04yMS1mZyZjcmVhdGVfdGltZT0xNjM2NTQ3MTcxJm5vbmNlPTAuNDc3NDc5MTkwMTA0MzY0MjQmcm9sZT1wdWJsaXNoZXImZXhwaXJlX3RpbWU9MTYzNzE1MTk3MCZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ=='
+            }
+            eventHandlers={sessionEventHandlers}
+            // apiKey="46816214"
+            // sessionId={notificationData.additionalData.SessionId}
+            // token={notificationData.additionalData.TokenId}
+          >
+            <View style={styles.OTPublishercontainer}>
+              <OTPublisher
+                properties={publisherProperties}
+                eventHandlers={publisherEventHandlers}
+                style={{height: 300, width: 400}}
+              />
+            </View>
+            <View style={styles.OTSubscriberContainer}>
+              <OTSubscriber
+                style={{height: 300, width: 400}}
+                eventHandlers={subscriberEventHandlers}
+                sessionId={sessionIdFunc}
+              />
+            </View>
           </OTSession>
           {/* <Image
             resizeMode="contain"
@@ -734,12 +786,12 @@ style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
               <MaterialCommunityIcons
                 name="paperclip"
                 style={{flex: 1}}
-                size={25}
+                size={22}
                 color={'#696969'}
               />
             </TouchableOpacity>
             <TextInput
-              style={{width: '80%'}}
+              style={styles.ChatTxtInput}
               placeholder="Type Message Here"
               onChangeText={goalInputHandler}
               value={enteredGoal}
@@ -1066,8 +1118,8 @@ const styles = ScaledSheet.create({
   },
 
   rowarrayscreen: {
-    width: scale(350),
-    height: scale(45),
+    width: '350@s',
+    height: '45@vs',
     position: 'absolute',
     backgroundColor: 'white',
     flexDirection: 'row',
@@ -1084,53 +1136,52 @@ const styles = ScaledSheet.create({
 
   timerandcontactbar: {
     backgroundColor: '#696969',
-    width: '200@s',
-    height: '30@vs',
+    width: '230@s',
+    height: '36@vs',
     alignSelf: 'center',
     position: 'absolute',
-    marginTop: 66,
-    borderTopLeftRadius: 35,
-    borderBottomLeftRadius: 35,
+    marginTop: '66@vs',
+    borderRadius: 35,
     justifyContent: 'center',
-    borderTopRightRadius: 35,
-    borderBottomRightRadius: 35,
+    // backgroundColor: 'red',
+    alignItems: 'center',
+    // flexDirection: 'row',
   },
 
   timerandcontactbarinside: {
     width: '200@s',
     height: '20@vs',
     alignSelf: 'center',
-    marginLeft: 10,
+    // marginLeft: '10@s',
     flexDirection: 'row',
     justifyContent: 'space-around',
+    // backgroundColor: 'yellow',
   },
 
   mutebar: {
     backgroundColor: '#696969',
-    width: '152@s',
+    width: '162@s',
     height: '35@vs',
     alignSelf: 'center',
     position: 'absolute',
-    top: 110,
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
+    top: '120@vs',
+    alignItems: 'center',
     justifyContent: 'center',
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
+    borderRadius: 30,
   },
 
-  mutebarinside: {
-    width: '100%',
-    height: '50%',
-    marginLeft: 10,
-  },
+  // mutebarinside: {
+  //   width: '100%',
+  //   height: '50%',
+  //   // marginLeft: 10,
+  // },
 
   catalogscreen: {
     width: '100%',
     height: '100%',
     backgroundColor: 'black',
     position: 'relative',
-    top: 46,
+    top: '46@vs',
   },
 
   timerbar: {
@@ -1144,12 +1195,12 @@ const styles = ScaledSheet.create({
   sendview: {
     position: 'relative',
     alignSelf: 'flex-end',
-    marginRight: 10,
+    marginRight: '10@vs',
     backgroundColor: '#FB8B24',
-    height: 40, //any of height
-    width: 40,
+    height: '40@vs', //any of height
+    width: '40@s',
     justifyContent: 'center',
-    borderRadius: 150 / 2,
+    borderRadius: 75,
   },
 
   contactontouch: {
@@ -1164,47 +1215,48 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     position: 'absolute',
-    bottom: 10,
+    bottom: '10@vs',
   },
 
   NoTopcontanier: {
-    flex: scale(1),
-    height: scale(40),
+    flex: 1,
+    height: '40@vs',
     justifyContent: 'flex-start',
     borderBottomColor: 'grey',
-    borderRightWidth: scale(1),
+    borderRightWidth: '1@s',
     borderRightColor: '#dcdcdc',
   },
 
   Topcontanier: {
-    flex: scale(1),
+    flex: 1,
     justifyContent: 'flex-start',
     borderBottomColor: '#FB8B24',
-    borderBottomWidth: scale(9),
-    borderRightWidth: scale(1),
-    height: scale(40),
+    borderBottomWidth: '7@vs',
+    borderRightWidth: '1@s',
+    height: '40@vs',
     borderRightColor: '#dcdcdc',
   },
 
   toptext: {
     textAlign: 'center',
     color: '#FB8B24',
-    fontSize: 20,
+    fontSize: '18@ms',
   },
 
   notoptext: {
-    fontSize: 20,
+    fontSize: '18@ms',
     textAlign: 'center',
     color: 'grey',
   },
 
   BottomTabConatiner: {
-    position: 'relative',
-    bottom: 10,
-    width: scale(350),
-    height: scale(78),
-    paddingBottom: scale(20),
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    height: '78@vs',
+    paddingBottom: '20@vs',
     backgroundColor: '#fff5ee',
+    // backgroundColor: 'yellow',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     flexDirection: 'row',
@@ -1215,9 +1267,8 @@ const styles = ScaledSheet.create({
   ModelBottomTabContainer: {
     position: 'absolute',
     bottom: 0,
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingTop: 20,
+    paddingHorizontal: '20@s',
+    paddingTop: '20@vs',
     //justifyContent: 'space-evenly',
     width: '100%',
     height: '80%',
@@ -1239,14 +1290,15 @@ const styles = ScaledSheet.create({
 
   roundshape: {
     backgroundColor: '#fa8072',
-    height: 70, //any of height
-    width: 70, //any of width
+    // backgroundColor: 'green',
+    height: '60@s', //any of height
+    width: '60@s', //any of width
     justifyContent: 'center',
     position: 'absolute',
-    bottom: 35,
+    bottom: '45@vs',
     zIndex: 1,
     alignSelf: 'center',
-    borderRadius: 150 / 2, // it will be height/2
+    borderRadius: 50, // it will be height/2
   },
 
   boundshape: {
@@ -1254,6 +1306,7 @@ const styles = ScaledSheet.create({
     height: '45%',
     flexDirection: 'row',
     justifyContent: 'space-around',
+    // backgroundColor: 'green',
   },
   boundshapetwo: {
     width: '50%',
@@ -1264,70 +1317,74 @@ const styles = ScaledSheet.create({
 
   circle: {
     position: 'relative',
-    bottom: 10,
-    borderRadius: 150 / 2,
+    bottom: '10@vs',
+    borderRadius: '40@s',
     backgroundColor: '#808080',
-    width: 40,
-    height: 40,
+    // backgroundColor: 'green',
+    width: '36@s',
+    height: '36@s',
     justifyContent: 'center',
   },
 
   nocircle: {
     position: 'relative',
-    bottom: 10,
-    width: 40,
-    height: 40,
+    bottom: '10@vs',
+    width: '36@s',
+    height: '36@vs',
     justifyContent: 'center',
   },
 
   callcircle: {
     position: 'absolute',
     alignSelf: 'flex-end',
-    right: 15,
-    top: 320,
+    right: '12@s',
+    top: '270@vs',
     backgroundColor: '#a9a9',
-    height: 50, //any of height
-    width: 50,
+    // backgroundColor: 'green',
+    height: '50@s', //any of height
+    width: '50@s',
     justifyContent: 'center',
-    borderRadius: 150 / 2,
+    borderRadius: 50,
   },
 
   chatcircle: {
     position: 'absolute',
     alignSelf: 'flex-end',
-    top: 320,
-    right: 15,
+    top: '270@vs',
+    right: '12@s',
     backgroundColor: '#6969',
-    height: 50, //any of height
-    width: 50,
+    // backgroundColor: 'red',
+    height: '50@s', //any of height
+    width: '50@s',
     zIndex: 1,
     justifyContent: 'center',
-    borderRadius: 150 / 2,
+    borderRadius: 50,
   },
 
   nochatcircle: {
     position: 'absolute',
     alignSelf: 'flex-end',
-    top: 320,
-    right: 15,
+    top: '270@vs',
+    right: '12@s',
     backgroundColor: '#FB8B24',
-    height: 50, //any of height
-    width: 50,
+    height: '50@s', //any of height
+    width: '50@s',
     zIndex: 1,
     justifyContent: 'center',
-    borderRadius: 150 / 2,
+    borderRadius: 50,
   },
   textinputstyle: {
     flexDirection: 'row',
     justifyContent: 'center',
     position: 'relative',
-    left: 10,
+    left: '10@s',
     alignItems: 'center',
     width: '86%',
     backgroundColor: '#fff',
+    // backgroundColor: 'red',
     borderWidth: 0.5,
     borderColor: '#000',
-    height: 40,
+    height: '40@vs',
     borderRadius: 5,
     margin: 10,
     top: 20,
@@ -1337,13 +1394,13 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     position: 'relative',
-    marginTop: 20,
+    marginTop: '20@vs',
     alignItems: 'center',
     width: '93%',
     backgroundColor: '#fff',
     borderWidth: 0.5,
     borderColor: '#000',
-    height: 40,
+    height: '40@vs',
     borderRadius: 5,
   },
 
@@ -1351,22 +1408,44 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     position: 'relative',
-    marginTop: 20,
-    left: 30,
+    marginTop: '20@vs',
+    left: '20@s',
     alignItems: 'center',
     width: '75%',
     backgroundColor: '#fff',
     borderWidth: 0.5,
     borderColor: '#000',
-    height: 40,
-    borderRadius: 5,
+    height: '40@vs',
+    borderRadius: 7,
   },
 
   imageStyle: {
     position: 'absolute',
-    right: 0,
-    height: 25,
-    width: 25,
+    right: 10,
+    height: '25@vs',
+    width: '25@s',
+  },
+  ChatTxtInput: {
+    width: '80%',
+    padding: 10,
+  },
+  OTcontainer: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    // position: 'relative',
+    // marginTop: '10@vs',
+    height: '90%',
+    // backgroundColor: 'green',
+  },
+  OTPublishercontainer: {
+    width: '100%',
+    // backgroundColor: 'yellow',
+    height: '50%',
+  },
+  OTSubscriberContainer: {
+    width: '100%',
+    // backgroundColor: 'red',
+    height: '60%',
   },
 });
 export default CallScreen;
