@@ -19,6 +19,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 30,
     marginBottom: 10,
+    color: 'black',
   },
 });
 
@@ -90,7 +91,12 @@ class App extends Component {
           }}
         />
         <TextInput
-          style={{height: 40, borderColor: 'gray', borderWidth: 1}}
+          style={{
+            height: 40,
+            borderColor: 'gray',
+            borderWidth: 1,
+            color: 'black',
+          }}
           onChangeText={text => {
             this.setState({text});
           }}

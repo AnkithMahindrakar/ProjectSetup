@@ -127,3 +127,71 @@ const styles = StyleSheet.create({
     borderColor: '#FB8B24',
   },
 });
+
+{
+  /* <View style={{display: idno === 1 ? 'flex' : 'none', flex: 1}}>
+  <View
+    style={{
+      width: '100%',
+      height: '85%',
+      marginTop: 60,
+      position: 'absolute',
+      backgroundColor: 'black',
+      alignSelf: 'center',
+    }}>
+    <FlatList
+      contentContainerStyle={{
+        alignItems: 'flex-end',
+        alignContent: 'space-around',
+        padding: 10,
+      }}
+      keyExtractor={(item, index) => index}
+      data={chatgoals}
+      inverted={true}
+      renderItem={chatText}
+    />
+  </View>
+  {videoButton()}
+  {/* <Image
+resizeMode='contain'
+source={require('./assets/group.png')}
+style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
+        /> */
+}
+
+//   <View style={styles.textinputandsend}>
+//     <View style={styles.addinputstyle}>
+//       <TouchableOpacity style={styles.imageStyle}>
+//         <MaterialCommunityIcons
+//           name="paperclip"
+//           style={{flex: 1}}
+//           size={25}
+//           color={'#696969'}
+//         />
+//       </TouchableOpacity>
+//       <TextInput
+//         style={{width: '80%'}}
+//         placeholder="Type Message Here"
+//         onChangeText={goalInputHandler}
+//         value={enteredGoal}
+//         underlineColorAndroid="transparent"
+//       />
+//     </View>
+//     <View style={styles.sendview}>
+//       <TouchableOpacity
+//         onPress={() => {
+//           if (enteredGoal) {
+//             setEnteredGoal('');
+//             addGoalHandler(enteredGoal, 'text');
+//           }
+//         }}>
+//         <FontAwesome5
+//           name="paper-plane"
+//           style={{alignSelf: 'center'}}
+//           size={20}
+//           color={video ? '#696969' : 'white'}
+//         />
+//       </TouchableOpacity>
+//     </View>
+//   </View>
+// </View>; */}

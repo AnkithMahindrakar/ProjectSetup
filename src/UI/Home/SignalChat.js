@@ -15,9 +15,12 @@ const SignalChat = () => {
   const [messages, setMessages] = useState([]);
   const [sessionankit, setSessionankit] = useState();
   let oldMessages;
-  let sessionRef = useRef();
+  const sessionRef = useRef();
   console.log('messages', messages);
-  console.log('state ref data', sessionRef);
+  // console.log(
+  //   'state ref data',
+  //   sessionRef.current.state.sessionInfo.connection.connectionId,
+  // );
   //   var session;
 
   useEffect(() => {
@@ -26,9 +29,9 @@ const SignalChat = () => {
 
   const apiKey = '47339381';
   const sessionId =
-    '1_MX40NzMzOTM4MX5-MTYzNjU0NzE0NDMzMH41MDR0c2V6VlhVN1Y0Q09aaWJnSjN3N21-fg';
+    '2_MX40NzMzOTM4MX5-MTYzNzIxMDk2MzYwOX5kbytIUEYvaisvMlY0TnJRRFphWS9qQml-fg';
   const token =
-    'T1==cGFydG5lcl9pZD00NzMzOTM4MSZzaWc9Yjc0Njg3ZTlmOGY5MDgyZTdmZjdkNTYyZTQ1NjU1OGI4NTU3Y2I5MjpzZXNzaW9uX2lkPTFfTVg0ME56TXpPVE00TVg1LU1UWXpOalUwTnpFME5ETXpNSDQxTURSMGMyVjZWbGhWTjFZMFEwOWFhV0puU2pOM04yMS1mZyZjcmVhdGVfdGltZT0xNjM2NTQ3MTcxJm5vbmNlPTAuNDc3NDc5MTkwMTA0MzY0MjQmcm9sZT1wdWJsaXNoZXImZXhwaXJlX3RpbWU9MTYzNzE1MTk3MCZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ==';
+    'T1==cGFydG5lcl9pZD00NzMzOTM4MSZzaWc9NDYzMGYyMWU5YmRmMzQ5ZDVhZTdlNjc0NmZiOThlZjg5ZTY0N2RmNTpzZXNzaW9uX2lkPTJfTVg0ME56TXpPVE00TVg1LU1UWXpOekl4TURrMk16WXdPWDVrYnl0SVVFWXZhaXN2TWxZMFRuSlJSRnBoV1M5cVFtbC1mZyZjcmVhdGVfdGltZT0xNjM3MjExMDA5Jm5vbmNlPTAuNTcxOTM2OTk5MjA1ODk3MSZyb2xlPXN1YnNjcmliZXImZXhwaXJlX3RpbWU9MTYzOTgwMzAwOCZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ==';
 
   const sessionEventHandlers = {
     // stream: event => {
@@ -37,8 +40,8 @@ const SignalChat = () => {
     signal: event => {
       console.log('events', event.type);
       if (event.data) {
-        const myConnectionId =
-          sessionRef.getSessionInfo().connection.connectionId;
+        // const myConnectionId =
+        //   sessionRef.getSessionInfo().connection.connectionId;
         // oldMessages = messages;
         // console.log('myConnection ID', myConnectionId);
         // console.log('oldMessages', oldMessages);
@@ -134,43 +137,3 @@ const styles = StyleSheet.create({
   },
 });
 export default SignalChat;
-///////////////////////////////////////////////////////////////////////////////////////
-
-// import React, {useRef} from 'react';
-// // import {OTSession} from 'opentok-react';
-// import {OTSession} from 'opentok-react-native';
-// import {Button} from 'react-native';
-
-// function SignalChat() {
-//   const sessionRef = useRef();
-
-//   const sendSignal = () => {
-//     sessionRef.current.sessionHelper.session.signal(
-//       {
-//         type: 'TheSignalType',
-//         data: 'TheData',
-//       },
-//       function (error) {
-//         if (error) {
-//           console.log('signal error: ' + error.message);
-//         } else {
-//           console.log('signal sent');
-//         }
-//       },
-//     );
-//   };
-
-//   return (
-//     <OTSession
-//       ref={sessionRef}
-//       apiKey="47339381"
-//       sessionId="1_MX40NzMzOTM4MX5-MTYzNjU0NzE0NDMzMH41MDR0c2V6VlhVN1Y0Q09aaWJnSjN3N21-fg"
-//       token="T1==cGFydG5lcl9pZD00NzMzOTM4MSZzaWc9Yjc0Njg3ZTlmOGY5MDgyZTdmZjdkNTYyZTQ1NjU1OGI4NTU3Y2I5MjpzZXNzaW9uX2lkPTFfTVg0ME56TXpPVE00TVg1LU1UWXpOalUwTnpFME5ETXpNSDQxTURSMGMyVjZWbGhWTjFZMFEwOWFhV0puU2pOM04yMS1mZyZjcmVhdGVfdGltZT0xNjM2NTQ3MTcxJm5vbmNlPTAuNDc3NDc5MTkwMTA0MzY0MjQmcm9sZT1wdWJsaXNoZXImZXhwaXJlX3RpbWU9MTYzNzE1MTk3MCZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ=="
-//       // eventHandlers={eventHandlers}
-//     >
-//       <Button title="send" onPress={sendSignal} />
-//     </OTSession>
-//   );
-// }
-
-// export default SignalChat;

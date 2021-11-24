@@ -169,7 +169,7 @@ export const ProfileScreen = ({
         <View style={isPortrait ? null : styles.detailsLandScape}>
           {/* <View style={styles.detailsLandScape}> */}
           <View style={styles.thirdmiddleitem}>
-            <Text style={styles.textbold}>Locatio</Text>
+            <Text style={styles.textbold}>Location</Text>
             <Text style={styles.textcolour}>
               510, Gulfgate Centre Mall, Houston ,TX 77098
             </Text>
@@ -267,6 +267,7 @@ const styles = ScaledSheet.create({
     borderWidth: 2,
     borderColor: 'orange',
     backgroundColor: 'white',
+    // display: 'none',
   },
   text: {
     fontSize: '12@s',
@@ -280,6 +281,7 @@ const styles = ScaledSheet.create({
   },
   thirdmiddleitem: {
     paddingBottom: '40@vs',
+    display: 'flex',
   },
   middleItem: {
     flexDirection: 'column',
@@ -298,7 +300,7 @@ const styles = ScaledSheet.create({
     height: '90@vs',
     width: '80@s',
     alignSelf: 'center',
-    backgroundColor: 'yellow',
+    // backgroundColor: 'yellow',
   },
   BelowImage: {
     // backgroundColor: 'yellow',

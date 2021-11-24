@@ -239,3 +239,62 @@ export const AgentForgotPassword = async email => {
     throw new Error('Agent Forgot Password API failed');
   }
 };
+
+export const GetProductsBySKU = async (
+  sKU,
+  IssimilarDevicesReqd,
+  retailerID,
+  retailerUserID,
+  agentSessionID,
+) => {
+  try {
+    const data = {
+      SKU: sKU,
+      IsSimilarDevicesReqd: IssimilarDevicesReqd,
+      RetailerID: retailerID,
+      RetailerUserID: retailerUserID,
+      AgentSessionID: agentSessionID,
+    };
+    const header = await makeHeader('static', 'POST');
+    console.log('get products by sku params:', data);
+    const result = await axios.post(urls.user.GetProductsBySKU, data, header);
+    // console.log('abcd', result);
+    if (result.status === 200) {
+      console.log(' get products by SKU API Result Data:', result.data);
+      return result.data;
+    }
+  } catch (e) {
+    console.log('Error in get products by sku API', e);
+    throw new Error('get products by sku API failed');
+  }
+};
+export const EndAppointment = async (
+  appointmentId,
+  retailerId,
+  retailerUserId,
+  agentSessionId,
+  status,
+  userType,
+) => {
+  try {
+    const data = {
+      AppointmentId: appointmentId,
+      RetailerId: retailerId,
+      RetailerUserId: retailerUserId,
+      AgentSessionId: agentSessionId,
+      Status: status,
+      UserType: userType,
+    };
+    const header = await makeHeader('static', 'POST');
+    console.log('EndAppointment params:', data);
+    const result = await axios.post(urls.user.EndAppointment, data, header);
+    // console.log('abcd', result);
+    if (result.status === 200) {
+      console.log(' EndAppointment API Result Data:', result.data);
+      return result.data;
+    }
+  } catch (e) {
+    console.log('Error in EndAppointment API', e);
+    throw new Error('EndAppointment API failed');
+  }
+};

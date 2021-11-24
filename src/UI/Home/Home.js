@@ -11,6 +11,7 @@ import {
   Alert,
   SafeAreaView,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from 'react-native-vector-icons/Octicons';
@@ -31,6 +32,8 @@ import {ScaledSheet} from 'react-native-size-matters';
 import SignalChatFunc from './SignalChat';
 import SignalChat3 from './SignalChat3';
 import SignalChatClass from './o';
+import crypto from '../../Helper/crypto';
+import {apiIv, apiKey} from '../../Constants';
 
 export function Home(props) {
   const [profile, setProfile] = useState(true);
@@ -46,11 +49,53 @@ export function Home(props) {
   const [binary, setBinary] = useState();
   const [networkBanner, setNetworkBanner] = useState();
   const [notificationData, setNotificationData] = useState({});
-  console.log('permissionpermission', permission);
-  console.log('<<<<<<Notification Data>>>>>>', notificationData);
+  const [indicator, setIndicator] = useState(false);
+  const [decryptedKey, setDecryptedKey] = useState();
+  console.log('decrypted Key from useState', decryptedKey);
+  // console.log('retailerDataaaaaaaaaa', retailerData);
+  // console.log('<<<<<<Notification Data>>>>>>', notificationData);
   var Sound = require('react-native-sound');
   var whoosh;
   Sound.setCategory('Playback');
+
+  // const openTokKey = retailerData.data.ConnectKey;
+
+  const DecryptFunc = async () => {
+    try {
+      const JsonRETAILERCONFIGDATA = await AsyncStorage.getItem(
+        'RETAILER_CONFIG',
+      );
+      const asyncRetailConfigData =
+        JsonRETAILERCONFIGDATA != null
+          ? JSON.parse(JsonRETAILERCONFIGDATA)
+          : null;
+      console.log(
+        'asyncRetailConfigData=======',
+        asyncRetailConfigData.data.ConnectKey,
+      );
+      // const apiKey = '46816214';
+      const key = crypto.CryptoJS.enc.Utf8.parse(apiKey);
+      const iv = crypto.CryptoJS.enc.Utf8.parse(apiIv);
+      const options = {
+        keySize: 128 / 8,
+        iv: iv,
+        mode: crypto.CryptoJS.mode.CBC,
+        padding: crypto.CryptoJS.pad.Pkcs7,
+      };
+      // let decryptedKey = crypto.decrypt(openTokKey, key, options);
+      const decryptedApiKey = crypto.decrypt(
+        asyncRetailConfigData.data.ConnectKey,
+        key,
+        options,
+      );
+      console.log('Decrypted opentok api key:', decryptedApiKey);
+      setDecryptedKey(decryptedApiKey);
+      return asyncRetailConfigData;
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const AsyncData = async () => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
@@ -69,6 +114,25 @@ export function Home(props) {
       console.log(e);
     }
   };
+
+  // const AsyncData2 = async () => {
+  //   try {
+  //     // const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
+  //     // const asyncLoginData =
+  //     //   JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
+  //     const JsonRETAILERCONFIGDATA = await AsyncStorage.getItem(
+  //       'RETAILER_CONFIG',
+  //     );
+  //     const asyncRetailConfigData =
+  //       JsonRETAILERCONFIGDATA != null
+  //         ? JSON.parse(JsonRETAILERCONFIGDATA)
+  //         : null;
+
+  //     return asyncRetailConfigData;
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
   const UpdateAgentStatusApi = async input => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
@@ -94,7 +158,7 @@ export function Home(props) {
   };
   const AsyncFunction = async () => {
     const PermissionResult = await checkPermission();
-    console.log('Permission in useEffect', PermissionResult);
+    // console.log('Permission in useEffect', PermissionResult);
     setPermission(PermissionResult);
     return PermissionResult;
   };
@@ -103,7 +167,8 @@ export function Home(props) {
     // setIsToggleSuccess(true);
     // const login_Data = await AsyncStorage.getItem('LOGIN_DATA');
     const permissionResult = await AsyncFunction();
-    console.log('permissionResult', permissionResult);
+    // const permissionResult = await AsyncFunction2();
+    // console.log('permissionResult', permissionResult);
     if (permissionResult === 'granted') {
       await UpdateAgentStatusApi('Available');
     }
@@ -183,9 +248,14 @@ export function Home(props) {
   });
 
   useEffect(() => {
-    console.log('Platform OS', Platform.OS);
+    // console.log('Platform OS', Platform.OS);
     const extraFunction = async () => {
       const AsyncDataResponse = await AsyncData();
+      // const retailerConfigValues = await AsyncData2();
+      DecryptFunc();
+
+      // setRetailerData(retailerConfigValues);
+      // console.log('retailer data============', retailerConfigValues);
       const getToken = await messaging().getToken();
       //const oneSignalPlayerID = await AsyncStorage.getItem('oneSignalPlayerID');
       console.log('firebasetoken', getToken);
@@ -375,8 +445,10 @@ export function Home(props) {
               color="#ff7f50"
               onPress={() => {
                 try {
-                  UpdateAgentStatusApi('Connected');
-                  props.navigation.navigate('CallScreen', notificationData);
+                  props.navigation.navigate('CallScreen', {
+                    notificationData,
+                    decryptedKey,
+                  });
                   onCancel();
                 } catch (e) {
                   console.log(e);

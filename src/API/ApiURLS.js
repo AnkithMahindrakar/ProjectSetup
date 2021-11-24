@@ -7,5 +7,7 @@ export const urls = {
     token: `${host}services/v2/UpdateAgentDeviceToken`,
     updateAgentStatus: `${host}services/UpdateAgentStatus`,
     AgentForgotPassword: `${host}services/AgentForgotPassword`,
+    GetProductsBySKU: `${host}services/GetProductsBySKU`,
+    EndAppointment: `${host}services/EndAppointment`,
   },
 };

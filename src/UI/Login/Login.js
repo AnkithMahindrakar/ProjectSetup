@@ -215,7 +215,7 @@ const styles = ScaledSheet.create({
     // fontSize: 30,
   },
   logoContainer: {
-    backgroundColor: 'yellow',
+    // backgroundColor: 'yellow',
     // alignItems: 'center',
     // height: '150@vs',
     // width: '120@s',
