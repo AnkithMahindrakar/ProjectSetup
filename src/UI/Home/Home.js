@@ -484,8 +484,8 @@ export function Home(props) {
 
       {notification && (
         <View>
-          {/* <Text style={styles.screenText}>Notification screen</Text> */}
-          <SignalChatFunc />
+          <Text style={styles.screenText}>Notification screen</Text>
+          {/* <SignalChatFunc /> */}
         </View>
       )}
       {calendar && (
@@ -500,8 +500,8 @@ export function Home(props) {
       )}
       {random && (
         <View>
-          {/* <Text style={styles.screenText}>Random screen</Text> */}
-          <SignalChatClass />
+          <Text style={styles.screenText}>Random screen</Text>
+          {/* <SignalChatClass /> */}
         </View>
       )}
       <KeyboardAvoidingView
