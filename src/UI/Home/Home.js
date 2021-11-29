@@ -115,31 +115,11 @@ export function Home(props) {
     }
   };
 
-  // const AsyncData2 = async () => {
-  //   try {
-  //     // const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
-  //     // const asyncLoginData =
-  //     //   JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
-  //     const JsonRETAILERCONFIGDATA = await AsyncStorage.getItem(
-  //       'RETAILER_CONFIG',
-  //     );
-  //     const asyncRetailConfigData =
-  //       JsonRETAILERCONFIGDATA != null
-  //         ? JSON.parse(JsonRETAILERCONFIGDATA)
-  //         : null;
-
-  //     return asyncRetailConfigData;
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
   const UpdateAgentStatusApi = async input => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
       const asyncLoginData =
         JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
-      // setLoginData(asyncLoginData.data);
-      // console.log('?>?????>?>?>?>?>?>?>?>', loginData);
       await updateAgentStatus(
         asyncLoginData.data.RetailerId,
         asyncLoginData.data.RetailerUserId,

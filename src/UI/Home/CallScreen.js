@@ -12,8 +12,12 @@ import {
 import SplashScreen from 'react-native-splash-screen';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome';
 import React, {useState, useEffect, useRef} from 'react';
-import {updateAgentStatus} from '../../API/ApiCalls';
-import {EndAppointment} from '../../API/ApiCalls';
+// import {updateAgentStatus} from '../../API/ApiCalls';
+import {
+  EndAppointment,
+  SearchProducts,
+  updateAgentStatus,
+} from '../../API/ApiCalls';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {GetProductsBySKU} from '../../API/ApiCalls';
 import {FlatList} from 'react-native';
@@ -46,7 +50,8 @@ function CallScreen({navigation, route}) {
   const sessionRef = useRef();
   var array = [{name: 'Call'}, {name: 'Chat'}, {name: 'Catalog'}];
   const {notificationData, decryptedKey} = route.params;
-  console.log('------------------------', notificationData, decryptedKey);
+  // console.log('------------------------', notificationData, decryptedKey);
+  console.log('Global messages', messages);
   // console.log('------------------------', notificationData.additionalData);
   // console.log(
   //   '------------------------',
@@ -214,19 +219,49 @@ function CallScreen({navigation, route}) {
       console.log('session Reconnecting');
     },
     signal: event => {
-      console.log('events', event.type);
+      console.log('events', event);
       if (event.data) {
         console.log('Messages', messages);
+        const chatDataJson = event.data;
+        const chatData = JSON.parse(chatDataJson);
+        console.log('chatData', chatData.data);
+        // console.log('chatData2', chatData.data.data);
         setMessages(prevMsg => {
-          return [{data: `Me: ${event.data}`, type: 'SignalMsg'}, ...prevMsg];
+          // return [{data: `Me: ${event.data}`, type: 'SignalMsg'}, ...prevMsg];
+          // return [{event}, ...prevMsg];
+          return [{data: chatData.data}, ...prevMsg];
         });
       }
     },
   };
-  const sendSignalHandler = () => {
+  const sendSignalHandler = textData => {
+    // console.log('input from send button', text);
+    const signalEventObj = {
+      connectionId: null,
+      // data: {data: textData, type: 'MESSAGEFROMAGENT'},
+      data: textData,
+      sessionId: notificationData.additionalData.SessionId,
+      type: null,
+    };
+    // console.log('signal Event object', signalEventObj);
+    const signalData = {
+      data: textData,
+      type: 'MESSAGEFROMAGENT',
+    };
+
+    console.log('signalArgData', '---', signalData);
     if (text) {
+      // const signalARGData = JSON.stringify(signalData);
       sessionRef.current.signal({
-        data: text,
+        // data: text,
+        // type: 'MESSAGEFROMAGENT',
+        // connectionId: null,
+        // data: {data: textData, type: 'MESSAGEFROMAGENT'},
+        // data: signalARGData,
+        data: JSON.stringify(signalData),
+        // sessionId: notificationData.additionalData.SessionId,
+        // type: null,
+        // JSON.stringify(signalEventObj),
       });
       setText('');
     }
@@ -924,6 +959,7 @@ style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
                   style={{width: '80%', color: 'black'}}
                   placeholder="Type Message Here"
                   onChangeText={val => {
+                    console.log('textvalue', val);
                     setText(val);
                   }}
                   value={text}
@@ -933,7 +969,7 @@ style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
               <View style={styles.sendview}>
                 <TouchableOpacity
                   onPress={() => {
-                    sendSignalHandler();
+                    sendSignalHandler(text);
                     // addGoalHandler(text, 'text');
                   }}>
                   <FontAwesome5
@@ -1041,6 +1077,7 @@ style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
                   />
                   <TextInput
                     style={{flex: 4}}
+                    // onChangeText={onSearchProducts}
                     placeholder="Search Product"
                     underlineColorAndroid="transparent"
                   />

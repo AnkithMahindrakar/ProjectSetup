@@ -298,3 +298,29 @@ export const EndAppointment = async (
     throw new Error('EndAppointment API failed');
   }
 };
+export const SearchProducts = async (
+  SearchText,
+  RetailerId,
+  RetailerUserId,
+  AgentSessionId,
+) => {
+  try {
+    const data = {
+      searchText: SearchText,
+      retailerId: RetailerId,
+      retailerUserId: RetailerUserId,
+      agentSessionId: AgentSessionId,
+    };
+    const header = await makeHeader('static', 'POST');
+    console.log('SearchProducts params:', data);
+    const result = await axios.post(urls.user.SearchProducts, data, header);
+    // console.log('abcd', result);
+    if (result.status === 200) {
+      console.log(' SearchProducts API Result Data:', result.data);
+      return result.data;
+    }
+  } catch (e) {
+    console.log('Error in SearchProducts API', e);
+    throw new Error('SearchProducts API failed');
+  }
+};

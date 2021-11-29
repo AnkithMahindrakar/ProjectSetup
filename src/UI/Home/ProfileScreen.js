@@ -366,26 +366,3 @@ const styles = ScaledSheet.create({
     bottom: '70@s',
   },
 });
-
-// const AsyncPermissionData = async () => {
-//   try {
-//     const JsonCameraPermission = await AsyncStorage.getItem(
-//       'Camera_Permission',
-//     );
-//     const Camera_Permission =
-//       JsonCameraPermission != null ? JSON.parse(JsonCameraPermission) : null;
-//     const JsonMicPermission = await AsyncStorage.getItem('Mic_Permission');
-//     const Mic_Permission =
-//       JsonMicPermission != null ? JSON.parse(JsonMicPermission) : null;
-
-//     setCameraPermission(Camera_Permission);
-//     setMicPermission(Mic_Permission);
-//     console.log('Camera_Permission', cameraPermission);
-//     console.log('Mic_Permission', MicPermission);
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
-// console.log('Permissionmnnnnnnnnn', permission);
-
-// };

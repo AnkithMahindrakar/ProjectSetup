@@ -9,5 +9,6 @@ export const urls = {
     AgentForgotPassword: `${host}services/AgentForgotPassword`,
     GetProductsBySKU: `${host}services/GetProductsBySKU`,
     EndAppointment: `${host}services/EndAppointment`,
+    SearchProducts: `${host}services/SearchProducts`,
   },
 };
