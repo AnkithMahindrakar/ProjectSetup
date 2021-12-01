@@ -76,27 +76,52 @@ function CallScreen({navigation, route}) {
       Alert.alert('Error', e.message);
     }
   };
-
-  const products = (spec, sku, imageurl) => {
-    const img = JSON.parse(imageurl).ImageUrls;
-    const spece = JSON.parse(spec);
-    console.log('specs', spece);
-    console.log('img', img);
-    console.log('bred', img.length);
-    img.map((item, index) => {
-      if (index === 5) {
-        return;
+  const onSearchProducts = async onProduct => {
+    try {
+      const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
+      const asyncLoginData =
+        JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
+      const searchProducts = await SearchProducts(
+        onProduct,
+        notificationData.additionalData.RetailerId,
+        notificationData.additionalData.RetailerUserId,
+        asyncLoginData.agentSessionID,
+      );
+      if (onProduct === '') {
+        const getproductsbysku = await GetProductsBySKU(
+          notificationData.additionalData.SKU,
+          true,
+          notificationData.additionalData.RetailerId,
+          notificationData.additionalData.RetailerUserId,
+          asyncLoginData.agentSessionID,
+        );
+        products([getproductsbysku.data.ProductDetails]);
+        // setCategories([getproductsbysku.data.ProductDetails]);
       } else {
-        setCategories([
-          {
-            Primaryproduct: 'Primary Product',
-            Model: spece.Make + '\t' + spece.Model,
-            Sku: sku,
-            Price: 'Price' + spece.Price,
-            url: item,
-          },
-        ]);
+        products(searchProducts.data);
+        // setCategories(searchProducts.data);
       }
+      // productstwo(searchProducts.data);
+    } catch (e) {
+      console.log(e);
+      Alert.alert('Error', e.message);
+    }
+  };
+  const products = ProductDetails => {
+    const cars = [];
+    ProductDetails.map((item, index) => {
+      const img = JSON.parse(item.ImageUrls).ImageUrls;
+      const spece = JSON.parse(item.Specs);
+      console.log('specs', spece);
+      cars.push({
+        Primaryproduct: 'Primary Product',
+        Model: spece.Make + '\t' + spece.Model,
+        Sku: item.SKU,
+        Price: 'Price' + spece.Price,
+        url: img[0],
+      });
+      console.log('pro', cars);
+      setCategories(cars);
     });
   };
   const getProductsBySKU = async () => {
@@ -111,17 +136,10 @@ function CallScreen({navigation, route}) {
         notificationData.additionalData.RetailerUserId,
         asyncLoginData.agentSessionID,
       );
-      console.log('Get products by sku', getproductsbysku.data);
-      products(
-        getproductsbysku.data.ProductDetails.Specs,
-        getproductsbysku.data.ProductDetails.SKU,
-        getproductsbysku.data.ProductDetails.ImageUrls,
-      );
-      // setcatalogProducts(getproductsbysku.data.ProductDetails.Specs);
-      // console.log(
-      //   'catalog description',
-      //   getproductsbysku.data.ProductDetails.Specs,
-      // );
+      console.log('abc', getproductsbysku.data.ProductDetails.Specs);
+      products([getproductsbysku.data.ProductDetails]);
+      // setCategories([getproductsbysku.data.ProductDetails]);
+      // products(getproductsbysku.data.ProductDetails);
     } catch (e) {
       console.log(e);
       Alert.alert('Error', e.message);
@@ -229,7 +247,7 @@ function CallScreen({navigation, route}) {
         setMessages(prevMsg => {
           // return [{data: `Me: ${event.data}`, type: 'SignalMsg'}, ...prevMsg];
           // return [{event}, ...prevMsg];
-          return [{data: chatData.data}, ...prevMsg];
+          return [{data: chatData.data, type: chatData.type}, ...prevMsg];
         });
       }
     },
@@ -421,10 +439,7 @@ function CallScreen({navigation, route}) {
                 setTimeout(() => {
                   setsnackbar(false);
                 }, 1000);
-                addGoalHandler(
-                  notificationData.additionalData.ProductTitle,
-                  'share',
-                );
+                addGoalHandler(itemData.item.Model, 'share');
               }}>
               <MaterialCommunityIcons
                 name="share-variant"
@@ -457,10 +472,7 @@ function CallScreen({navigation, route}) {
                 setTimeout(() => {
                   setsnackbar(false);
                 }, 1000);
-                addGoalHandler(
-                  notificationData.additionalData.ProductTitle,
-                  'addtocart',
-                );
+                addGoalHandler(itemData.item.Model, 'addtocart');
               }}>
               <MaterialCommunityIcons name="cart" size={15} color={'white'} />
               <Text style={{color: 'white', fontSize: 10, fontWeight: '700'}}>
@@ -561,7 +573,7 @@ function CallScreen({navigation, route}) {
             borderTopLeftRadius: 20,
           }}>
           <View style={{flexDirection: 'column'}}>
-            <Text style={{color: 'black', fontSize: 15, textAlign: 'center'}}>
+            <Text style={{color: 'black', fontSize: 15, textAlign: 'left'}}>
               {item.data}
             </Text>
             <View
@@ -645,20 +657,40 @@ function CallScreen({navigation, route}) {
       );
     } else {
       return (
+        // <View
+        //   style={{
+        //     // padding: 10,
+        //     // position: 'absolute',
+        //     backgroundColor: 'red',
+        //     // marginVertical: 10,
+        //     // alignItems: 'center',
+        //     // justifyContent: 'center',
+        //     // borderBottomEndRadius: 20,
+        //     // borderBottomLeftRadius: 20,
+        //     // borderTopLeftRadius: 20,
+        //   }}>
         <View
           style={{
             padding: 10,
             backgroundColor: 'white',
-            marginBottom: 15,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderBottomEndRadius: 20,
+            marginVertical: 6,
+            borderBottomRightRadius: 20,
+            // alignItems: 'center',
+            // justifyContent: 'center',
+            // borderBottomRadius: 20,
             borderBottomLeftRadius: 20,
-            borderTopLeftRadius: 20,
+            borderTopLeftRadius: item.type === 'MESSAGEFROMAGENT' ? 20 : 0,
+            borderTopRightRadius: item.type === 'MESSAGEFROMAGENT' ? 0 : 20,
+            alignSelf:
+              item.type === 'MESSAGEFROMAGENT' ? 'flex-end' : 'flex-start',
+            // flex: 1,
           }}>
+          {/* <View> */}
           <Text style={{color: 'black', fontSize: 15, textAlign: 'center'}}>
             {item.data}
           </Text>
+          {/* </View> */}
+          {/* </View> */}
         </View>
       );
     }
@@ -692,222 +724,220 @@ function CallScreen({navigation, route}) {
     setEnteredGoal(enteredText);
   };
   //tabs
-  {
-    //call
 
-    SplashScreen.hide();
-    return (
-      <View style={styles.fullscreen}>
-        {/* //tab and 3 screens */}
-        <View style={styles.rowarrayscreen}>
-          {array.map((item, index) => (
-            <TouchableOpacity
-              style={
-                index === idno ? styles.Topcontanier : styles.NoTopcontanier
-              }
-              onPress={() => {
-                setidno(index);
-              }}>
-              <Text style={index === idno ? styles.toptext : styles.notoptext}>
-                {item.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        {/* //swap screen */}
-        <View style={styles.swapscreen}>
-          {indicator && (
-            <Modal transparent={true}>
-              <View
-                style={{
-                  backgroundColor: 'black',
-                  flex: 1,
-                  justifyContent: 'center',
-                  opacity: 0.65,
-                  // position: 'absolute',
-                }}>
-                <ActivityIndicator size="large" color="#FB8B24" />
-              </View>
-            </Modal>
-          )}
-          <View
-            style={{
-              display: idno === 0 ? 'flex' : 'none',
-              flex: 1,
+  //call
+
+  SplashScreen.hide();
+  return (
+    <View style={styles.fullscreen}>
+      {/* //tab and 3 screens */}
+      <View style={styles.rowarrayscreen}>
+        {array.map((item, index) => (
+          <TouchableOpacity
+            style={index === idno ? styles.Topcontanier : styles.NoTopcontanier}
+            onPress={() => {
+              setidno(index);
             }}>
-            <View style={styles.OTcontainer}>
-              <OTSession
-                // apiKey="47339381"
-                // sessionId="2_MX40NzMzOTM4MX5-MTYzNzIxMDk2MzYwOX5kbytIUEYvaisvMlY0TnJRRFphWS9qQml-fg"
-                // token="T1==cGFydG5lcl9pZD00NzMzOTM4MSZzaWc9NDYzMGYyMWU5YmRmMzQ5ZDVhZTdlNjc0NmZiOThlZjg5ZTY0N2RmNTpzZXNzaW9uX2lkPTJfTVg0ME56TXpPVE00TVg1LU1UWXpOekl4TURrMk16WXdPWDVrYnl0SVVFWXZhaXN2TWxZMFRuSlJSRnBoV1M5cVFtbC1mZyZjcmVhdGVfdGltZT0xNjM3MjExMDA5Jm5vbmNlPTAuNTcxOTM2OTk5MjA1ODk3MSZyb2xlPXN1YnNjcmliZXImZXhwaXJlX3RpbWU9MTYzOTgwMzAwOCZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ=="
-                eventHandlers={sessionEventHandlers}
-                // apiKey="47383431"
-                // sessionId="2_MX40NzM4MzQzMX5-MTYzNzY0NzE3OTM1N34zaDYwMnoyRkgxYUFjK3V5V3RIYTFrbU9-fg"
-                // token="T1==cGFydG5lcl9pZD00NzM4MzQzMSZzaWc9OGZhYWRmMTc0NDQ2MTcxNjQwOTA0NWMwNjQ0MDE0MDkzYTU4ZTgxNTpzZXNzaW9uX2lkPTJfTVg0ME56TTRNelF6TVg1LU1UWXpOelkwTnpFM09UTTFOMzR6YURZd01ub3lSa2d4WVVGakszVjVWM1JJWVRGcmJVOS1mZyZjcmVhdGVfdGltZT0xNjM3NjQ3MTc5Jm5vbmNlPTAuMDg2NDcxMDY3MDI4MTY5NDImcm9sZT1tb2RlcmF0b3ImZXhwaXJlX3RpbWU9MTYzODI1MTk3OSZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ=="
-                apiKey={decryptedKey}
-                sessionId={notificationData.additionalData.SessionId}
-                token={notificationData.additionalData.TokenId}
-                signal={signal}
-                ref={sessionRef}>
-                <View style={styles.OTPublishercontainer}>
-                  <OTPublisher
-                    properties={publisherProperties}
-                    eventHandlers={publisherEventHandlers}
-                    style={{height: 300, width: 400}}
-                  />
-                </View>
-                <View style={styles.OTSubscriberContainer}>
-                  <OTSubscriber
-                    style={{height: 300, width: 400}}
-                    eventHandlers={subscriberEventHandlers}
-                    sessionId={sessionIdFunc}
-                  />
-                </View>
-              </OTSession>
+            <Text style={index === idno ? styles.toptext : styles.notoptext}>
+              {item.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      {/* //swap screen */}
+      <View style={styles.swapscreen}>
+        {indicator && (
+          <Modal transparent={true}>
+            <View
+              style={{
+                backgroundColor: 'black',
+                flex: 1,
+                justifyContent: 'center',
+                opacity: 0.65,
+                // position: 'absolute',
+              }}>
+              <ActivityIndicator size="large" color="#FB8B24" />
+            </View>
+          </Modal>
+        )}
+        <View
+          style={{
+            display: idno === 0 ? 'flex' : 'none',
+            flex: 1,
+          }}>
+          <View style={styles.OTcontainer}>
+            <OTSession
+              // apiKey="47339381"
+              // sessionId="2_MX40NzMzOTM4MX5-MTYzNzIxMDk2MzYwOX5kbytIUEYvaisvMlY0TnJRRFphWS9qQml-fg"
+              // token="T1==cGFydG5lcl9pZD00NzMzOTM4MSZzaWc9NDYzMGYyMWU5YmRmMzQ5ZDVhZTdlNjc0NmZiOThlZjg5ZTY0N2RmNTpzZXNzaW9uX2lkPTJfTVg0ME56TXpPVE00TVg1LU1UWXpOekl4TURrMk16WXdPWDVrYnl0SVVFWXZhaXN2TWxZMFRuSlJSRnBoV1M5cVFtbC1mZyZjcmVhdGVfdGltZT0xNjM3MjExMDA5Jm5vbmNlPTAuNTcxOTM2OTk5MjA1ODk3MSZyb2xlPXN1YnNjcmliZXImZXhwaXJlX3RpbWU9MTYzOTgwMzAwOCZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ=="
+              eventHandlers={sessionEventHandlers}
+              // apiKey="47383431"
+              // sessionId="2_MX40NzM4MzQzMX5-MTYzNzY0NzE3OTM1N34zaDYwMnoyRkgxYUFjK3V5V3RIYTFrbU9-fg"
+              // token="T1==cGFydG5lcl9pZD00NzM4MzQzMSZzaWc9OGZhYWRmMTc0NDQ2MTcxNjQwOTA0NWMwNjQ0MDE0MDkzYTU4ZTgxNTpzZXNzaW9uX2lkPTJfTVg0ME56TTRNelF6TVg1LU1UWXpOelkwTnpFM09UTTFOMzR6YURZd01ub3lSa2d4WVVGakszVjVWM1JJWVRGcmJVOS1mZyZjcmVhdGVfdGltZT0xNjM3NjQ3MTc5Jm5vbmNlPTAuMDg2NDcxMDY3MDI4MTY5NDImcm9sZT1tb2RlcmF0b3ImZXhwaXJlX3RpbWU9MTYzODI1MTk3OSZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ=="
+              apiKey={decryptedKey}
+              sessionId={notificationData.additionalData.SessionId}
+              token={notificationData.additionalData.TokenId}
+              signal={signal}
+              ref={sessionRef}>
+              <View style={styles.OTPublishercontainer}>
+                <OTPublisher
+                  properties={publisherProperties}
+                  eventHandlers={publisherEventHandlers}
+                  style={{height: 300, width: 400}}
+                />
+              </View>
+              <View style={styles.OTSubscriberContainer}>
+                <OTSubscriber
+                  style={{height: 300, width: 400}}
+                  eventHandlers={subscriberEventHandlers}
+                  sessionId={sessionIdFunc}
+                />
+              </View>
+            </OTSession>
 
-              {/* <Image
+            {/* <Image
             resizeMode="contain"
             source={require('../../../assets/Group.png')}
             style={{width: '100%', height: '46%', backgroundColor: 'grey'}}
           /> */}
-              {/* <Image
+            {/* <Image
             style={{width: '70%', height: '44%', backgroundColor: 'grey'}}
             source={require('../../../assets/Group.png')}
             resizeMode="contain"></Image> */}
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              setidno(1);
+            }}
+            style={styles.callcircle}>
+            <MaterialCommunityIcons
+              name="message"
+              style={{alignSelf: 'center'}}
+              size={24}
+              color={'#fffa'}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.roundshape}
+            onPress={() => {
+              Promise.all([endAppointment(), updateAgentstatus('Available')]);
+              navigation.goBack();
+            }}>
+            <MaterialCommunityIcons
+              name="phone-hangup-outline"
+              size={30}
+              color={'white'}
+              style={{alignSelf: 'center'}}
+            />
+          </TouchableOpacity>
+
+          <View style={styles.BottomTabConatiner}>
+            <View style={styles.boundshape}>
+              <TouchableOpacity
+                disabled={video ? false : true}
+                onPress={() => {
+                  video ? setcamera(pre => !pre) : '';
+                }}>
+                <View style={styles.nocircle}>
+                  <Ionicons
+                    name="camera-reverse-sharp"
+                    style={{alignSelf: 'center'}}
+                    size={scale(28)}
+                    color={video ? '#696969' : '#a9a9a9'}
+                  />
+                </View>
+
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    position: 'relative',
+                    bottom: scale(10),
+                    fontSize: 14,
+                  }}>
+                  {' '}
+                  Flip
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setvideo(prev => !prev);
+                }}
+                style={{paddingRight: 40}}>
+                <View style={video ? styles.nocircle : styles.circle}>
+                  <MaterialCommunityIcons
+                    name={video ? 'video' : 'video-off'}
+                    style={{alignSelf: 'center'}}
+                    size={28}
+                    color={video ? 'grey' : 'white'}
+                  />
+                </View>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    position: 'relative',
+                    bottom: 10,
+                    fontSize: 14,
+                  }}>
+                  Video
+                </Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={() => {
-                setidno(1);
-              }}
-              style={styles.callcircle}>
-              <MaterialCommunityIcons
-                name="message"
-                style={{alignSelf: 'center'}}
-                size={24}
-                color={'#fffa'}
-              />
-            </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.roundshape}
-              onPress={() => {
-                Promise.all([endAppointment(), updateAgentstatus('Available')]);
-                navigation.goBack();
-              }}>
-              <MaterialCommunityIcons
-                name="phone-hangup-outline"
-                size={30}
-                color={'white'}
-                style={{alignSelf: 'center'}}
-              />
-            </TouchableOpacity>
-
-            <View style={styles.BottomTabConatiner}>
-              <View style={styles.boundshape}>
-                <TouchableOpacity
-                  disabled={video ? false : true}
-                  onPress={() => {
-                    video ? setcamera(pre => !pre) : '';
+            <View style={styles.boundshapetwo}>
+              <TouchableOpacity
+                onPress={() => {
+                  setmic(mic => !mic);
+                }}
+                style={{paddingLeft: 30}}>
+                <View style={mic ? styles.nocircle : styles.circle}>
+                  <Ionicons
+                    name={mic ? 'mic' : 'mic-off'}
+                    style={{alignSelf: 'center'}}
+                    size={28}
+                    color={mic ? '#696969' : 'white'}
+                  />
+                </View>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    position: 'relative',
+                    bottom: 10,
+                    fontSize: 14,
                   }}>
-                  <View style={styles.nocircle}>
-                    <Ionicons
-                      name="camera-reverse-sharp"
-                      style={{alignSelf: 'center'}}
-                      size={scale(28)}
-                      color={video ? '#696969' : '#a9a9a9'}
-                    />
-                  </View>
-
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      position: 'relative',
-                      bottom: scale(10),
-                      fontSize: 14,
-                    }}>
-                    {' '}
-                    Flip
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setvideo(prev => !prev);
-                  }}
-                  style={{paddingRight: 40}}>
-                  <View style={video ? styles.nocircle : styles.circle}>
-                    <MaterialCommunityIcons
-                      name={video ? 'video' : 'video-off'}
-                      style={{alignSelf: 'center'}}
-                      size={28}
-                      color={video ? 'grey' : 'white'}
-                    />
-                  </View>
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      position: 'relative',
-                      bottom: 10,
-                      fontSize: 14,
-                    }}>
-                    Video
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.boundshapetwo}>
-                <TouchableOpacity
-                  onPress={() => {
-                    setmic(mic => !mic);
-                  }}
-                  style={{paddingLeft: 30}}>
-                  <View style={mic ? styles.nocircle : styles.circle}>
-                    <Ionicons
-                      name={mic ? 'mic' : 'mic-off'}
-                      style={{alignSelf: 'center'}}
-                      size={28}
-                      color={mic ? '#696969' : 'white'}
-                    />
-                  </View>
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      position: 'relative',
-                      bottom: 10,
-                      fontSize: 14,
-                    }}>
-                    Mute
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  disabled={calling ? true : false}
-                  onPress={() => {
-                    setAdd(true);
+                  Mute
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={calling ? true : false}
+                onPress={() => {
+                  setAdd(true);
+                }}>
+                <View style={styles.nocircle}>
+                  <MaterialCommunityIcons
+                    name="account-plus"
+                    style={{alignSelf: 'center'}}
+                    size={28}
+                    color={calling ? '#a9a9a9' : '#696969'}
+                  />
+                </View>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    position: 'relative',
+                    bottom: 10,
+                    fontSize: 14,
                   }}>
-                  <View style={styles.nocircle}>
-                    <MaterialCommunityIcons
-                      name="account-plus"
-                      style={{alignSelf: 'center'}}
-                      size={28}
-                      color={calling ? '#a9a9a9' : '#696969'}
-                    />
-                  </View>
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      position: 'relative',
-                      bottom: 10,
-                      fontSize: 14,
-                    }}>
-                    {' '}
-                    Add
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                  {' '}
+                  Add
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
+        </View>
 
-          <View style={{display: idno === 1 ? 'flex' : 'none', flex: 1}}>
-            {/* <OTSession
+        <View style={{display: idno === 1 ? 'flex' : 'none', flex: 1}}>
+          {/* <OTSession
               apiKey="47339381"
               sessionId="2_MX40NzMzOTM4MX5-MTYzNzIxMDk2MzYwOX5kbytIUEYvaisvMlY0TnJRRFphWS9qQml-fg"
               token="T1==cGFydG5lcl9pZD00NzMzOTM4MSZzaWc9NDYzMGYyMWU5YmRmMzQ5ZDVhZTdlNjc0NmZiOThlZjg5ZTY0N2RmNTpzZXNzaW9uX2lkPTJfTVg0ME56TXpPVE00TVg1LU1UWXpOekl4TURrMk16WXdPWDVrYnl0SVVFWXZhaXN2TWxZMFRuSlJSRnBoV1M5cVFtbC1mZyZjcmVhdGVfdGltZT0xNjM3MjExMDA5Jm5vbmNlPTAuNTcxOTM2OTk5MjA1ODk3MSZyb2xlPXN1YnNjcmliZXImZXhwaXJlX3RpbWU9MTYzOTgwMzAwOCZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ=="
@@ -917,353 +947,361 @@ function CallScreen({navigation, route}) {
               // token={notificationData.additionalData.TokenId}
               signal={signal}
               ref={sessionRef}></OTSession> */}
-            <View
-              style={{
-                width: '100%',
-                height: '85%',
-                marginTop: 60,
-                position: 'absolute',
-                backgroundColor: 'black',
-                alignSelf: 'center',
-              }}>
-              <FlatList
-                contentContainerStyle={{
-                  alignItems: 'flex-end',
-                  alignContent: 'space-around',
-                  padding: 10,
-                }}
-                keyExtractor={(item, index) => index}
-                data={messages}
-                inverted
-                renderItem={chatText}
-              />
-            </View>
-            {videoButton()}
-            {/* <Image
+          {/* <View
+            style={{
+              width: '100%',
+              height: '100%',
+              // marginTop: 30,
+              // position: 'absolute',
+              backgroundColor: 'yellow',
+              alignSelf: 'center',
+              // alignItems: 'center',
+              paddingBottom: 35,
+            }}> */}
+          <View
+            style={{
+              backgroundColor: 'black',
+              flex: 1,
+              paddingBottom: 70,
+              paddingHorizontal: 10,
+            }}>
+            <FlatList
+              // contentContainerStyle={{
+              //   alignItems: 'flex-end',
+              //   alignContent: 'space-around',
+              //   padding: 10,
+              // }}
+              keyExtractor={(item, index) => index}
+              data={messages}
+              inverted
+              renderItem={chatText}
+            />
+          </View>
+          {/* </View> */}
+          {videoButton()}
+          {/* <Image
 resizeMode='contain'
 source={require('./assets/group.png')}
 style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
         /> */}
 
-            <View style={styles.textinputandsend}>
-              <View style={styles.addinputstyle}>
-                <TouchableOpacity style={styles.imageStyle}>
-                  <MaterialCommunityIcons
-                    name="paperclip"
-                    style={{flex: 1}}
-                    size={25}
-                    color={'#696969'}
-                  />
-                </TouchableOpacity>
-                <TextInput
-                  style={{width: '80%', color: 'black'}}
-                  placeholder="Type Message Here"
-                  onChangeText={val => {
-                    console.log('textvalue', val);
-                    setText(val);
-                  }}
-                  value={text}
-                  underlineColorAndroid="transparent"
+          <View style={styles.textinputandsend}>
+            <View style={styles.addinputstyle}>
+              <TouchableOpacity style={styles.imageStyle}>
+                <MaterialCommunityIcons
+                  name="paperclip"
+                  style={{flex: 1}}
+                  size={25}
+                  color={'#696969'}
                 />
-              </View>
-              <View style={styles.sendview}>
-                <TouchableOpacity
-                  onPress={() => {
-                    sendSignalHandler(text);
-                    // addGoalHandler(text, 'text');
-                  }}>
-                  <FontAwesome5
-                    name="paper-plane"
-                    style={{alignSelf: 'center'}}
-                    size={20}
-                    color={video ? '#696969' : 'white'}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-
-          <View style={{display: idno === 2 ? 'flex' : 'none', flex: 1}}>
-            {videoButton()}
-            <View
-              style={{
-                width: '100%',
-                height: '85%',
-                backgroundColor: 'black',
-                alignItems: 'center',
-                alignSelf: 'center',
-                flexDirection: 'column',
-                marginTop: 90,
-                justifyContent: 'space-evenly',
-              }}>
-              <View
-                style={{
-                  width: '75%',
-                  backgroundColor: 'white',
-                  height: '25%',
-                  marginBottom: 10,
-                  padding: 20,
-                  justifyContent: 'space-evenly',
-                  borderRadius: 8,
-                }}>
-                <Text
-                  style={{
-                    color: 'black',
-                    fontSize: 15,
-                    fontWeight: '700',
-                  }}>
-                  Customer Call (English)
-                </Text>
-                <Text
-                  style={{
-                    color: 'grey',
-                    fontSize: 15,
-                  }}>
-                  Product Website
-                </Text>
-
-                <Text style={{color: 'grey', fontSize: 15}}>
-                  Product:{notificationData.additionalData.ProductTitle}
-                </Text>
-              </View>
-
-              <FlatList
-                keyExtractor={(item, index) => index.toString()}
-                data={categories}
-                initialNumToRender={5}
-                renderItem={renderGridItem}
+              </TouchableOpacity>
+              <TextInput
+                style={{width: '80%', color: 'black'}}
+                placeholder="Type Message Here"
+                onChangeText={val => {
+                  console.log('textvalue', val);
+                  setText(val);
+                }}
+                value={text}
+                underlineColorAndroid="transparent"
               />
-
-              <View
-                style={{
-                  width: '85%',
-                  backgroundColor: 'grey',
-                  height: '4%',
-                  marginTop: 20,
-                  borderRadius: 5,
-                }}>
-                <Text
-                  style={{
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                    fontWeight: '700',
-                    color: 'white',
-                  }}>
-                  * Prices may not reflect promotional discounts{' '}
-                </Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-around',
-                  width: '100%',
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginTop: 20,
-                    alignItems: 'center',
-                    width: '33%',
-                    backgroundColor: '#fff',
-                    borderWidth: 0.5,
-                    borderColor: '#000',
-                    height: 40,
-                    borderRadius: 5,
-                  }}>
-                  <Ionicons
-                    name="search-outline"
-                    size={20}
-                    style={styles.imageStyle}
-                  />
-                  <TextInput
-                    style={{flex: 4}}
-                    // onChangeText={onSearchProducts}
-                    placeholder="Search Product"
-                    underlineColorAndroid="transparent"
-                  />
-                </View>
-
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginTop: 20,
-                    alignItems: 'center',
-                    width: '33%',
-
-                    backgroundColor: '#fff',
-                    borderWidth: 2.5,
-                    borderColor: '#FB8B24',
-                    height: 40,
-                    borderRadius: 5,
-                  }}>
-                  <TouchableOpacity
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-around',
-                    }}>
-                    <MaterialCommunityIcons
-                      name="share-variant"
-                      size={15}
-                      color={'#696969'}
-                    />
-                    <Text
-                      style={{
-                        color: '#FB8B24',
-                        fontSize: 13,
-                        fontWeight: '700',
-                      }}>
-                      View Full Catalog
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
             </View>
-          </View>
-        </View>
-
-        {/* //timer and send contact */}
-        {timerandcontactbar && (
-          <View style={styles.timerandcontactbar}>
-            <View style={styles.timerandcontactbarinside}>
-              <View style={styles.timerbar}>
-                <Ionicons
-                  name="alarm-outline"
-                  style={{alignSelf: 'flex-start'}}
-                  size={20}
-                  color={'white'}
-                />
-
-                <Text style={{color: 'white', fontSize: 15}}>00 : 00</Text>
-              </View>
+            <View style={styles.sendview}>
               <TouchableOpacity
-                style={styles.contactontouch}
                 onPress={() => {
-                  setelement('sendcontact');
-                  setsnackbar(true);
-                  addGoalHandler(
-                    'For further help you may reach me at',
-                    'sendcontact',
-                  );
-                  setTimeout(() => {
-                    setsnackbar(false);
-                  }, 2000);
+                  sendSignalHandler(text);
+                  // addGoalHandler(text, 'text');
                 }}>
                 <FontAwesome5
-                  name="address-book"
+                  name="paper-plane"
                   style={{alignSelf: 'center'}}
-                  size={15}
-                  color={'white'}
-                />
-
-                <Text style={{color: 'white', fontSize: 15}}>Send Contact</Text>
-                <MaterialCommunityIcons
-                  name="chevron-right"
-                  style={{alignSelf: 'flex-start'}}
                   size={20}
-                  color={'white'}
+                  color={video ? '#696969' : 'white'}
                 />
               </TouchableOpacity>
             </View>
           </View>
-        )}
-        {/* //calling agent  */}
-        {calling && (
+        </View>
+
+        <View style={{display: idno === 2 ? 'flex' : 'none', flex: 1}}>
+          {videoButton()}
           <View
             style={{
-              backgroundColor: '#696969',
-              width: '28%',
-              height: '5%',
+              width: '100%',
+              height: '85%',
+              backgroundColor: 'black',
+              alignItems: 'center',
               alignSelf: 'center',
-              marginTop: 66,
-              borderTopLeftRadius: 35,
-              borderBottomLeftRadius: 35,
-              justifyContent: 'center',
-              borderTopRightRadius: 35,
-              borderBottomRightRadius: 35,
+              flexDirection: 'column',
+              marginTop: 90,
+              justifyContent: 'space-evenly',
             }}>
             <View
-              style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-              <FontAwesome5 name="phone-square" size={20} color={'white'} />
-              <Text style={{color: 'white', textAlign: 'auto', fontSize: 15}}>
-                Calling...
-              </Text>
-            </View>
-          </View>
-        )}
-
-        {
-          // mute bar  for customer
-          mute && (
-            <View style={styles.mutebar}>
+              style={{
+                width: '75%',
+                backgroundColor: 'white',
+                height: '25%',
+                marginBottom: 10,
+                padding: 20,
+                justifyContent: 'space-evenly',
+                borderRadius: 8,
+              }}>
               <Text
                 style={{
-                  color: 'white',
-                  textAlign: 'left',
-                  fontSize: scale(12),
+                  color: 'black',
+                  fontSize: 15,
+                  fontWeight: '700',
                 }}>
-                Customer sound : Muted
+                Customer Call (English)
+              </Text>
+              <Text
+                style={{
+                  color: 'grey',
+                  fontSize: 15,
+                }}>
+                Product Website
+              </Text>
+
+              <Text style={{color: 'grey', fontSize: 15}}>
+                Product:{notificationData.additionalData.ProductTitle}
               </Text>
             </View>
-          )
-        }
 
-        {
-          //add for call screen
-          add && (
-            <View style={styles.ModelBottomTabContainer}>
-              <View style={styles.ModelBottomTabTop}>
-                <MaterialCommunityIcons
-                  name="plus"
-                  style={{color: '#FB8B24'}}
-                  size={35}
-                  color={'#696969'}
-                />
-                <Text style={{color: 'black', fontSize: 25}}>Add Agent</Text>
-                <TouchableOpacity
-                  style={{position: 'absolute', right: 10}}
-                  onPress={() => {
-                    setAdd(false);
-                  }}>
-                  <MaterialCommunityIcons
-                    name="chevron-down"
-                    size={35}
-                    color={'#696969'}
-                  />
-                </TouchableOpacity>
-              </View>
+            <FlatList
+              keyExtractor={(item, index) => index.toString()}
+              data={categories}
+              initialNumToRender={5}
+              renderItem={renderGridItem}
+            />
 
-              <View style={styles.chatinputstyle}>
+            <View
+              style={{
+                width: '85%',
+                backgroundColor: 'grey',
+                height: '4%',
+                marginTop: 20,
+                borderRadius: 5,
+              }}>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '700',
+                  color: 'white',
+                }}>
+                * Prices may not reflect promotional discounts{' '}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                width: '100%',
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: 20,
+                  alignItems: 'center',
+                  width: '33%',
+                  backgroundColor: '#fff',
+                  borderWidth: 0.5,
+                  borderColor: '#000',
+                  height: 40,
+                  borderRadius: 5,
+                }}>
                 <Ionicons
                   name="search-outline"
                   size={20}
                   style={styles.imageStyle}
                 />
                 <TextInput
-                  style={{flex: 1}}
-                  placeholder="Search Agent name/ skills"
+                  style={{flex: 4}}
+                  onChangeText={onSearchProducts}
+                  placeholder="Search Product"
                   underlineColorAndroid="transparent"
                 />
               </View>
-              <FlatList
-                keyExtractor={(item, index) => item.id}
-                data={AGENT}
-                renderItem={addFlatList}
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: 20,
+                  alignItems: 'center',
+                  width: '33%',
+
+                  backgroundColor: '#fff',
+                  borderWidth: 2.5,
+                  borderColor: '#FB8B24',
+                  height: 40,
+                  borderRadius: 5,
+                }}>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                  }}>
+                  <MaterialCommunityIcons
+                    name="share-variant"
+                    size={15}
+                    color={'#696969'}
+                  />
+                  <Text
+                    style={{
+                      color: '#FB8B24',
+                      fontSize: 13,
+                      fontWeight: '700',
+                    }}>
+                    View Full Catalog
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* //timer and send contact */}
+      {timerandcontactbar && (
+        <View style={styles.timerandcontactbar}>
+          <View style={styles.timerandcontactbarinside}>
+            <View style={styles.timerbar}>
+              <Ionicons
+                name="alarm-outline"
+                style={{alignSelf: 'flex-start'}}
+                size={20}
+                color={'white'}
+              />
+
+              <Text style={{color: 'white', fontSize: 15}}>00 : 00</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.contactontouch}
+              onPress={() => {
+                setelement('sendcontact');
+                setsnackbar(true);
+                addGoalHandler(
+                  'For further help you may reach me at',
+                  'sendcontact',
+                );
+                setTimeout(() => {
+                  setsnackbar(false);
+                }, 2000);
+              }}>
+              <FontAwesome5
+                name="address-book"
+                style={{alignSelf: 'center'}}
+                size={15}
+                color={'white'}
+              />
+
+              <Text style={{color: 'white', fontSize: 15}}>Send Contact</Text>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                style={{alignSelf: 'flex-start'}}
+                size={20}
+                color={'white'}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+      {/* //calling agent  */}
+      {calling && (
+        <View
+          style={{
+            backgroundColor: '#696969',
+            width: '28%',
+            height: '5%',
+            alignSelf: 'center',
+            marginTop: 66,
+            borderTopLeftRadius: 35,
+            borderBottomLeftRadius: 35,
+            justifyContent: 'center',
+            borderTopRightRadius: 35,
+            borderBottomRightRadius: 35,
+          }}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+            <FontAwesome5 name="phone-square" size={20} color={'white'} />
+            <Text style={{color: 'white', textAlign: 'auto', fontSize: 15}}>
+              Calling...
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {
+        // mute bar  for customer
+        mute && (
+          <View style={styles.mutebar}>
+            <Text
+              style={{
+                color: 'white',
+                textAlign: 'left',
+                fontSize: scale(12),
+              }}>
+              Customer sound : Muted
+            </Text>
+          </View>
+        )
+      }
+
+      {
+        //add for call screen
+        add && (
+          <View style={styles.ModelBottomTabContainer}>
+            <View style={styles.ModelBottomTabTop}>
+              <MaterialCommunityIcons
+                name="plus"
+                style={{color: '#FB8B24'}}
+                size={35}
+                color={'#696969'}
+              />
+              <Text style={{color: 'black', fontSize: 25}}>Add Agent</Text>
+              <TouchableOpacity
+                style={{position: 'absolute', right: 10}}
+                onPress={() => {
+                  setAdd(false);
+                }}>
+                <MaterialCommunityIcons
+                  name="chevron-down"
+                  size={35}
+                  color={'#696969'}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.chatinputstyle}>
+              <Ionicons
+                name="search-outline"
+                size={20}
+                style={styles.imageStyle}
+              />
+              <TextInput
+                style={{flex: 1}}
+                placeholder="Search Agent name/ skills"
+                underlineColorAndroid="transparent"
               />
             </View>
-          )
-        }
+            <FlatList
+              keyExtractor={(item, index) => item.id}
+              data={AGENT}
+              renderItem={addFlatList}
+            />
+          </View>
+        )
+      }
 
-        {snackbar &&
-          snackBar(
-            element === 'sendcontact'
-              ? 'contact details shared with customer'
-              : element === 'share'
-              ? 'product details shared with the customer'
-              : 'product added to the cart',
-          )}
-      </View>
-    );
-  }
+      {snackbar &&
+        snackBar(
+          element === 'sendcontact'
+            ? 'contact details shared with customer'
+            : element === 'share'
+            ? 'product details shared with the customer'
+            : 'product added to the cart',
+        )}
+    </View>
+  );
 }
 
 const styles = ScaledSheet.create({
