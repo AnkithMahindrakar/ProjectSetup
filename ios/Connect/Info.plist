@@ -38,7 +38,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>App wants to access camera</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>App wants to access Microphone</string>
 	<key>UIAppFonts</key>
@@ -64,6 +64,7 @@
 		<string>SimpleLineIcons.ttf</string>
 		<string>Octicons.ttf</string>
 		<string>Zocial.ttf</string>
+		<string>Fontisto.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

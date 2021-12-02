@@ -37,7 +37,7 @@ function CallScreen({navigation, route}) {
   const [chatgoals, setChatGoals] = useState([]);
   const [enteredGoal, setEnteredGoal] = useState('');
   const [add, setAdd] = useState(false);
-  const [mute, setmute] = useState(true);
+  const [mute, setmute] = useState(false);
   const [calling, setcalling] = useState(false);
   const [snackbar, setsnackbar] = useState(false);
   const [timerandcontactbar, settimerandcontactbar] = useState(true);
@@ -46,12 +46,16 @@ function CallScreen({navigation, route}) {
   const [indicator, setIndicator] = useState(true);
   const [signal, setSignal] = useState({});
   const [text, setText] = useState('');
+  const [subscriberDetailsID, setSubscriberDetailsID] = useState();
   const [messages, setMessages] = useState([]);
+  const [btnClick, setBtnClick] = useState(false);
   const sessionRef = useRef();
   var array = [{name: 'Call'}, {name: 'Chat'}, {name: 'Catalog'}];
-  const {notificationData, decryptedKey} = route.params;
+  const {notificationData, decryptedKey, profileData} = route.params;
+  let endBtnClick = true;
   // console.log('------------------------', notificationData, decryptedKey);
   console.log('Global messages', messages);
+  console.log('subscriber event gloabal', subscriberDetailsID);
   // console.log('------------------------', notificationData.additionalData);
   // console.log(
   //   '------------------------',
@@ -146,6 +150,26 @@ function CallScreen({navigation, route}) {
     }
   };
 
+  const noSkuvalue = async noskuval => {
+    if (
+      notificationData.additionalData.SKU == null ||
+      notificationData.additionalData.SKU === ''
+    ) {
+      const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
+      const asyncLoginData =
+        JsonLOGINDATA != null ? JSON.parse(JsonLOGINDATA) : null;
+      const searchProducts = await SearchProducts(
+        noskuval,
+        notificationData.additionalData.RetailerId,
+        notificationData.additionalData.RetailerUserId,
+        asyncLoginData.agentSessionID,
+      );
+      products(searchProducts.data);
+    } else {
+      Promise.all([getProductsBySKU(), updateAgentstatus('Connected')]);
+    }
+  };
+
   const updateAgentstatus = async status => {
     try {
       const JsonLOGINDATA = await AsyncStorage.getItem('LOGIN_DATA');
@@ -164,20 +188,31 @@ function CallScreen({navigation, route}) {
   };
 
   const publisherProperties = {
-    publishAudio: true,
+    publishAudio: mic === true ? true : false,
     audioTrack: true,
-    publishVideo: true,
-    cameraPosition: 'front',
+    publishVideo: video === true ? true : false,
+    cameraPosition: camera === true ? 'front' : 'back',
     resolution: '352x288',
     videoSource: 'camera',
     name: 'Mobile1',
   };
 
   const subscriberEventHandlers = {
-    connected() {
-      console.log('connected yes');
-      Promise.all([getProductsBySKU(), updateAgentstatus('Connected')]);
-      setIndicator(false);
+    connected(e) {
+      try {
+        // console.log('connected yes', notificationData.additionalData.SKU);
+        noSkuvalue();
+        // setIndicator(false);
+        const connetedEvent = e;
+        // console.log('connected yes', e);
+        // console.log('connected yes 2', connetedEvent.stream.connectionId);
+
+        setSubscriberDetailsID(connetedEvent.stream.connectionId);
+        Promise.all([getProductsBySKU(), updateAgentstatus('Connected')]);
+        setIndicator(false);
+      } catch (e) {
+        console.log(e);
+      }
     },
     otrnError(object) {
       console.log('otrnError', object);
@@ -188,8 +223,8 @@ function CallScreen({navigation, route}) {
     error(error) {
       console.log(`There was an error with the subscriber: ${error}`);
     },
-    videoEnabled(String) {
-      console.log('videoEnabled', String);
+    videoEnabled(e) {
+      console.log('videoEnabled', e);
     },
     disconnected() {
       console.log('disconnected');
@@ -219,6 +254,22 @@ function CallScreen({navigation, route}) {
       console.log('session connection created', obj);
     },
     connectionDestroyed: obj => {
+      console.log(
+        'check check check',
+        subscriberDetailsID === obj.connectionId,
+      );
+      console.log('check connection ID', obj.connectionId);
+      console.log('check subscriber ID', subscriberDetailsID);
+      // if (subscriberDetailsID !== obj.connectionId) {
+      if (!btnClick) {
+        // console.log(
+        //   'check check check2222222',
+        //   subscriberDetailsID !== obj.connectionId,
+        // );
+        Promise.all([endAppointment(), updateAgentstatus('Available')]);
+        navigation.pop();
+        // setBtnClick(true);
+      }
       console.log('session connection Destroyed', obj);
     },
     error: err => {
@@ -237,51 +288,91 @@ function CallScreen({navigation, route}) {
       console.log('session Reconnecting');
     },
     signal: event => {
+      const parsedEventData = JSON.parse(event.data);
+      console.log('events 3', parsedEventData.type);
+      console.log('events 2', event.data);
       console.log('events', event);
-      if (event.data) {
-        console.log('Messages', messages);
+      // console.log('events 2', JSON.parse(event.data));
+      if (
+        parsedEventData.type === 'MESSAGEFROMAGENT' ||
+        parsedEventData.type === 'MESSAGEFROMCUSTOMER'
+      ) {
+        if (event.data) {
+          console.log('Messages', messages);
+          const chatDataJson = event.data;
+          const chatData = JSON.parse(chatDataJson);
+          console.log('chatData', chatData.data);
+          // console.log('chatData2', chatData.data.data);
+          setMessages(prevMsg => {
+            // return [{data: `Me: ${event.data}`, type: 'SignalMsg'}, ...prevMsg];
+            // return [{event}, ...prevMsg];
+            return [
+              {
+                data: chatData.data,
+                type: chatData.type,
+                agentName: chatData.agentName,
+              },
+              ...prevMsg,
+            ];
+          });
+        }
+      } else if (parsedEventData.type === 'CONTACTDETAILS') {
+        // console.log('Messages', messages);
         const chatDataJson = event.data;
         const chatData = JSON.parse(chatDataJson);
         console.log('chatData', chatData.data);
-        // console.log('chatData2', chatData.data.data);
-        setMessages(prevMsg => {
-          // return [{data: `Me: ${event.data}`, type: 'SignalMsg'}, ...prevMsg];
-          // return [{event}, ...prevMsg];
-          return [{data: chatData.data, type: chatData.type}, ...prevMsg];
-        });
+      } else {
+        console.log('NOTHING');
       }
     },
   };
-  const sendSignalHandler = textData => {
-    // console.log('input from send button', text);
-    const signalEventObj = {
-      connectionId: null,
-      // data: {data: textData, type: 'MESSAGEFROMAGENT'},
-      data: textData,
-      sessionId: notificationData.additionalData.SessionId,
-      type: null,
-    };
-    // console.log('signal Event object', signalEventObj);
-    const signalData = {
-      data: textData,
-      type: 'MESSAGEFROMAGENT',
-    };
+  const sendSignalHandler = (textData, type) => {
+    if (type === 'MESSAGEFROMAGENT') {
+      const signalData = {
+        data: textData,
+        type: type,
+        agentName: profileData.data.FirstName,
+      };
 
-    console.log('signalArgData', '---', signalData);
-    if (text) {
-      // const signalARGData = JSON.stringify(signalData);
+      if (text) {
+        sessionRef.current.signal({
+          data: JSON.stringify(signalData),
+        });
+        setText('');
+      }
+    } else if (type === 'CONTACTDETAILS') {
+      console.log('CONTACT DETAILS', textData);
+      const signalData = {
+        data: textData,
+        type: type,
+        // agentName: profileData.data.FirstName,
+      };
+      console.log('CONTACT DETAILS 2', signalData);
+
       sessionRef.current.signal({
-        // data: text,
-        // type: 'MESSAGEFROMAGENT',
-        // connectionId: null,
-        // data: {data: textData, type: 'MESSAGEFROMAGENT'},
-        // data: signalARGData,
         data: JSON.stringify(signalData),
-        // sessionId: notificationData.additionalData.SessionId,
-        // type: null,
-        // JSON.stringify(signalEventObj),
       });
-      setText('');
+      // setText('');
+    } else if (type === 'ADDTOCART') {
+      const signalData = {
+        data: textData,
+        type: type,
+        price: '1190',
+        // agentName: profileData.data.FirstName,
+      };
+      sessionRef.current.signal({
+        data: JSON.stringify(signalData),
+      });
+    } else if (type === 'PRODUCTDETAILS') {
+      const signalData = {
+        data: textData,
+        type: type,
+        // price: '1190',
+        // agentName: profileData.data.FirstName,
+      };
+      sessionRef.current.signal({
+        data: JSON.stringify(signalData),
+      });
     }
   };
   const sessionIdFunc = value => {
@@ -421,7 +512,7 @@ function CallScreen({navigation, route}) {
           </View>
         </View>
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <View
+          {/* <View
             style={{
               width: 60,
               height: 30,
@@ -430,27 +521,38 @@ function CallScreen({navigation, route}) {
               borderWidth: 2,
               borderRadius: 6,
               justifyContent: 'center',
+            }}> */}
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              width: 60,
+              height: 30,
+              backgroundColor: 'white',
+              borderColor: '#FB8B24',
+              borderWidth: 2,
+              borderRadius: 6,
+              alignItems: 'center',
+              // justifyContent: 'center',
+            }}
+            onPress={() => {
+              setelement('share');
+              setsnackbar(true);
+              setTimeout(() => {
+                setsnackbar(false);
+              }, 1000);
+              addGoalHandler(itemData.item.Model, 'share');
             }}>
-            <TouchableOpacity
-              style={{flexDirection: 'row', justifyContent: 'space-around'}}
-              onPress={() => {
-                setelement('share');
-                setsnackbar(true);
-                setTimeout(() => {
-                  setsnackbar(false);
-                }, 1000);
-                addGoalHandler(itemData.item.Model, 'share');
-              }}>
-              <MaterialCommunityIcons
-                name="share-variant"
-                size={15}
-                color={'#696969'}
-              />
-              <Text style={{color: '#FB8B24', fontSize: 10, fontWeight: '700'}}>
-                Share
-              </Text>
-            </TouchableOpacity>
-          </View>
+            <MaterialCommunityIcons
+              name="share-variant"
+              size={15}
+              color={'#696969'}
+            />
+            <Text style={{color: '#FB8B24', fontSize: 10, fontWeight: '700'}}>
+              Share
+            </Text>
+          </TouchableOpacity>
+          {/* </View> */}
 
           <View
             style={{
@@ -559,14 +661,15 @@ function CallScreen({navigation, route}) {
   //chat flat list
   const chatText = ({item}) => {
     // chat screen text
-    if (item.type === 'sendcontact') {
+    if (item.type === 'CONTACTDETAILS') {
       return (
         <View
           style={{
             padding: 10,
             backgroundColor: 'white',
             marginBottom: 15,
-            alignItems: 'center',
+            // alignItems: 'center',
+            alignSelf: 'flex-end',
             justifyContent: 'center',
             borderBottomEndRadius: 20,
             borderBottomLeftRadius: 20,
@@ -589,7 +692,8 @@ function CallScreen({navigation, route}) {
                 color={'black'}
               />
               <Text style={{color: 'black', fontSize: 15, textAlign: 'center'}}>
-                Swamy Dev
+                {/* {profileData.data.FirstName}
+                {profileData.data.LastName} */}
               </Text>
             </View>
             <View
@@ -613,11 +717,13 @@ function CallScreen({navigation, route}) {
           style={{
             padding: 10,
             backgroundColor: '#FB8B24',
+            // backgroundColor: 'white',
             marginBottom: 15,
-            alignItems: 'center',
+            // alignItems: 'center',
             justifyContent: 'center',
             borderBottomEndRadius: 20,
             borderBottomLeftRadius: 20,
+            alignSelf: 'flex-end',
             borderTopLeftRadius: 20,
           }}>
           <Text style={{color: 'white', fontSize: 15, textAlign: 'center'}}>
@@ -641,8 +747,8 @@ function CallScreen({navigation, route}) {
             padding: 10,
             backgroundColor: 'white',
             marginBottom: 15,
-            alignItems: 'center',
-            justifyContent: 'center',
+            alignSelf: 'flex-end',
+            // justifyContent: 'center',
             borderBottomEndRadius: 20,
             borderBottomLeftRadius: 20,
             borderTopLeftRadius: 20,
@@ -671,7 +777,8 @@ function CallScreen({navigation, route}) {
         //   }}>
         <View
           style={{
-            padding: 10,
+            paddingVertical: 8,
+            paddingHorizontal: 12,
             backgroundColor: 'white',
             marginVertical: 6,
             borderBottomRightRadius: 20,
@@ -686,7 +793,12 @@ function CallScreen({navigation, route}) {
             // flex: 1,
           }}>
           {/* <View> */}
-          <Text style={{color: 'black', fontSize: 15, textAlign: 'center'}}>
+          {item.type !== 'MESSAGEFROMAGENT' && (
+            <Text style={{color: '#19a3ff', fontSize: 15, textAlign: 'left'}}>
+              Customer
+            </Text>
+          )}
+          <Text style={{color: 'black', fontSize: 14, textAlign: 'left'}}>
             {item.data}
           </Text>
           {/* </View> */}
@@ -821,8 +933,11 @@ function CallScreen({navigation, route}) {
           <TouchableOpacity
             style={styles.roundshape}
             onPress={() => {
+              setBtnClick(true);
+
+              console.log('endBtnClickendBtnClickendBtnClick===', endBtnClick);
               Promise.all([endAppointment(), updateAgentstatus('Available')]);
-              navigation.goBack();
+              navigation.pop();
             }}>
             <MaterialCommunityIcons
               name="phone-hangup-outline"
@@ -1009,8 +1124,7 @@ style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
             <View style={styles.sendview}>
               <TouchableOpacity
                 onPress={() => {
-                  sendSignalHandler(text);
-                  // addGoalHandler(text, 'text');
+                  sendSignalHandler(text, 'MESSAGEFROMAGENT');
                 }}>
                 <FontAwesome5
                   name="paper-plane"
@@ -1117,7 +1231,12 @@ style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
                 />
                 <TextInput
                   style={{flex: 4}}
-                  onChangeText={onSearchProducts}
+                  onChangeText={
+                    notificationData.additionalData.SKU == null ||
+                    notificationData.additionalData.SKU === ''
+                      ? noSkuvalue
+                      : onSearchProducts
+                  }
                   placeholder="Search Product"
                   underlineColorAndroid="transparent"
                 />
@@ -1178,12 +1297,17 @@ style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
             <TouchableOpacity
               style={styles.contactontouch}
               onPress={() => {
-                setelement('sendcontact');
+                const requiredData = {
+                  // FirstName: profileData.data.FirstName,
+                  // LastName: profileData.data.LastName,
+                  // FirstName: 'Anki',
+                  // LastName: 'Mahindra',
+                  agentName: profileData.data.FirstName,
+                  email: 'eamil.com',
+                };
+                setelement('CONTACTDETAILS');
                 setsnackbar(true);
-                addGoalHandler(
-                  'For further help you may reach me at',
-                  'sendcontact',
-                );
+                sendSignalHandler(requiredData, 'CONTACTDETAILS');
                 setTimeout(() => {
                   setsnackbar(false);
                 }, 2000);
@@ -1294,7 +1418,7 @@ style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
 
       {snackbar &&
         snackBar(
-          element === 'sendcontact'
+          element === 'CONTACTDETAILS'
             ? 'contact details shared with customer'
             : element === 'share'
             ? 'product details shared with the customer'

@@ -49,9 +49,10 @@ export function Home(props) {
   const [binary, setBinary] = useState();
   const [networkBanner, setNetworkBanner] = useState();
   const [notificationData, setNotificationData] = useState({});
-  const [indicator, setIndicator] = useState(false);
+  const [profileData, setProfileData] = useState();
   const [decryptedKey, setDecryptedKey] = useState();
   console.log('decrypted Key from useState', decryptedKey);
+  // console.log('decrypted Key =======', profileData.data.FirstName);
   // console.log('retailerDataaaaaaaaaa', retailerData);
   // console.log('<<<<<<Notification Data>>>>>>', notificationData);
   var Sound = require('react-native-sound');
@@ -231,6 +232,8 @@ export function Home(props) {
     // console.log('Platform OS', Platform.OS);
     const extraFunction = async () => {
       const AsyncDataResponse = await AsyncData();
+      console.log('profile data', AsyncDataResponse);
+      setProfileData(AsyncDataResponse);
       // const retailerConfigValues = await AsyncData2();
       DecryptFunc();
 
@@ -428,6 +431,7 @@ export function Home(props) {
                   props.navigation.navigate('CallScreen', {
                     notificationData,
                     decryptedKey,
+                    profileData,
                   });
                   onCancel();
                 } catch (e) {
