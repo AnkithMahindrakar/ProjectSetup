@@ -8,6 +8,9 @@ import {
   Image,
   ActivityIndicator,
   Modal,
+  Keyboard,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
 } from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome';
@@ -49,13 +52,19 @@ function CallScreen({navigation, route}) {
   const [subscriberDetailsID, setSubscriberDetailsID] = useState();
   const [messages, setMessages] = useState([]);
   const [btnClick, setBtnClick] = useState(false);
+  const [seconds, setseconds] = useState(0);
+  const [minute, setMinute] = useState(0);
+  const [id, setId] = useState(0);
+  const [APILoading, setAPILoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [searchBoxFocus, setSearchBoxFocus] = useState(false);
   const sessionRef = useRef();
   var array = [{name: 'Call'}, {name: 'Chat'}, {name: 'Catalog'}];
   const {notificationData, decryptedKey, profileData} = route.params;
   let endBtnClick = true;
   // console.log('------------------------', notificationData, decryptedKey);
-  console.log('Global messages', messages);
-  console.log('subscriber event gloabal', subscriberDetailsID);
+  // console.log('Global messages', messages);
+  // console.log('subscriber event gloabal', subscriberDetailsID);
   // console.log('------------------------', notificationData.additionalData);
   // console.log(
   //   '------------------------',
@@ -76,7 +85,7 @@ function CallScreen({navigation, route}) {
         'Agent',
       );
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       Alert.alert('Error', e.message);
     }
   };
@@ -107,7 +116,7 @@ function CallScreen({navigation, route}) {
       }
       // productstwo(searchProducts.data);
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       Alert.alert('Error', e.message);
     }
   };
@@ -116,7 +125,7 @@ function CallScreen({navigation, route}) {
     ProductDetails.map((item, index) => {
       const img = JSON.parse(item.ImageUrls).ImageUrls;
       const spece = JSON.parse(item.Specs);
-      console.log('specs', spece);
+      // console.log('specs', spece);
       cars.push({
         Primaryproduct: 'Primary Product',
         Model: spece.Make + '\t' + spece.Model,
@@ -124,7 +133,7 @@ function CallScreen({navigation, route}) {
         Price: 'Price' + spece.Price,
         url: img[0],
       });
-      console.log('pro', cars);
+      // console.log('pro', cars);
       setCategories(cars);
     });
   };
@@ -140,12 +149,12 @@ function CallScreen({navigation, route}) {
         notificationData.additionalData.RetailerUserId,
         asyncLoginData.agentSessionID,
       );
-      console.log('abc', getproductsbysku.data.ProductDetails.Specs);
+      // console.log('abc', getproductsbysku.data.ProductDetails.Specs);
       products([getproductsbysku.data.ProductDetails]);
       // setCategories([getproductsbysku.data.ProductDetails]);
       // products(getproductsbysku.data.ProductDetails);
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       Alert.alert('Error', e.message);
     }
   };
@@ -182,7 +191,7 @@ function CallScreen({navigation, route}) {
         status,
       );
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       Alert.alert('Error', e.message);
     }
   };
@@ -199,10 +208,10 @@ function CallScreen({navigation, route}) {
 
   const subscriberEventHandlers = {
     connected(e) {
+      console.log('11.......subscriber connected', e);
       try {
-        // console.log('connected yes', notificationData.additionalData.SKU);
+        Timer();
         noSkuvalue();
-        // setIndicator(false);
         const connetedEvent = e;
         // console.log('connected yes', e);
         // console.log('connected yes 2', connetedEvent.stream.connectionId);
@@ -215,93 +224,99 @@ function CallScreen({navigation, route}) {
       }
     },
     otrnError(object) {
-      console.log('otrnError', object);
+      console.log('12....... otrnError', object);
     },
-    videoDisabled(String) {
-      console.log('videodisabled', String);
+    videoDisabled(event) {
+      console.log('13.......videodisabled', event);
     },
     error(error) {
-      console.log(`There was an error with the subscriber: ${error}`);
+      console.log(`14.......There was an error with the subscriber: ${error}`);
     },
     videoEnabled(e) {
-      console.log('videoEnabled', e);
+      console.log('15.......videoEnabled', e);
     },
-    disconnected() {
-      console.log('disconnected');
+    disconnected(event) {
+      console.log('16.......disconnected', event);
     },
-    videoDisableWarning() {
-      console.log('videoDisableWarning');
+    videoDisableWarning(event) {
+      console.log('17.......videoDisableWarning', event);
     },
-    videoDisableWarningLifted() {
-      console.log('videoDisableWarningLifted');
+    videoDisableWarningLifted(event) {
+      console.log('18.......videoDisableWarningLifted', event);
     },
-    videoDataReceived() {
-      console.log('video received');
+    videoDataReceived(event) {
+      console.log('19.......video received', event);
     },
   };
 
   const sessionEventHandlers = {
     audioLevel: level => {
-      console.log('publisher audio level', level);
+      console.log('21.......publisher audio level', level);
     },
     streamCreated: event => {
-      console.log('session stream created!', event);
+      console.log('22.......session stream created!', event);
     },
     streamDestroyed: event => {
-      console.log('session stream destroyed!', event);
-    },
-    connectionCreated: obj => {
-      console.log('session connection created', obj);
-    },
-    connectionDestroyed: obj => {
-      console.log(
-        'check check check',
-        subscriberDetailsID === obj.connectionId,
-      );
-      console.log('check connection ID', obj.connectionId);
-      console.log('check subscriber ID', subscriberDetailsID);
-      // if (subscriberDetailsID !== obj.connectionId) {
-      if (!btnClick) {
-        // console.log(
-        //   'check check check2222222',
-        //   subscriberDetailsID !== obj.connectionId,
-        // );
+      try {
         Promise.all([endAppointment(), updateAgentstatus('Available')]);
         navigation.pop();
-        // setBtnClick(true);
+        clearInterval(id);
+      } catch (e) {
+        console.log('ERROR in promise All', e);
       }
-      console.log('session connection Destroyed', obj);
+      console.log('23.......session stream destroyed!', event);
+    },
+    connectionCreated: obj => {
+      console.log('24.......session connection created', obj);
+    },
+    connectionDestroyed: obj => {
+      // console.log(
+      //   'check check check',
+      //   subscriberDetailsID === obj.connectionId,
+      // );
+      // console.log('check connection ID', obj.connectionId);
+      // console.log('check subscriber ID', subscriberDetailsID);
+      // if (subscriberDetailsID !== obj.connectionId) {
+
+      // console.log(
+      //   'check check check2222222',
+      //   subscriberDetailsID !== obj.connectionId,
+      // );
+
+      // setBtnClick(true);
+
+      console.log('25...... connection Destroyed', obj);
     },
     error: err => {
-      console.log('Error in session', err);
+      console.log('25.......Error in session', err);
     },
-    sessionConnected: () => {
-      console.log('session connected');
+    sessionConnected: event => {
+      console.log('26.......session connected', event);
     },
-    sessionDisconnected: () => {
-      console.log('session disconnected');
+    sessionDisconnected: event => {
+      console.log('27.......session disconnected', event);
     },
     sessionReconnected: obj => {
-      console.log('session Reconnected');
+      console.log('28.......session Reconnected', obj);
     },
     sessionReconnecting: obj => {
-      console.log('session Reconnecting');
+      console.log('29.......session Reconnecting', obj);
     },
     signal: event => {
       const parsedEventData = JSON.parse(event.data);
-      console.log('events 3', parsedEventData.type);
-      console.log('events 2', event.data);
-      console.log('events', event);
+      // console.log('events 3', parsedEventData.type);
+      // console.log('events 2', event.data);
+      // console.log('events', event);
       // console.log('events 2', JSON.parse(event.data));
       if (
         parsedEventData.type === 'MESSAGEFROMAGENT' ||
         parsedEventData.type === 'MESSAGEFROMCUSTOMER'
       ) {
         if (event.data) {
-          console.log('Messages', messages);
+          // console.log('Messages', messages);
           const chatDataJson = event.data;
           const chatData = JSON.parse(chatDataJson);
-          console.log('chatData', chatData.data);
+          // console.log('chatData', chatData.data);
           // console.log('chatData2', chatData.data.data);
           setMessages(prevMsg => {
             // return [{data: `Me: ${event.data}`, type: 'SignalMsg'}, ...prevMsg];
@@ -320,9 +335,19 @@ function CallScreen({navigation, route}) {
         // console.log('Messages', messages);
         const chatDataJson = event.data;
         const chatData = JSON.parse(chatDataJson);
-        console.log('chatData', chatData.data);
+        // console.log('chatData', chatData.data);
+        setMessages(prevMsg => {
+          return [
+            {
+              data: chatData.data,
+              type: chatData.type,
+              //  agentName: chatData.agentName,
+            },
+            ...prevMsg,
+          ];
+        });
       } else {
-        console.log('NOTHING');
+        // console.log('NOTHING');
       }
     },
   };
@@ -341,13 +366,12 @@ function CallScreen({navigation, route}) {
         setText('');
       }
     } else if (type === 'CONTACTDETAILS') {
-      console.log('CONTACT DETAILS', textData);
+      // console.log('CONTACT DETAILS', textData);
       const signalData = {
         data: textData,
         type: type,
         // agentName: profileData.data.FirstName,
       };
-      console.log('CONTACT DETAILS 2', signalData);
 
       sessionRef.current.signal({
         data: JSON.stringify(signalData),
@@ -358,7 +382,6 @@ function CallScreen({navigation, route}) {
         data: textData,
         type: type,
         price: '1190',
-        // agentName: profileData.data.FirstName,
       };
       sessionRef.current.signal({
         data: JSON.stringify(signalData),
@@ -376,21 +399,39 @@ function CallScreen({navigation, route}) {
     }
   };
   const sessionIdFunc = value => {
-    console.log('the session', value);
+    // console.log('the session', value);
   };
 
   const publisherEventHandlers = {
     streamCreated: event => {
-      console.log('Publisher stream created!');
+      console.log('31........Publisher stream created!', event);
     },
     streamDestroyed: event => {
-      console.log('Publisher stream destroyed!');
+      console.log('32.........Publisher stream destroyed!', event);
     },
   };
-
-  const sessionId = value => {
-    console.log('the session', value);
+  const Timer = () => {
+    setId(
+      setInterval(() => {
+        setseconds(prev => prev + 1);
+      }, 1000),
+    );
   };
+  useEffect(() => {
+    // Timer();
+    // console.log(seconds);
+    if (seconds > 59) {
+      setseconds(0);
+      setMinute(prev => prev + 1);
+    }
+  }, [seconds, minute, id]);
+  const sessionId = value => {
+    // console.log('the session', value);
+  };
+
+  const HideKeyboardEvent = Keyboard.addListener('keyboardDidHide', () => {
+    setSearchBoxFocus(false);
+  });
   //////////////////////////////////////////////////////////////////////////////////////////
 
   class Agent {
@@ -440,23 +481,8 @@ function CallScreen({navigation, route}) {
 
   const snackBar = text => {
     return (
-      <View
-        style={{
-          width: '80%',
-          backgroundColor: '#FB8B24',
-          height: '3%',
-          alignSelf: 'center',
-          marginTop: 350,
-          borderRadius: 5,
-        }}>
-        <Text
-          style={{
-            alignSelf: 'center',
-            justifyContent: 'center',
-            color: 'white',
-          }}>
-          {text}
-        </Text>
+      <View style={styles.snackBarCntnr}>
+        <Text style={styles.snackBarTxt}>{text}</Text>
       </View>
     );
 
@@ -466,102 +492,48 @@ function CallScreen({navigation, route}) {
   //catalog flat list
   const renderGridItem = itemData => {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: 'white',
-          alignSelf: 'center',
-          marginBottom: 10,
-          flexDirection: 'column',
-          padding: 20,
-          borderRadius: 8,
-        }}>
-        <Text
-          style={{
-            color: 'grey',
-            fontSize: 15,
-            fontWeight: '700',
-          }}>
+      <View style={styles.catalogListCntnr}>
+        <Text style={styles.catalogListTxt}>
           {itemData.item.Primaryproduct}
         </Text>
-        <View
-          style={{
-            width: '80%',
-            height: '60%',
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-          }}>
-          <Image
-            resizeMode="contain"
-            source={{
-              uri: itemData.item.url,
-            }}
-            // source={require('../../../assets/Laptop.png')}
-            style={{width: 50, height: 50}}
-          />
-          <View style={{flexDirection: 'column'}}>
-            <Text style={{color: 'grey', fontSize: 15, fontWeight: '700'}}>
-              {itemData.item.Model}
-            </Text>
-            <Text style={{color: 'grey', fontSize: 15}}>
-              {itemData.item.Sku}
-            </Text>
-            <Text style={{color: 'grey', fontSize: 15, fontWeight: '700'}}>
-              {itemData.item.Price}
-            </Text>
+        <View style={styles.catalogBoxDataContainer}>
+          <View style={styles.catalogImageContainer}>
+            <Image
+              resizeMode="cover"
+              source={{
+                uri: itemData.item.url,
+              }}
+              // source={require('../../../assets/Laptop.png')}
+              style={{width: 70, height: 70}}
+            />
+          </View>
+          <View style={styles.catalogDataContainer}>
+            <Text style={styles.catalogDataTitle}>{itemData.item.Model}</Text>
+            <Text style={styles.catalogDataSKU}>{itemData.item.Sku}</Text>
+            <Text style={styles.catalogDataPrice}>{itemData.item.Price}</Text>
           </View>
         </View>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          {/* <View
-            style={{
-              width: 60,
-              height: 30,
-              backgroundColor: 'white',
-              borderColor: '#FB8B24',
-              borderWidth: 2,
-              borderRadius: 6,
-              justifyContent: 'center',
-            }}> */}
+        <View style={styles.catalogShareAddContainer}>
           <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-              width: 60,
-              height: 30,
-              backgroundColor: 'white',
-              borderColor: '#FB8B24',
-              borderWidth: 2,
-              borderRadius: 6,
-              alignItems: 'center',
-              // justifyContent: 'center',
-            }}
+            style={styles.shareContainer}
             onPress={() => {
               setelement('share');
               setsnackbar(true);
               setTimeout(() => {
                 setsnackbar(false);
               }, 1000);
-              addGoalHandler(itemData.item.Model, 'share');
+              sendSignalHandler(itemData.item.Model, '');
             }}>
             <MaterialCommunityIcons
               name="share-variant"
               size={15}
               color={'#696969'}
             />
-            <Text style={{color: '#FB8B24', fontSize: 10, fontWeight: '700'}}>
-              Share
-            </Text>
+            <Text style={styles.shareTxt}>Share</Text>
           </TouchableOpacity>
           {/* </View> */}
 
-          <View
-            style={{
-              width: 80,
-              height: 30,
-              backgroundColor: '#FB8B24',
-              borderRadius: 6,
-              justifyContent: 'center',
-            }}>
+          <View style={styles.addToCartContainer}>
             <TouchableOpacity
               style={{
                 flexDirection: 'row',
@@ -574,12 +546,10 @@ function CallScreen({navigation, route}) {
                 setTimeout(() => {
                   setsnackbar(false);
                 }, 1000);
-                addGoalHandler(itemData.item.Model, 'addtocart');
+                sendSignalHandler(itemData.item.Model, 'PRODUCTDETAILS');
               }}>
               <MaterialCommunityIcons name="cart" size={15} color={'white'} />
-              <Text style={{color: 'white', fontSize: 10, fontWeight: '700'}}>
-                Add to cart
-              </Text>
+              <Text style={styles.addToCartTxt}>Add to cart</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -677,34 +647,42 @@ function CallScreen({navigation, route}) {
           }}>
           <View style={{flexDirection: 'column'}}>
             <Text style={{color: 'black', fontSize: 15, textAlign: 'left'}}>
-              {item.data}
+              {/* {item.data} */}Name
             </Text>
             <View
               style={{
                 flexDirection: 'row',
-                width: 100,
+                // width: 100,
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'flex-start',
+                // backgroundColor: 'red',
               }}>
               <MaterialCommunityIcons
                 name="account"
                 size={15}
                 color={'black'}
               />
-              <Text style={{color: 'black', fontSize: 15, textAlign: 'center'}}>
-                {/* {profileData.data.FirstName}
-                {profileData.data.LastName} */}
+              <Text
+                style={{
+                  color: 'black',
+                  fontSize: 15,
+                  textAlign: 'left',
+                  marginLeft: 5,
+                }}>
+                {/* something */}
+                {/* {/* {profileData.data.FirstName} */}
+                {item.data.agentName}
               </Text>
             </View>
             <View
               style={{
                 flexDirection: 'row',
-                width: 180,
+                // width: 180,
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'flex-start',
               }}>
               <MaterialCommunityIcons name="email" size={15} color={'black'} />
-              <Text style={{color: 'black', fontSize: 15}}>
+              <Text style={{color: 'black', fontSize: 15, marginLeft: 5}}>
                 support@connect.com
               </Text>
             </View>
@@ -763,18 +741,6 @@ function CallScreen({navigation, route}) {
       );
     } else {
       return (
-        // <View
-        //   style={{
-        //     // padding: 10,
-        //     // position: 'absolute',
-        //     backgroundColor: 'red',
-        //     // marginVertical: 10,
-        //     // alignItems: 'center',
-        //     // justifyContent: 'center',
-        //     // borderBottomEndRadius: 20,
-        //     // borderBottomLeftRadius: 20,
-        //     // borderTopLeftRadius: 20,
-        //   }}>
         <View
           style={{
             paddingVertical: 8,
@@ -782,17 +748,12 @@ function CallScreen({navigation, route}) {
             backgroundColor: 'white',
             marginVertical: 6,
             borderBottomRightRadius: 20,
-            // alignItems: 'center',
-            // justifyContent: 'center',
-            // borderBottomRadius: 20,
             borderBottomLeftRadius: 20,
             borderTopLeftRadius: item.type === 'MESSAGEFROMAGENT' ? 20 : 0,
             borderTopRightRadius: item.type === 'MESSAGEFROMAGENT' ? 0 : 20,
             alignSelf:
               item.type === 'MESSAGEFROMAGENT' ? 'flex-end' : 'flex-start',
-            // flex: 1,
           }}>
-          {/* <View> */}
           {item.type !== 'MESSAGEFROMAGENT' && (
             <Text style={{color: '#19a3ff', fontSize: 15, textAlign: 'left'}}>
               Customer
@@ -801,8 +762,6 @@ function CallScreen({navigation, route}) {
           <Text style={{color: 'black', fontSize: 14, textAlign: 'left'}}>
             {item.data}
           </Text>
-          {/* </View> */}
-          {/* </View> */}
         </View>
       );
     }
@@ -932,12 +891,18 @@ function CallScreen({navigation, route}) {
 
           <TouchableOpacity
             style={styles.roundshape}
-            onPress={() => {
+            onPress={async () => {
               setBtnClick(true);
-
-              console.log('endBtnClickendBtnClickendBtnClick===', endBtnClick);
-              Promise.all([endAppointment(), updateAgentstatus('Available')]);
-              navigation.pop();
+              try {
+                await Promise.all([
+                  endAppointment(),
+                  updateAgentstatus('Available'),
+                ]);
+                navigation.pop();
+                clearInterval(id);
+              } catch (e) {
+                console.log('ERROR in promise All', e);
+              }
             }}>
             <MaterialCommunityIcons
               name="phone-hangup-outline"
@@ -1052,27 +1017,6 @@ function CallScreen({navigation, route}) {
         </View>
 
         <View style={{display: idno === 1 ? 'flex' : 'none', flex: 1}}>
-          {/* <OTSession
-              apiKey="47339381"
-              sessionId="2_MX40NzMzOTM4MX5-MTYzNzIxMDk2MzYwOX5kbytIUEYvaisvMlY0TnJRRFphWS9qQml-fg"
-              token="T1==cGFydG5lcl9pZD00NzMzOTM4MSZzaWc9NDYzMGYyMWU5YmRmMzQ5ZDVhZTdlNjc0NmZiOThlZjg5ZTY0N2RmNTpzZXNzaW9uX2lkPTJfTVg0ME56TXpPVE00TVg1LU1UWXpOekl4TURrMk16WXdPWDVrYnl0SVVFWXZhaXN2TWxZMFRuSlJSRnBoV1M5cVFtbC1mZyZjcmVhdGVfdGltZT0xNjM3MjExMDA5Jm5vbmNlPTAuNTcxOTM2OTk5MjA1ODk3MSZyb2xlPXN1YnNjcmliZXImZXhwaXJlX3RpbWU9MTYzOTgwMzAwOCZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ=="
-              eventHandlers={sessionEventHandlers}
-              // apiKey="46816214"
-              // sessionId={notificationData.additionalData.SessionId}
-              // token={notificationData.additionalData.TokenId}
-              signal={signal}
-              ref={sessionRef}></OTSession> */}
-          {/* <View
-            style={{
-              width: '100%',
-              height: '100%',
-              // marginTop: 30,
-              // position: 'absolute',
-              backgroundColor: 'yellow',
-              alignSelf: 'center',
-              // alignItems: 'center',
-              paddingBottom: 35,
-            }}> */}
           <View
             style={{
               backgroundColor: 'black',
@@ -1081,12 +1025,7 @@ function CallScreen({navigation, route}) {
               paddingHorizontal: 10,
             }}>
             <FlatList
-              // contentContainerStyle={{
-              //   alignItems: 'flex-end',
-              //   alignContent: 'space-around',
-              //   padding: 10,
-              // }}
-              keyExtractor={(item, index) => index}
+              keyExtractor={(item, index) => index.toString()}
               data={messages}
               inverted
               renderItem={chatText}
@@ -1094,32 +1033,29 @@ function CallScreen({navigation, route}) {
           </View>
           {/* </View> */}
           {videoButton()}
-          {/* <Image
-resizeMode='contain'
-source={require('./assets/group.png')}
-style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
-        /> */}
 
           <View style={styles.textinputandsend}>
             <View style={styles.addinputstyle}>
-              <TouchableOpacity style={styles.imageStyle}>
-                <MaterialCommunityIcons
-                  name="paperclip"
-                  style={{flex: 1}}
-                  size={25}
-                  color={'#696969'}
-                />
-              </TouchableOpacity>
               <TextInput
                 style={{width: '80%', color: 'black'}}
                 placeholder="Type Message Here"
                 onChangeText={val => {
-                  console.log('textvalue', val);
+                  // console.log('textvalue', val);
                   setText(val);
                 }}
                 value={text}
-                underlineColorAndroid="transparent"
+                placeholderTextColor="#555"
+                // underlineColorAndroid="transparent"
               />
+              <TouchableOpacity style={styles.imageStyle}>
+                <MaterialCommunityIcons
+                  name="paperclip"
+                  // style={
+                  // }
+                  size={25}
+                  color={'#696969'}
+                />
+              </TouchableOpacity>
             </View>
             <View style={styles.sendview}>
               <TouchableOpacity
@@ -1137,197 +1073,266 @@ style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
           </View>
         </View>
 
-        <View style={{display: idno === 2 ? 'flex' : 'none', flex: 1}}>
-          {videoButton()}
-          <View
-            style={{
-              width: '100%',
-              height: '85%',
-              backgroundColor: 'black',
-              alignItems: 'center',
-              alignSelf: 'center',
-              flexDirection: 'column',
-              marginTop: 90,
-              justifyContent: 'space-evenly',
-            }}>
-            <View
-              style={{
-                width: '75%',
-                backgroundColor: 'white',
-                height: '25%',
-                marginBottom: 10,
-                padding: 20,
-                justifyContent: 'space-evenly',
-                borderRadius: 8,
-              }}>
-              <Text
+        {/* <KeyboardAvoidingView
+          enabled
+          behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+          style={{display: idno === 2 ? 'flex' : 'none', flex: 1}}> */}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <KeyboardAvoidingView
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 80}
+            enabled
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{display: idno === 2 ? 'flex' : 'none', flex: 1}}>
+            {videoButton()}
+            {APILoading ? (
+              // <ActivityIndicator />
+              // <Modal transparent={true}>
+              <View
                 style={{
-                  color: 'black',
-                  fontSize: 15,
-                  fontWeight: '700',
+                  backgroundColor: 'black',
+                  flex: 1,
+                  justifyContent: 'center',
+                  opacity: 0.65,
+                  // position: 'absolute',
                 }}>
-                Customer Call (English)
-              </Text>
-              <Text
+                <ActivityIndicator size="large" color="#FB8B24" />
+              </View>
+            ) : (
+              <View
                 style={{
-                  color: 'grey',
-                  fontSize: 15,
+                  width: '100%',
+                  // height: '85%',
+                  // flex: 1,
+                  // backgroundColor: 'yellow',
+                  alignItems: 'center',
+                  alignSelf: 'center',
+                  // flexDirection: 'column',
+                  // paddingBottom: 50,
+                  marginTop: 90,
+                  justifyContent: 'space-evenly',
                 }}>
-                Product Website
-              </Text>
+                <View
+                  style={{
+                    width: '74%',
+                    backgroundColor: 'white',
+                    height: 150,
+                    marginBottom: 10,
+                    padding: 20,
+                    justifyContent: 'space-evenly',
+                    borderRadius: 8,
+                  }}>
+                  <Text
+                    style={{
+                      color: 'black',
+                      fontSize: 15,
+                      fontWeight: '700',
+                    }}>
+                    Customer Call (English)
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'grey',
+                      fontSize: 15,
+                    }}>
+                    Product Website
+                  </Text>
 
-              <Text style={{color: 'grey', fontSize: 15}}>
-                Product:{notificationData.additionalData.ProductTitle}
-              </Text>
-            </View>
+                  <Text style={{color: 'grey', fontSize: 15}}>
+                    Product:{notificationData.additionalData.ProductTitle}
+                  </Text>
+                </View>
 
-            <FlatList
-              keyExtractor={(item, index) => index.toString()}
-              data={categories}
-              initialNumToRender={5}
-              renderItem={renderGridItem}
-            />
-
-            <View
+                <FlatList
+                  keyExtractor={(item, index) => index.toString()}
+                  data={categories}
+                  initialNumToRender={5}
+                  renderItem={renderGridItem}
+                  ListFooterComponent={() => {
+                    return <View style={styles.FooterStyles}></View>;
+                  }}
+                />
+              </View>
+            )}
+            {/* <View
               style={{
                 width: '85%',
                 backgroundColor: 'grey',
-                height: '4%',
-                marginTop: 20,
+                // height: '5%',
+                // marginTop: 20,
                 borderRadius: 5,
+                position: 'absolute',
+                bottom: 80,
+                alignSelf: 'center',
+                // marginBottom: 10,
               }}>
               <Text
                 style={{
                   alignSelf: 'center',
-                  justifyContent: 'center',
-                  fontWeight: '700',
+                  fontWeight: '500',
                   color: 'white',
+                  fontSize: 16,
                 }}>
-                * Prices may not reflect promotional discounts{' '}
+                * Prices may not reflect promotional discounts
               </Text>
-            </View>
+            </View> */}
             <View
+              // keyboardVerticalOffset={-76}
+              // behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+              // enabled
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-around',
+                height: '10%',
                 width: '100%',
+                // backgroundColor: 'yellow',
+                alignItems: 'center',
+                position: 'absolute',
+                bottom: 0,
+                overflow: 'visible',
+                // zIndex: -1,
+                // flex: 1,
               }}>
               <View
                 style={{
                   flexDirection: 'row',
-                  marginTop: 20,
+                  // marginTop: 20,
                   alignItems: 'center',
-                  width: '33%',
+                  width: searchBoxFocus ? '80%' : '35%',
                   backgroundColor: '#fff',
                   borderWidth: 0.5,
                   borderColor: '#000',
-                  height: 40,
+                  height: 45,
                   borderRadius: 5,
+                  justifyContent: 'space-between',
+                  paddingVertical: 5,
+                  paddingHorizontal: 10,
                 }}>
-                <Ionicons
-                  name="search-outline"
-                  size={20}
-                  style={styles.imageStyle}
-                />
                 <TextInput
-                  style={{flex: 4}}
-                  onChangeText={
+                  style={{
+                    color: 'black',
+                    // padding: 5,
+                    width: '85%',
+                    // backgroundColor: 'teal',
+                  }}
+                  value={searchText}
+                  onPressIn={() => {
+                    setSearchBoxFocus(true);
+                  }}
+                  onChangeText={async val => {
+                    // console.log('onchange input', val);
+                    setAPILoading(true);
+                    setSearchText(val);
                     notificationData.additionalData.SKU == null ||
                     notificationData.additionalData.SKU === ''
-                      ? noSkuvalue
-                      : onSearchProducts
-                  }
+                      ? noSkuvalue()
+                      : val
+                      ? await onSearchProducts(searchText)
+                      : await onSearchProducts('');
+                    setAPILoading(false);
+                  }}
                   placeholder="Search Product"
+                  placeholderTextColor="black"
                   underlineColorAndroid="transparent"
                 />
+                <Ionicons
+                  name="search-outline"
+                  size={24}
+                  // style={styles.imageStyle}
+                />
               </View>
-
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginTop: 20,
-                  alignItems: 'center',
-                  width: '33%',
-
-                  backgroundColor: '#fff',
-                  borderWidth: 2.5,
-                  borderColor: '#FB8B24',
-                  height: 40,
-                  borderRadius: 5,
-                }}>
-                <TouchableOpacity
+              {!searchBoxFocus && (
+                <View
                   style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-around',
+                    alignItems: 'center',
+                    width: '35%',
+
+                    backgroundColor: '#fff',
+                    borderWidth: 1,
+                    borderColor: '#FB8B24',
+                    height: 45,
+                    borderRadius: 5,
+                    justifyContent: 'center',
                   }}>
-                  <MaterialCommunityIcons
-                    name="share-variant"
-                    size={15}
-                    color={'#696969'}
-                  />
-                  <Text
+                  <TouchableOpacity
                     style={{
-                      color: '#FB8B24',
-                      fontSize: 13,
-                      fontWeight: '700',
+                      flexDirection: 'row',
                     }}>
-                    View Full Catalog
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                    <MaterialCommunityIcons
+                      name="share-variant"
+                      size={16}
+                      color={'#696969'}
+                    />
+                    <Text
+                      style={{
+                        color: '#FB8B24',
+                        fontSize: 15,
+                        fontWeight: '700',
+                        marginLeft: 3,
+                      }}>
+                      View Full Catalog
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
-          </View>
-        </View>
+            {/* </KeyboardAvoidingView> */}
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
       </View>
 
       {/* //timer and send contact */}
       {timerandcontactbar && (
         <View style={styles.timerandcontactbar}>
-          <View style={styles.timerandcontactbarinside}>
-            <View style={styles.timerbar}>
-              <Ionicons
-                name="alarm-outline"
-                style={{alignSelf: 'flex-start'}}
-                size={20}
-                color={'white'}
-              />
-
-              <Text style={{color: 'white', fontSize: 15}}>00 : 00</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.contactontouch}
-              onPress={() => {
-                const requiredData = {
-                  // FirstName: profileData.data.FirstName,
-                  // LastName: profileData.data.LastName,
-                  // FirstName: 'Anki',
-                  // LastName: 'Mahindra',
-                  agentName: profileData.data.FirstName,
-                  email: 'eamil.com',
-                };
-                setelement('CONTACTDETAILS');
-                setsnackbar(true);
-                sendSignalHandler(requiredData, 'CONTACTDETAILS');
-                setTimeout(() => {
-                  setsnackbar(false);
-                }, 2000);
-              }}>
-              <FontAwesome5
-                name="address-book"
-                style={{alignSelf: 'center'}}
-                size={15}
-                color={'white'}
-              />
-
-              <Text style={{color: 'white', fontSize: 15}}>Send Contact</Text>
-              <MaterialCommunityIcons
-                name="chevron-right"
-                style={{alignSelf: 'flex-start'}}
-                size={20}
-                color={'white'}
-              />
-            </TouchableOpacity>
+          {/* <View style={styles.timerandcontactbarinside}> */}
+          <View style={styles.timerbar}>
+            <Ionicons
+              name="alarm-outline"
+              style={{alignSelf: 'flex-start', marginRight: 7}}
+              size={20}
+              color={'white'}
+            />
+            {minute < 10 ? (
+              <Text style={styles.timerNumber}>0{minute} :</Text>
+            ) : (
+              <Text style={styles.timerNumber}>{minute} :</Text>
+            )}
+            {seconds < 10 ? (
+              <Text style={styles.timerNumber}>0{seconds}</Text>
+            ) : (
+              <Text style={styles.timerNumber}>{seconds}</Text>
+            )}
+            {/* <Text style={{color: 'white', fontSize: 15}}>00 : 00</Text> */}
           </View>
+          <TouchableOpacity
+            style={styles.contactontouch}
+            onPress={() => {
+              const requiredData = {
+                agentName: profileData.data.FirstName,
+              };
+              setelement('CONTACTDETAILS');
+              setsnackbar(true);
+              sendSignalHandler(requiredData, 'CONTACTDETAILS');
+              setTimeout(() => {
+                setsnackbar(false);
+              }, 2000);
+            }}>
+            <FontAwesome5
+              name="address-book"
+              // style={{alignSelf: 'center'}}
+              size={15}
+              color={'white'}
+            />
+
+            {/* <Text style={{color: 'white', fontSize: 15}}>Send Contact</Text> */}
+            <Text style={{color: 'white', fontSize: 15}}>Send Contact</Text>
+            <MaterialCommunityIcons
+              name="chevron-right"
+              // style={{alignSelf: 'flex-start'}}
+              size={20}
+              color={'white'}
+            />
+          </TouchableOpacity>
+          {/* </View> */}
         </View>
       )}
       {/* //calling agent  */}
@@ -1408,7 +1413,7 @@ style={{width: '60%',  height: '46%', alignSelf: 'center', marginTop: 150}}
               />
             </View>
             <FlatList
-              keyExtractor={(item, index) => item.id}
+              keyExtractor={(item, index) => index.toString()}
               data={AGENT}
               renderItem={addFlatList}
             />
@@ -1454,24 +1459,20 @@ const styles = ScaledSheet.create({
   timerandcontactbar: {
     backgroundColor: '#696969',
     width: '230@s',
-    height: '36@vs',
+    height: '30@vs',
     alignSelf: 'center',
     position: 'absolute',
     marginTop: '66@vs',
     borderRadius: 35,
     justifyContent: 'center',
-    // backgroundColor: 'red',
     alignItems: 'center',
-    // flexDirection: 'row',
+
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
 
   timerandcontactbarinside: {
-    width: '200@s',
-    height: '20@vs',
-    alignSelf: 'center',
     // marginLeft: '10@s',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
     // backgroundColor: 'yellow',
   },
 
@@ -1500,7 +1501,11 @@ const styles = ScaledSheet.create({
     borderRightWidth: 1,
     borderRightColor: 'white',
     flex: 1,
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  timerNumber: {
+    color: 'white',
   },
 
   sendview: {
@@ -1513,11 +1518,105 @@ const styles = ScaledSheet.create({
     justifyContent: 'center',
     borderRadius: 75,
   },
-
+  snackBarCntnr: {
+    width: '80%',
+    backgroundColor: '#FB8B24',
+    height: '24@vs',
+    alignSelf: 'center',
+    marginTop: '350@vs',
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  snackBarTxt: {
+    alignSelf: 'center',
+    color: 'white',
+    fontSize: '16@ms',
+  },
+  catalogListCntnr: {
+    // flex: 1,
+    paddingBottom: 30,
+    backgroundColor: 'white',
+    alignSelf: 'center',
+    marginBottom: '16@vs',
+    flexDirection: 'column',
+    padding: '14@s',
+    borderRadius: '8@ms',
+  },
+  catalogListTxt: {
+    color: 'grey',
+    fontSize: '15@ms',
+    fontWeight: '700',
+  },
+  catalogBoxDataContainer: {
+    width: '80%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: '5@vs',
+    // backgroundColor: 'green',
+  },
+  catalogImageContainer: {
+    // backgroundColor: 'red',
+  },
+  catalogDataContainer: {
+    width: '70%',
+    // backgroundColor: 'yellow',
+    padding: '5@ms',
+  },
+  catalogDataTitle: {
+    overflow: 'hidden',
+    color: 'grey',
+    fontSize: '15@ms',
+    fontWeight: 'bold',
+  },
+  catalogDataSKU: {
+    color: 'grey',
+    fontSize: '15@ms',
+  },
+  catalogDataPrice: {
+    color: 'grey',
+    fontSize: '15@ms',
+    fontWeight: 'bold',
+  },
+  catalogShareAddContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    // backgroundColor: 'red',
+  },
+  shareContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '60@s',
+    height: '25@vs',
+    backgroundColor: 'white',
+    borderColor: '#FB8B24',
+    borderWidth: '2@vs',
+    borderRadius: '6@s',
+    alignItems: 'center',
+    // justifyContent: 'center',
+  },
+  shareTxt: {
+    color: '#FB8B24',
+    fontSize: '11@ms',
+    fontWeight: 'bold',
+  },
+  addToCartContainer: {
+    width: '70@s',
+    height: '25@vs',
+    backgroundColor: '#FB8B24',
+    borderRadius: '6@s',
+    justifyContent: 'center',
+  },
+  addToCartTxt: {
+    color: 'white',
+    fontSize: '10@ms',
+    fontWeight: 'bold',
+  },
   contactontouch: {
     flexDirection: 'row',
     flex: 2,
-    justifyContent: 'space-around',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
   },
 
   textinputandsend: {
@@ -1611,6 +1710,10 @@ const styles = ScaledSheet.create({
     alignSelf: 'center',
     borderRadius: 50, // it will be height/2
   },
+  FooterStyles: {
+    backgroundColor: 'black',
+    height: 60,
+  },
 
   boundshape: {
     width: '50%',
@@ -1675,7 +1778,7 @@ const styles = ScaledSheet.create({
   nochatcircle: {
     position: 'absolute',
     alignSelf: 'flex-end',
-    top: '270@vs',
+    top: '190@vs',
     right: '12@s',
     backgroundColor: '#FB8B24',
     height: '50@s', //any of height
@@ -1718,10 +1821,11 @@ const styles = ScaledSheet.create({
 
   addinputstyle: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    position: 'relative',
-    marginTop: '20@vs',
+    justifyContent: 'space-between',
+    // position: 'relative',
+    // marginTop: '20@vs',
     left: '20@s',
+    padding: 5,
     alignItems: 'center',
     width: '75%',
     backgroundColor: '#fff',
@@ -1732,10 +1836,7 @@ const styles = ScaledSheet.create({
   },
 
   imageStyle: {
-    position: 'absolute',
-    right: 10,
-    height: '25@vs',
-    width: '25@s',
+    paddingRight: '5@ms',
   },
 
   ChatTxtInput: {

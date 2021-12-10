@@ -116,7 +116,6 @@ export const Login = ({navigation}) => {
             keyboardType: 'email-address',
             autoCorrect: false,
             autoCapitalize: 'none',
-            autoFocus: true,
             clearButtonMode: 'always',
           }}
           mainContainerStyle={styles.inputMainContainer}

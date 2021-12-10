@@ -460,9 +460,6 @@ export function Home(props) {
           homePermission={permission}
           toggleFunction={toggleSwitch}
           isAvailable={isAvailable}
-          navigationHandler={() => {
-            props.navigation.navigate('CallScreen');
-          }}
         />
       )}
 

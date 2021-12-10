@@ -25,8 +25,6 @@ export const ProfileScreen = ({
   homePermission,
   toggleFunction,
   isAvailable,
-  navigation,
-  navigationHandler,
 }) => {
   const [permission, setPermission] = useState();
   const [loginData, setLoginData] = useState([]);
@@ -184,9 +182,9 @@ export const ProfileScreen = ({
             <Text style={styles.text}>Logout</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.button} onPress={navigationHandler}>
+        {/* <TouchableOpacity style={styles.button} onPress={navigationHandler}>
           <Text style={styles.text}>Call Screen</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       {isPortrait && (
         <View style={styles.bottomLogo}>
